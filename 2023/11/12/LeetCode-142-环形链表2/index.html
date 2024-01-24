@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="题目描述    我的题解123456789101112131415161718public class Solution &amp;#123;    public ListNode detectCycle(ListNode head) &amp;#123;        ListNode slow &#x3D; head; &#x2F;&#x2F; 设置快慢指针        ListNode fast &#x3D; head;        whil">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode.142.环形链表2">
+<meta property="og:url" content="http://yiweiboi.github.io/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="题目描述    我的题解123456789101112131415161718public class Solution &amp;#123;    public ListNode detectCycle(ListNode head) &amp;#123;        ListNode slow &#x3D; head; &#x2F;&#x2F; 设置快慢指针        ListNode fast &#x3D; head;        whil">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/142.1.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/142.2.png">
+<meta property="article:published_time" content="2023-11-12T13:23:26.000Z">
+<meta property="article:modified_time" content="2024-01-16T03:53:29.798Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="每日一题 链表">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/142.1.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>LeetCode.142.环形链表2 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LeetCode.142.环形链表2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-11-12 21:23:26" itemprop="dateCreated datePublished" datetime="2023-11-12T21:23:26+08:00">2023-11-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-01-16 11:53:29" itemprop="dateModified" datetime="2024-01-16T11:53:29+08:00">2024-01-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h1><img src="/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/142.1.png" class="" title="image-20240115154417036">
+
+<img src="/2023/11/12/LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82/142.2.png" class="" title="image-20240115154444779">
+
+<h1 id="我的题解"><a href="#我的题解" class="headerlink" title="我的题解"></a>我的题解</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> ListNode <span class="title function_">detectCycle</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">slow</span> <span class="operator">=</span> head; <span class="comment">// 设置快慢指针</span></span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">fast</span> <span class="operator">=</span> head;</span><br><span class="line">        <span class="keyword">while</span> (fast != <span class="literal">null</span> &amp;&amp; fast.next != <span class="literal">null</span>) &#123; <span class="comment">// fast指针每次移动2个节点,slow指针每次移动1个节点</span></span><br><span class="line">            fast = fast.next.next; </span><br><span class="line">            slow = slow.next;</span><br><span class="line">            <span class="keyword">if</span> (fast == slow) <span class="keyword">break</span>; <span class="comment">// 必须先移动,再判断,因为初始都为head</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (fast == <span class="literal">null</span> || fast.next == <span class="literal">null</span>) <span class="keyword">return</span> <span class="literal">null</span>; <span class="comment">// 如果fast为空或fast.next为空,则表示无环</span></span><br><span class="line">        fast = head; <span class="comment">// fast指针重新从head开始</span></span><br><span class="line">        <span class="keyword">while</span> (fast != slow) &#123; <span class="comment">// fast、slow指针同时移动1个节点,相遇节点即为环的入口节点</span></span><br><span class="line">            fast = fast.next;</span><br><span class="line">            slow = slow.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> fast; <span class="comment">// 返回环的入口</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="我的思考"><a href="#我的思考" class="headerlink" title="我的思考"></a>我的思考</h1><ul>
+<li><p>这道题不仅考察对链表的操作，还需要一定的数学运算</p>
+</li>
+<li><p>我们首先要判断这条链表是否有环：</p>
+<ul>
+<li>我们设置快慢指针，如果有环，那么fast指针一定是先进入环的，通过判断fast指针是否为空或者fast.next是否为空来判断是否有环</li>
+</ul>
+</li>
+<li><p>如果确实有环，我们需要判断环的入口在哪：</p>
+<ul>
+<li>首先第一点，如果有环的话，那么快慢指针一定是在环中相遇的，这是毋庸置疑的</li>
+<li>其次，我们需要判断环的入口在哪里了</li>
+<li>假设头节点到环的入口需要<strong>x</strong>个节点，环的入口距离快慢指针相遇位置有<strong>y</strong>个节点，从相遇节点到环的入口有<strong>z</strong>个节点</li>
+<li>相遇时，slow指针已经走了<strong>x + y</strong>个节点，fast指针已经走了<strong>x + y +  n（y + z）</strong>个节点，n表示fast指针在环内走的圈数</li>
+<li>因为fast指针走过的节点树是slow指针的两倍，可以得到<strong>x + y + n（y + z）&#x3D; 2（x + y）</strong></li>
+<li>化简得到<strong>x &#x3D; （n - 1）（y + z） + z</strong>，这里的n一定是大于1的，因为fast至少需要走一圈才能追上slow指针</li>
+<li>这个公式说明，头节点到环入口需要的节点个数是<strong>n - 1</strong>圈加上从相遇节点到环入口的距离</li>
+<li>那么我们重新设置一个从头节点开始和相遇节点每次同时移动一个节点，那么它们最终会相遇在环入口节点位置</li>
+</ul>
+</li>
+<li><p>可能有同学要问：为什么第一次在环中相遇，slow指针走了<strong>x + y</strong>个节点，而不是<strong>x + 若干环长度 + y</strong>呢？</p>
+<ul>
+<li>我们要知道，在slow指针第一次进入环时，fast指针最多和slow指针相差<strong>n - 1</strong>个节点，n为环中节点数</li>
+<li>我们假设slow指针走了一个环的距离，即n个节点，那么fast指针走了2n个节点</li>
+<li>然而，<strong>2n &gt; n - 1 + n</strong>，说明在slow完整走一个环之前，fast就已经追上slow指针了</li>
+</ul>
+</li>
+<li><p>在学习别的解法时，我还发现了一种很简单的写法，利用哈希表来进行求解，代码如下：</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用hash表,当第一次出现重复元素时返回,返回的即是入环的第一个节点</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> ListNode <span class="title function_">detectCycle</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">        Set&lt;ListNode&gt; set = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">while</span> (head != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">ListNode</span> <span class="variable">t</span> <span class="operator">=</span> head;</span><br><span class="line">            <span class="keyword">if</span> (!set.add(head)) &#123;</span><br><span class="line">                <span class="keyword">return</span> t;</span><br><span class="line">            &#125;</span><br><span class="line">            head = head.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-%E9%93%BE%E8%A1%A8/" rel="tag"># 每日一题 链表</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/12/LeetCode-%E9%9D%A2%E8%AF%95%E9%A2%9802-07-%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4/" rel="prev" title="LeetCode.面试题02.07.链表相交">
+      <i class="fa fa-chevron-left"></i> LeetCode.面试题02.07.链表相交
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/13/LeetCode-242-%E6%9C%89%E6%95%88%E7%9A%84%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D/" rel="next" title="LeetCode.242.有效的字母异位词">
+      LeetCode.242.有效的字母异位词 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">题目描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E9%A2%98%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">我的题解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%80%9D%E8%80%83"><span class="nav-number">3.</span> <span class="nav-text">我的思考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
