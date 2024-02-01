@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="注意事项 bits.c 文件是我们需要进行修改和编写的文件 btest.c 是编译并检测我们代码（bits.c 文件） 每次修改 bits.c 文件后，我们都需要保存 CTRL + S，然后在命令行终端输入 make btest 重新进行编译生成新的可执行文件 通过 .&#x2F;btest -f function 来检测某个函数的正确性（function 为函数名） 通过 .&#x2F;btes">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/01/17/CSAPP-Lab1/image-20240201225023110.png">
 <meta property="article:published_time" content="2024-01-17T11:45:22.000Z">
-<meta property="article:modified_time" content="2024-01-19T09:50:07.735Z">
+<meta property="article:modified_time" content="2024-02-01T14:51:26.830Z">
 <meta property="article:author" content="yiweiBoi">
 <meta property="article:tag" content="CSAPP">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/01/17/CSAPP-Lab1/image-20240201225023110.png">
 
 <link rel="canonical" href="http://yiweiboi.github.io/2024/01/17/CSAPP-Lab1/">
 
@@ -181,7 +183,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-19 17:50:07" itemprop="dateModified" datetime="2024-01-19T17:50:07+08:00">2024-01-19</time>
+                <time title="修改时间：2024-02-01 22:51:26" itemprop="dateModified" datetime="2024-02-01T22:51:26+08:00">2024-02-01</time>
               </span>
 
           
@@ -439,6 +441,115 @@
 <blockquote>
 <p>如果我们不确定不同运算符的优先级，加上括号让他符合你的逻辑总是没错的</p>
 </blockquote>
+<h1 id="howManyBits"><a href="#howManyBits" class="headerlink" title="howManyBits"></a>howManyBits</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* howManyBits - return the minimum number of bits required to represent x in</span></span><br><span class="line"><span class="comment"> *             two&#x27;s complement</span></span><br><span class="line"><span class="comment"> *  Examples: howManyBits(12) = 5</span></span><br><span class="line"><span class="comment"> *            howManyBits(298) = 10</span></span><br><span class="line"><span class="comment"> *            howManyBits(-5) = 4</span></span><br><span class="line"><span class="comment"> *            howManyBits(0)  = 1</span></span><br><span class="line"><span class="comment"> *            howManyBits(-1) = 1</span></span><br><span class="line"><span class="comment"> *            howManyBits(0x80000000) = 32</span></span><br><span class="line"><span class="comment"> *  Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *  Max ops: 90</span></span><br><span class="line"><span class="comment"> *  Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：返回表示 x 的二进制补码所需要的最小位数，即x的二进制补码至少需要几位表示</p>
+</li>
+<li><p>思路：</p>
+<ul>
+<li><p>对于正数来说，我们需要找到它最大位为 1 的位数，那么他所需要的最小位数为 n（最大位为1的数） + 1（符号位）</p>
+</li>
+<li><p>如果是负数的话，我们需要找到他最大位为 0 的位数，则此时他所需要的最小位数为 n（最大位为 0 的位数）+ 1</p>
+<ul>
+<li>比如 1101 表示 -3，而 101 也表示 -3，那么所需要的最小位数为：最大位为 0 的位数 n &#x3D; 2，n + 1 &#x3D; 3</li>
+<li>而对于 1001，其最大位为 0 的位数 n &#x3D; 3，n + 1 &#x3D; 4</li>
+</ul>
+</li>
+<li><p>因此，我们需要将负数和正数的情况统一起来，对于负数，我们可以将其取反，这样的话，无论是正数还是负数，我们都寻找 最大位 为 1 的 位数，再 + 1 得到答案所需要的最小位数</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">howManyBits</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="type">int</span> sign = x&gt;&gt;<span class="number">31</span>; <span class="comment">// 得到符号位</span></span><br><span class="line">  x = (sign &amp; ~x) | (~sign &amp; x); <span class="comment">// 如果 x 为负数，则取反，如果 x 为正数，则不变</span></span><br><span class="line">  </span><br><span class="line">  <span class="type">int</span> b16, b8, b4, b2, b1, b0; <span class="comment">// 分别表示是否至少需要相应的位数</span></span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 由于进行了上述处理，此时 x 的符号位已经全部为 0 </span></span><br><span class="line">  </span><br><span class="line">  b16 = !!(x&gt;&gt;<span class="number">16</span>)&lt;&lt;<span class="number">4</span>; 	<span class="comment">// 目的：检查其高 16 位中是否有 1</span></span><br><span class="line">    					<span class="comment">// 先 &gt;&gt;16 是为了去除低 16 位的影响，!! 用来检查是否有 1，</span></span><br><span class="line">    					<span class="comment">// &lt;&lt;4 是为后续步骤做铺垫，如果有 1，则 b16 = 16，如果没有 1，则 b16 = 0</span></span><br><span class="line">    					<span class="comment">// b16 不仅用于后续的右移操作，还表示此时至少需要 16 位 或 0 位</span></span><br><span class="line">  x = x&gt;&gt;b16; 			<span class="comment">// 如果高 16 位有 1 的话，则至少需要 16 位，将 x 右移 16 位，去除低 16 位的影响</span></span><br><span class="line">    					<span class="comment">// 便于后续检查高 16 位的情况</span></span><br><span class="line">    					<span class="comment">// 如果高 16 位没有 1 的话，右移 0 位，则后续检查低 16 位的情况</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 逐渐缩小检查范围</span></span><br><span class="line">  </span><br><span class="line">  b8 = !!(x&gt;&gt;<span class="number">8</span>)&lt;&lt;<span class="number">3</span>; <span class="comment">// 和上述思路一样，检查高 8 位是否有 1</span></span><br><span class="line">    				<span class="comment">// 这里隐含了上边操作的影响，如果高 16 位有 1 的话，则此时检查的是 高 16 位中的高 8 位</span></span><br><span class="line">    				<span class="comment">// 如果高 16 位中没有 1 的话，则此时检查的是低 16 位中的高 8 位</span></span><br><span class="line">  x = x&gt;&gt;b8; 		<span class="comment">// 同样的思路，缩小范围，</span></span><br><span class="line">  </span><br><span class="line">  b4 = !!(x&gt;&gt;<span class="number">4</span>)&lt;&lt;<span class="number">2</span>; </span><br><span class="line">  x = x&gt;&gt;b4;</span><br><span class="line">  </span><br><span class="line">  b2 = !!(x&gt;&gt;<span class="number">2</span>)&lt;&lt;<span class="number">1</span>;</span><br><span class="line">  x = x&gt;&gt;b2;</span><br><span class="line">  </span><br><span class="line">  b1 = !!(x&gt;&gt;<span class="number">1</span>);</span><br><span class="line">  x = x&gt;&gt;b1;</span><br><span class="line">  </span><br><span class="line">  b0 = x;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> b16 + b8 + b4 + b2 + b1 + b0 + <span class="number">1</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上述的查找最大位为 1 的位数的操作，很像一个 <strong>二分查找</strong>，通过检查高 n 位中是否含有 1 来代替通常的比较操作，通过 x 右移 bn 位的操作来缩小查找（比较）的范围</li>
+</ul>
+<h1 id="floatScale2"><a href="#floatScale2" class="headerlink" title="floatScale2"></a>floatScale2</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//float</span></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatScale2 - Return bit-level equivalent of expression 2*f for</span></span><br><span class="line"><span class="comment"> *   floating point argument f.</span></span><br><span class="line"><span class="comment"> *   Both the argument and result are passed as unsigned int&#x27;s, but</span></span><br><span class="line"><span class="comment"> *   they are to be interpreted as the bit-level representation of</span></span><br><span class="line"><span class="comment"> *   single-precision floating point values.</span></span><br><span class="line"><span class="comment"> *   When argument is NaN, return argument</span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. also if, while</span></span><br><span class="line"><span class="comment"> *   Max ops: 30</span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：使用无符号整数模拟单精度浮点数 float，返回 2 * f 的结果，可以使用任何整数或无符号数的运算，包括 ||、&amp;&amp;、if、while，对于 NaN（Not a Number），直接返回参数即可</p>
+</li>
+<li><p>首先我们需要了解浮点数的组成，<strong>V &#x3D; （-1）^s^ * M * 2^E^</strong></p>
+<ul>
+<li><p>其中，s 表示符号位，M 表示尾数，由二进制小数位进行编码，E 表示阶码，由二进制整数位进行编码</p>
+</li>
+<li><p>而浮点数又根据阶码的不同，分为了三种情况：</p>
+</li>
+<li><p>如果编码阶码 E 的二进制整数位有 0 有 1，则称为 <strong>规格化的值</strong>，因为 V &#x3D; …… * 2^E^ 的原因，因此对于规格化的值，仅仅让编码阶码部分的二进制整数部分加 <strong>+ 1</strong> 即可实现 2 * f 的效果</p>
+</li>
+<li><p>如果编码阶码 E 的二进制整数部分全为 0，则称为 <strong>无规格化的值</strong>，此时仅有小数位，因为 V &#x3D; ……* M 的原因， 仅仅让二进制小数位 <strong>左移一位</strong>，即可达到 2 * f 的效果</p>
+</li>
+<li><p>如果编码阶码 E 的二进制整数部分全为 1，则称为 <strong>特殊值</strong>，比如 NaN，此时直接返回参数即可</p>
+</li>
+<li><p>除了上述分类外，我们还需要了解对于单精度浮点数 float 来说，一共 32 位，1 位表示符号位，阶码E （整数部分）的有效位数为 8 位，小数位数为 23 位</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">floatScale2</span><span class="params">(<span class="type">unsigned</span> uf)</span> &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> ((uf &amp; <span class="number">0x7f800000</span>) == <span class="number">0</span>) &#123; <span class="comment">// 通过和 0 111 1111 1 000 0……0 &amp; 检查是否阶码部分全为 0</span></span><br><span class="line">  	uf = (uf &lt;&lt; <span class="number">1</span>) | (uf &amp; <span class="number">0x80000000</span>); <span class="comment">// 将二进制小数部分左移 1 位实现 2 * f</span></span><br><span class="line">      									<span class="comment">// | (uf &amp; 0x80000000) 的目的是保留符号位不变 </span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((uf &amp; <span class="number">0x7f800000</span>) != <span class="number">0x7f800000</span>) &#123; <span class="comment">// 通过和 0x7f800000 &amp; 检查是否阶码部分不全为 1</span></span><br><span class="line">  	uf += <span class="number">0x00800000</span>; 	<span class="comment">// 如果不全为 1，则此时有 1 有 0，通过将阶码部分 + 1，实现 2 * f</span></span><br><span class="line">      				  	<span class="comment">// + 1 即 + 0 000 0000 1 000 0……0</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> uf;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="floatFloat2Int"><a href="#floatFloat2Int" class="headerlink" title="floatFloat2Int"></a>floatFloat2Int</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatFloat2Int - Return bit-level equivalent of expression (int) f</span></span><br><span class="line"><span class="comment"> *   for floating point argument f.</span></span><br><span class="line"><span class="comment"> *   Argument is passed as unsigned int, but</span></span><br><span class="line"><span class="comment"> *   it is to be interpreted as the bit-level representation of a</span></span><br><span class="line"><span class="comment"> *   single-precision floating point value.</span></span><br><span class="line"><span class="comment"> *   Anything out of range (including NaN and infinity) should return</span></span><br><span class="line"><span class="comment"> *   0x80000000u.</span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. also if, while</span></span><br><span class="line"><span class="comment"> *   Max ops: 30</span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：返回等效于表达式 （int）f 的位级，参数作为无符号整数传递，但被解释为单精度浮点数 float，任何超出返回的内容，都应返回 0x80000000，可以使用任何整数或无符号运算，包括 ||、&amp;&amp;、if、while</p>
+</li>
+<li><p>首先，我们还是需要明白二进制浮点数的解释方式：<strong>V &#x3D; (-1)^s^ * M * 2^E^</strong>，根据浮点数的解释方式寻求解决方法</p>
+<ul>
+<li>我们可以发现：因为 *M 的原因，所以如果将二进制浮点数解释为 int 的话， M 尾数部分是可以不动的</li>
+<li>由于 * 2^E^ 的原因，因此 解释为 int 的话，相当于右移阶码 E 位</li>
+<li>因此，我们可以通过将浮点数的各个部分得到，根据阶码 E 的取值情况，来以不同的方式处理 M 尾数部分，最后再根据符号位的情况来处理符号位</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">floatFloat2Int</span><span class="params">(<span class="type">unsigned</span> uf)</span> &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="type">int</span> sign = uf&gt;&gt;<span class="number">31</span>; 					<span class="comment">// 得到符号位</span></span><br><span class="line">  <span class="type">int</span> E = ((uf &amp; <span class="number">0x7f800000</span>)&gt;&gt;<span class="number">23</span>) - <span class="number">127</span>; <span class="comment">// 得到阶码部分，阶码部分有 8 位</span></span><br><span class="line">    									<span class="comment">// 阶码部分解释为 E = e - Basic，Basic 为偏置值，对于 float 来说为 127</span></span><br><span class="line">  <span class="type">int</span> M = (uf &amp; <span class="number">0x00700000</span>) | <span class="number">0x00800000</span>; 	<span class="comment">// 得到尾数部分，尾数部分有 23 位</span></span><br><span class="line">    										<span class="comment">// 在规格化的值的情况下时，M = 1 + f ，所以需要 | 0x00800000</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!(uf &amp; <span class="number">0x7fffffff</span>)) <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 如果浮点数原来就是 0，则直接返回 0</span></span><br><span class="line">  <span class="keyword">if</span> (E &gt;= <span class="number">31</span>) <span class="keyword">return</span> <span class="number">0x80000000</span>;  	<span class="comment">// 如果阶码部分大于等于 31，即超出解释为 int 后的取值范围，则返 0x80000000</span></span><br><span class="line">  <span class="keyword">if</span> (E &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>; 				<span class="comment">// 如果阶码部分小于 0，则仅有小数部分，因此解释为 int 时，小数被省略，返回 0</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (E &gt; <span class="number">23</span>) M = M &lt;&lt; (E - <span class="number">23</span>); 	<span class="comment">// 如果阶码 E 大于 23 小于 31，因为解释为浮点数时，M 尾数部分被解释为小数，</span></span><br><span class="line">    								<span class="comment">// 且有 23 位，因此当 * 2^E^ 时，在解释为 int 时，仅需要左移 E -23 位即可</span></span><br><span class="line">  <span class="keyword">else</span> M = M &gt;&gt; (<span class="number">23</span> - E); 			<span class="comment">// 如果阶码 E 小于 23 大于 0 的时，此时解释 为 int 时，</span></span><br><span class="line">    								<span class="comment">// 因为 M 尾数部分有 23 位，因此需要缩小 （舍弃）E - 23 位 （小数部分）</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!(M &gt;&gt; <span class="number">31</span>) ^ sign) <span class="keyword">return</span> M; 	<span class="comment">// 如果 M 尾数部分的符号位与解释为浮点数时的符号位相同，直接返回 M，</span></span><br><span class="line">    								<span class="comment">// 且这里提供了一个技巧，在使用位运算比较两个数是否相等时，</span></span><br><span class="line">    								<span class="comment">// 可以通过 ! 配合 ^ 异或进行比较</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> ~M + <span class="number">1</span>;   			<span class="comment">// 如果相反，则返回 -M ，即 ~M + 1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="floatPower2"><a href="#floatPower2" class="headerlink" title="floatPower2"></a>floatPower2</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatPower2 - Return bit-level equivalent of the expression 2.0^x</span></span><br><span class="line"><span class="comment"> *   (2.0 raised to the power x) for any 32-bit integer x.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *   The unsigned value that is returned should have the identical bit</span></span><br><span class="line"><span class="comment"> *   representation as the single-precision floating-point number 2.0^x.</span></span><br><span class="line"><span class="comment"> *   If the result is too small to be represented as a denorm, return</span></span><br><span class="line"><span class="comment"> *   0. If too large, return +INF.</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. Also if, while </span></span><br><span class="line"><span class="comment"> *   Max ops: 30 </span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：返回表达式 <strong>2.0^x^</strong> 的等效位级表示，通过无符号值返回，且应具有相同的位表示单精度浮点数 2.0^x^ ，如果结果太小而无法表示，返回 0，如果结果太大而无法表示，返回 +INF，任何整数或无符号运算都可以使用，包括 ||、&amp;&amp;、if、while</p>
+</li>
+<li><p>首先，我们知道二进制浮点数的解释为 V &#x3D; (-1)^s^ * M * 2^E^， 且又分为 规格化的值，非规格化的值，特殊值</p>
+<ul>
+<li><p>对于非规格化的值来说：</p>
+<ul>
+<li><p><strong>V 的最小精度为 -149</strong>，为什么呢？因为此时对于 M 尾数来说，<strong>M 被解释为 M &#x3D; f</strong>，因此小数部分只有最后一位为1 ，其余位全为 0，因为小数部分有 23 位，则 M &#x3D; 2^-23^ ，对于阶码 E 来说，非规格化的值的解释为 <strong>E &#x3D; 1 - Basic</strong> &#x3D; -126，因此，此时 V 的最小精度 min &#x3D; 2^-23-126^ &#x3D;      2^-149^，即 -149</p>
+</li>
+<li><p>而非规格化的值的最大精度，因为 IEEE 浮点数的设计，非规格化的值的最大精度可以与规格化的值的最小精度无缝衔接，因此，我们可以通过规格化的值的最小精度得到，即 <strong>-127</strong></p>
+<blockquote>
+<p>当然我们也可以估算，此时小数部分全为 1，M &#x3D; 0.??? &#x3D; 2^-0.???^，那么此时最大精度为 2^-126.???^ ，精确到整数为 -127）</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>对于规格化的值来说：</p>
+<ul>
+<li><p><strong>V 的最小精度为 -126</strong>，因为对于非规格化的值来说，<strong>M 被解释为 M &#x3D; 1 + f</strong>，即此时 M 尾数的小数部分的所有位全都为0，M &#x3D; 1， 而阶码 E 整数部分仅有第一个位为 1，<strong>E 被解释为 E &#x3D; exp - Basic</strong>，因此 E &#x3D; 1 - Basic &#x3D; -126，则此时规格化的值的最小精度为 min &#x3D; 2^-126^</p>
+</li>
+<li><p><strong>最大精度为 127</strong> ，为什么呢？最大精度可以根据特殊值的情况得到的，特殊值的无穷大时，阶码 E 全为 1，小数部分全为 0，则此时阶码 E 至少为 128（1111 1111 - 127 &#x3D; 128），因此对于规格化的值来说，最大精度为 127</p>
+</li>
+</ul>
+<blockquote>
+<p>当然我们也可以再次估算，此时阶码 E 的最低位为 0，其余位全为 1，即 E &#x3D; 1111 1110 - 127 &#x3D; 127，M 尾数部分全为 1，即 M &#x3D; 1 + 0.??? &#x3D; 1.??? &#x3D; 2^0.???^，那么此时最大精度 max &#x3D; 2^127.???^ ，精确到整数为 127）</p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>在求精度时，对于规格化的值来说，因为小数很小，完全可以忽略小数部分的影响，此时精度完全由阶码 E 决定</p>
+</blockquote>
+<ul>
+<li>因此， 如果 <strong>x 属于 [-149, -126) 时</strong>，为非规格化的值，此时仅有小数部分，则我们可以仅仅将 <strong>1 左移 x + 149 位</strong> ，即左移 [0，23）位，即可得到 2.0^x^ 的二进制浮点数解释</li>
+<li>如果 **x 属于 [-126, 127]**，为规格化的值，需要求出整数部分 exp ，因为 E &#x3D; exp - Basic，所以 exp &#x3D; E + Basic，而此时阶码 E 即为 x，可以很简单的得到 exp，我们在将 <strong>exp 左移 23 位</strong> ,即可得到得到 2.0^x^ 的二进制浮点数解释（此时小数部分影响太小）</li>
+<li>如果 <strong>x  &gt;&#x3D; 128</strong>，即 exp 大于等于 255，此时为特殊值 ，因为太大而无法表示，<strong>返回 +INF，即 0x7f800000</strong></li>
+<li>如果 <strong>x &lt; -149</strong> ，因为太小而无法表示，<strong>返回 0</strong></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">floatPower2</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x &lt; <span class="number">-149</span>) <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 太小而无法表示 </span></span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">128</span>) <span class="keyword">return</span> <span class="number">0x7f800000</span>; <span class="comment">// 太大而无法表示</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">-149</span> &amp;&amp; x &lt; <span class="number">-126</span>) <span class="keyword">return</span> <span class="number">1</span> &lt;&lt; (x + <span class="number">149</span>); <span class="comment">// 非规格化的值</span></span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> <span class="built_in">exp</span> = x + <span class="number">127</span>; </span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">exp</span> &lt;&lt; <span class="number">23</span>;  <span class="comment">// 规格化的值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h1><img src="/2024/01/17/CSAPP-Lab1/image-20240201225023110.png" class="" title="image-20240201225023110">
+
 <h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
 <li>虚拟机下载相关</li>
 </ul>
@@ -469,7 +580,7 @@
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/59534845">CSAPP 之 DataLab详解，没有比这更详细的了 - 知乎 (zhihu.com)</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Yuan_Cl/article/details/83960550">CS:APP Data Lab_cs:app data lab 中文翻译-CSDN博客</a></p>
 <ul>
-<li>关于我</li>
+<li>About me</li>
 </ul>
 <p><strong>虚拟机全名</strong>：YiweiBoi</p>
 <p><strong>用户名</strong>：yiweiboi</p>
@@ -557,7 +668,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bitXor"><span class="nav-number">2.</span> <span class="nav-text">bitXor</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tmin"><span class="nav-number">3.</span> <span class="nav-text">tmin</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#isTMax"><span class="nav-number">4.</span> <span class="nav-text">isTMax</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#allOddBits"><span class="nav-number">5.</span> <span class="nav-text">allOddBits</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#negate"><span class="nav-number">6.</span> <span class="nav-text">negate</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#isAsciiDigit"><span class="nav-number">7.</span> <span class="nav-text">isAsciiDigit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#conditional"><span class="nav-number">8.</span> <span class="nav-text">conditional</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#isLessOrEqual"><span class="nav-number">9.</span> <span class="nav-text">isLessOrEqual</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#logicalNeg"><span class="nav-number">10.</span> <span class="nav-text">logicalNeg</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">11.</span> <span class="nav-text">References</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bitXor"><span class="nav-number">2.</span> <span class="nav-text">bitXor</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tmin"><span class="nav-number">3.</span> <span class="nav-text">tmin</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#isTMax"><span class="nav-number">4.</span> <span class="nav-text">isTMax</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#allOddBits"><span class="nav-number">5.</span> <span class="nav-text">allOddBits</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#negate"><span class="nav-number">6.</span> <span class="nav-text">negate</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#isAsciiDigit"><span class="nav-number">7.</span> <span class="nav-text">isAsciiDigit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#conditional"><span class="nav-number">8.</span> <span class="nav-text">conditional</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#isLessOrEqual"><span class="nav-number">9.</span> <span class="nav-text">isLessOrEqual</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#logicalNeg"><span class="nav-number">10.</span> <span class="nav-text">logicalNeg</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#howManyBits"><span class="nav-number">11.</span> <span class="nav-text">howManyBits</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#floatScale2"><span class="nav-number">12.</span> <span class="nav-text">floatScale2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#floatFloat2Int"><span class="nav-number">13.</span> <span class="nav-text">floatFloat2Int</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#floatPower2"><span class="nav-number">14.</span> <span class="nav-text">floatPower2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Result"><span class="nav-number">15.</span> <span class="nav-text">Result</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">16.</span> <span class="nav-text">References</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -571,12 +682,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>

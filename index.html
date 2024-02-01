@@ -145,6 +145,287 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/01/31/LeetCode-20-%E6%9C%89%E6%95%88%E7%9A%84%E6%8B%AC%E5%8F%B7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/31/LeetCode-20-%E6%9C%89%E6%95%88%E7%9A%84%E6%8B%AC%E5%8F%B7/" class="post-title-link" itemprop="url">LeetCode-20-有效的括号</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-01-31 16:16:55 / 修改时间：16:44:29" itemprop="dateCreated datePublished" datetime="2024-01-31T16:16:55+08:00">2024-01-31</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h1><img src="/2024/01/31/LeetCode-20-%E6%9C%89%E6%95%88%E7%9A%84%E6%8B%AC%E5%8F%B7/image-20240131161732458.png" class="" title="image-20240131161732458">
+
+<h1 id="我的题解"><a href="#我的题解" class="headerlink" title="我的题解"></a>我的题解</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    stack&lt;<span class="type">char</span>&gt; stack;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isValid</span><span class="params">(string s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">isLeft</span>(s[i])) &#123;</span><br><span class="line">                stack.<span class="built_in">push</span>(s[i]);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (stack.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="type">int</span> temp = stack.<span class="built_in">top</span>();</span><br><span class="line">                stack.<span class="built_in">pop</span>();</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">isMatch</span>(temp, s[i])) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!stack.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isLeft</span><span class="params">(<span class="type">char</span> c)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="string">&#x27;(&#x27;</span> || c == <span class="string">&#x27;&#123;&#x27;</span> || c == <span class="string">&#x27;[&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isMatch</span><span class="params">(<span class="type">char</span> c1, <span class="type">char</span> c2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (c1 == <span class="string">&#x27;(&#x27;</span> &amp;&amp; c2 == <span class="string">&#x27;)&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (c1 == <span class="string">&#x27;&#123;&#x27;</span> &amp;&amp; c2 == <span class="string">&#x27;&#125;&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (c1 == <span class="string">&#x27;[&#x27;</span> &amp;&amp; c2 == <span class="string">&#x27;]&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="我的思考"><a href="#我的思考" class="headerlink" title="我的思考"></a>我的思考</h1><ul>
+<li><p>因为一对括号的匹配总是和最近的相邻括号进行，因此利用栈的先进后出的特点可以很方便的解决这个问题</p>
+</li>
+<li><p><strong>isLeft</strong> 方法检查是否是左括号</p>
+</li>
+<li><p><strong>isMatch</strong> 方法检查两个括号是否匹配</p>
+</li>
+<li><p>我们遍历字符串，如果是左括号的话入栈；如果是右括号的话，将栈顶元素 即 最近入栈的左括号 出栈与其进行匹配，如果不匹配，返回 false，如果全部匹配，返回 true</p>
+</li>
+<li><p>需要注意的是：</p>
+<ul>
+<li>出栈时，栈可能为空，因此要检查出栈时是否为空，如果为空，则返回 false</li>
+<li>循环结束后，也需要检查栈是否为空，即左括号是否全部匹配，如果栈不为空，返回 false</li>
+</ul>
+</li>
+<li><p>改进思路：</p>
+<ul>
+<li>我们完全可以换一种思路进行匹配，如果是左括号的话，将与其相匹配的右括号入栈；如果是右括号的话，将其和栈顶元素进行比较，如果不相等，则返回 false；这样我们就仅仅通过比较栈顶元素就可以了，会简单很多</li>
+<li>当然，在比较右括号和栈顶元素时，栈也可能为空，如果为空，返回 false</li>
+<li>全部比较完成后，也需要再次检查栈是否为空，如果不为空，返回 false</li>
+<li>实现如下</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isValid</span><span class="params">(string s)</span> </span>&#123;</span><br><span class="line">        stack&lt;<span class="type">char</span>&gt; stack;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; s.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">            <span class="comment">// 如果是左括号，将对应的右括号入栈</span></span><br><span class="line">            <span class="keyword">if</span> (s[i] == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">                stack.<span class="built_in">push</span>(<span class="string">&#x27;)&#x27;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (s[i] == <span class="string">&#x27;&#123;&#x27;</span>) &#123;</span><br><span class="line">                stack.<span class="built_in">push</span>(<span class="string">&#x27;&#125;&#x27;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (s[i] == <span class="string">&#x27;[&#x27;</span>) &#123;</span><br><span class="line">                stack.<span class="built_in">push</span>(<span class="string">&#x27;]&#x27;</span>); </span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (stack.<span class="built_in">empty</span>() || stack.<span class="built_in">top</span>() != s[i]) &#123; <span class="comment">// 如果是右括号，检查栈是否为空 或 是否和栈顶元素相等</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">                stack.<span class="built_in">pop</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 检查栈是否为空</span></span><br><span class="line">        <span class="keyword">return</span> stack.<span class="built_in">empty</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<li>Java 代码实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// // 遍历字符串，两个字符两个字符遍历，如果两个字符匹配，则继续遍历</span></span><br><span class="line"><span class="comment">// // 如果两个字符不匹配，则看是否是同向，如果是同向超右的，入栈，如果是同向朝左的，和栈中元素继续匹配</span></span><br><span class="line"><span class="comment">// // 如果是不同向的，说明字符串不合法</span></span><br><span class="line"><span class="comment">// 思路错误...</span></span><br><span class="line"><span class="comment">// class Solution &#123;</span></span><br><span class="line"><span class="comment">//     public boolean isValid(String s) &#123;</span></span><br><span class="line"><span class="comment">//         // 判断是否是奇数个</span></span><br><span class="line"><span class="comment">//         if (s.length() % 2 != 0) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         char[] ch = s.toCharArray();</span></span><br><span class="line"><span class="comment">//         Deque&lt;Character&gt; stack = new ArrayDeque&lt;&gt;();</span></span><br><span class="line"><span class="comment">//         // 遍历字符串</span></span><br><span class="line"><span class="comment">//         for (int i = 0; i &lt; ch.length; i += 2) &#123;</span></span><br><span class="line"><span class="comment">//             char c1 = ch[i];</span></span><br><span class="line"><span class="comment">//             char c2 = ch[i + 1];</span></span><br><span class="line"><span class="comment">//             // 如果是同向的</span></span><br><span class="line"><span class="comment">//             if (is_same(c1, c2)) &#123;</span></span><br><span class="line"><span class="comment">//                 // 如果都是向右的</span></span><br><span class="line"><span class="comment">//                 if (is_right(c1, c2)) &#123;</span></span><br><span class="line"><span class="comment">//                     stack.push(c1);</span></span><br><span class="line"><span class="comment">//                     stack.push(c2);</span></span><br><span class="line"><span class="comment">//                 &#125; else &#123;</span></span><br><span class="line"><span class="comment">//                     // 都向左，但栈为空，没有可以匹配的元素</span></span><br><span class="line"><span class="comment">//                     if (stack.isEmpty()) &#123;</span></span><br><span class="line"><span class="comment">//                         return false;</span></span><br><span class="line"><span class="comment">//                     &#125;</span></span><br><span class="line"><span class="comment">//                     // 都是向左的，判断是否和栈中元素匹配</span></span><br><span class="line"><span class="comment">//                     if (!is_match(stack.pop(), c1) || !is_match(stack.pop(), c2)) &#123;</span></span><br><span class="line"><span class="comment">//                         return false;</span></span><br><span class="line"><span class="comment">//                     &#125;</span></span><br><span class="line"><span class="comment">//                 &#125;</span></span><br><span class="line"><span class="comment">//             &#125; else &#123;</span></span><br><span class="line"><span class="comment">//                 // 不同向，判断是否匹配</span></span><br><span class="line"><span class="comment">//                 if (!is_match(c1, c2)) &#123;</span></span><br><span class="line"><span class="comment">//                     return false;</span></span><br><span class="line"><span class="comment">//                 &#125;</span></span><br><span class="line"><span class="comment">//             &#125;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         // 如果没有匹配完</span></span><br><span class="line"><span class="comment">//         if (!stack.isEmpty()) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         return true;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否都是向右的</span></span><br><span class="line"><span class="comment">//     public boolean is_right(char c1, char c2) &#123;</span></span><br><span class="line"><span class="comment">//         if ((c1 == &#x27;(&#x27; || c1 == &#x27;[&#x27; || c1 == &#x27;&#123;&#x27;) &amp;&amp; (c2 == &#x27;(&#x27; || c2 == &#x27;[&#x27; || c2 == &#x27;&#123;&#x27;)) &#123;</span></span><br><span class="line"><span class="comment">//             return true;</span></span><br><span class="line"><span class="comment">//         &#125; else &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否都是向左的</span></span><br><span class="line"><span class="comment">//     public boolean is_left(char c1, char c2) &#123;</span></span><br><span class="line"><span class="comment">//         if ((c1 == &#x27;)&#x27; || c1 == &#x27;]&#x27; || c1 == &#x27;&#125;&#x27;) &amp;&amp; (c2 == &#x27;)&#x27; || c2 == &#x27;]&#x27; || c2 == &#x27;&#125;&#x27;)) &#123;</span></span><br><span class="line"><span class="comment">//             return true;</span></span><br><span class="line"><span class="comment">//         &#125; else &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否是同向的</span></span><br><span class="line"><span class="comment">//     public boolean is_same(char c1, char c2) &#123;</span></span><br><span class="line"><span class="comment">//         if (is_left(c1, c2) || is_right(c1, c2)) &#123;</span></span><br><span class="line"><span class="comment">//             return true;</span></span><br><span class="line"><span class="comment">//         &#125; else &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否匹配</span></span><br><span class="line"><span class="comment">//     public boolean is_match(char c1, char c2) &#123;</span></span><br><span class="line"><span class="comment">//         if (c1 == &#x27;(&#x27; &amp;&amp; c2 != &#x27;)&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         if (c1 == &#x27;&#123;&#x27; &amp;&amp; c2 != &#x27;&#125;&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         if (c1 == &#x27;[&#x27; &amp;&amp; c2 != &#x27;]&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         if (c1 != &#x27;(&#x27; &amp;&amp; c1 != &#x27;[&#x27; &amp;&amp; c1 != &#x27;&#123;&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         return true;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// // 感觉我是脑瘫</span></span><br><span class="line"><span class="comment">// // 遍历字符串，如果向右，入栈，如果向左，出栈元素进行匹配</span></span><br><span class="line"><span class="comment">// class Solution &#123;</span></span><br><span class="line"><span class="comment">//     public boolean isValid(String s) &#123;</span></span><br><span class="line"><span class="comment">//         // 如果是奇数个</span></span><br><span class="line"><span class="comment">//         if (s.length() % 2 != 0) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         char[] ch = s.toCharArray();</span></span><br><span class="line"><span class="comment">//         Deque&lt;Character&gt; stack = new ArrayDeque&lt;&gt;();</span></span><br><span class="line"><span class="comment">//         // 遍历字符串</span></span><br><span class="line"><span class="comment">//         for (int i = 0; i &lt; ch.length; i++) &#123;</span></span><br><span class="line"><span class="comment">//             char c = ch[i];</span></span><br><span class="line"><span class="comment">//             // 如果当前字符向右,入栈</span></span><br><span class="line"><span class="comment">//             if (is_right(c)) &#123;</span></span><br><span class="line"><span class="comment">//                 stack.push(c);</span></span><br><span class="line"><span class="comment">//                 // 如果当前字符向左</span></span><br><span class="line"><span class="comment">//             &#125; else if (is_left(c)) &#123;</span></span><br><span class="line"><span class="comment">//                 // 判断栈是否为空</span></span><br><span class="line"><span class="comment">//                 if (stack.isEmpty()) &#123;</span></span><br><span class="line"><span class="comment">//                     return false;</span></span><br><span class="line"><span class="comment">//                 &#125;</span></span><br><span class="line"><span class="comment">//                 // 判断是否匹配和栈顶元素</span></span><br><span class="line"><span class="comment">//                 if (!is_match(stack.pop(), c)) &#123;</span></span><br><span class="line"><span class="comment">//                     return false;</span></span><br><span class="line"><span class="comment">//                 &#125;</span></span><br><span class="line"><span class="comment">//             &#125;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         // 如果没有匹配完</span></span><br><span class="line"><span class="comment">//         if (!stack.isEmpty()) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         return true;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否是向右的</span></span><br><span class="line"><span class="comment">//     public boolean is_right(char c) &#123;</span></span><br><span class="line"><span class="comment">//         if (c == &#x27;(&#x27; || c == &#x27;[&#x27; || c == &#x27;&#123;&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return true;</span></span><br><span class="line"><span class="comment">//         &#125; else &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否是向左的</span></span><br><span class="line"><span class="comment">//     public boolean is_left(char c) &#123;</span></span><br><span class="line"><span class="comment">//         if (c == &#x27;)&#x27; || c == &#x27;]&#x27; || c == &#x27;&#125;&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return true;</span></span><br><span class="line"><span class="comment">//         &#125; else &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//     // 判断是否匹配</span></span><br><span class="line"><span class="comment">//     public boolean is_match(char c1, char c2) &#123;</span></span><br><span class="line"><span class="comment">//         if (c1 == &#x27;(&#x27; &amp;&amp; c2 != &#x27;)&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         if (c1 == &#x27;&#123;&#x27; &amp;&amp; c2 != &#x27;&#125;&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         if (c1 == &#x27;[&#x27; &amp;&amp; c2 != &#x27;]&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         if (c1 != &#x27;(&#x27; &amp;&amp; c1 != &#x27;[&#x27; &amp;&amp; c1 != &#x27;&#123;&#x27;) &#123;</span></span><br><span class="line"><span class="comment">//             return false;</span></span><br><span class="line"><span class="comment">//         &#125;</span></span><br><span class="line"><span class="comment">//         return true;</span></span><br><span class="line"><span class="comment">//     &#125;</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 更加简洁的写法:</span></span><br><span class="line"><span class="comment">// 遍历字符串，如果是左括号，就将相应的右括号压入栈</span></span><br><span class="line"><span class="comment">// 如果是右括号，弹出栈顶元素判断是否和右括号相等</span></span><br><span class="line"><span class="comment">// 遍历完成后，如果栈为空，说明全部匹配，不为空说明字符串不合法</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isValid</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="comment">// 如果是奇数个</span></span><br><span class="line">        <span class="keyword">if</span> (s.length() % <span class="number">2</span> != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        Deque&lt;Character&gt; stack = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">char</span> c : s.toCharArray()) &#123;</span><br><span class="line">            <span class="comment">// 如果是左括号，将相应的右括号压入栈</span></span><br><span class="line">            <span class="keyword">if</span> (c == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">                stack.push(<span class="string">&#x27;)&#x27;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (c == <span class="string">&#x27;&#123;&#x27;</span>) &#123;</span><br><span class="line">                stack.push(<span class="string">&#x27;&#125;&#x27;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (c == <span class="string">&#x27;[&#x27;</span>) &#123;</span><br><span class="line">                stack.push(<span class="string">&#x27;]&#x27;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 如果是右括号</span></span><br><span class="line">                <span class="comment">// 如果栈不为空，和栈顶元素进行比较</span></span><br><span class="line">                <span class="keyword">if</span> (stack.isEmpty() || c != stack.pop()) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果栈为空，说明匹配完成</span></span><br><span class="line">        <span class="keyword">return</span> stack.isEmpty();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/01/31/LeetCode-225-%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/31/LeetCode-225-%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88/" class="post-title-link" itemprop="url">LeetCode-225-用队列实现栈</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-01-31 15:41:30 / 修改时间：16:05:05" itemprop="dateCreated datePublished" datetime="2024-01-31T15:41:30+08:00">2024-01-31</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h1><img src="/2024/01/31/LeetCode-225-%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88/image-20240131154211821.png" class="" title="image-20240131154211821">
+
+<h1 id="我的题解"><a href="#我的题解" class="headerlink" title="我的题解"></a>我的题解</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyStack</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; queue1;</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; queue2;</span><br><span class="line">    <span class="built_in">MyStack</span>() &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">        queue1.<span class="built_in">push</span>(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = queue1.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size - <span class="number">1</span>; ++i) &#123;</span><br><span class="line">            <span class="type">int</span> temp = queue1.<span class="built_in">front</span>();</span><br><span class="line">            queue2.<span class="built_in">push</span>(temp);</span><br><span class="line">            queue1.<span class="built_in">pop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> temp = queue1.<span class="built_in">front</span>();</span><br><span class="line">        queue1.<span class="built_in">pop</span>();</span><br><span class="line"></span><br><span class="line">        size = queue2.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="type">int</span> temp = queue2.<span class="built_in">front</span>();</span><br><span class="line">            queue1.<span class="built_in">push</span>(temp);</span><br><span class="line">            queue2.<span class="built_in">pop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">top</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> temp = <span class="keyword">this</span>-&gt;<span class="built_in">pop</span>();</span><br><span class="line">        queue1.<span class="built_in">push</span>(temp);</span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> queue1.<span class="built_in">empty</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="我的思考"><a href="#我的思考" class="headerlink" title="我的思考"></a>我的思考</h1><ul>
+<li><p>用队列模拟栈的思路和用栈模拟队列的思路很不一样，我们不能再通过什么 输入队列 和 输出队列 来实现栈了，这是因为即使使用两个不同的队列反复翻转，队列中的元素的入队、出队顺序还是一致的</p>
+</li>
+<li><p>因此，我们就考虑在 <strong>pop</strong> 时，通过一个备用队列，将队列中除去队尾元素全都 pop 到另一个备份队列中，此时，当前队列中就仅剩下队尾元素，而这个元素也正是我们所需要的元素；每次 pop 队尾元素后，再将备份队列中的元素重新 push 到 当前队列中</p>
+</li>
+<li><p>对于 <strong>push</strong>，我们只是将它简单的 push 到当前队列中即可</p>
+</li>
+<li><p>对于 <strong>top</strong>，我们还是采用 模拟栈 时的思路，利用 pop 来实现</p>
+</li>
+<li><p>改进思路：</p>
+<ul>
+<li><p>对于 push，我们还是简单的将元素 push 到当前队列中</p>
+</li>
+<li><p>对于 pop，我们在将 备份队列 中元素拷贝到 当前队列 中时，其实并不需要一个一个的 push，因为此时 当前队列 为空，而我们需要的是将 备份队列 中所有元素都拷贝到 当前队列，所以仅仅通过 赋值操作 即可简单实现</p>
+<blockquote>
+<p>而对于第一个循环，我们需要保留队尾元素，因此不能改变</p>
+</blockquote>
+</li>
+<li><p>对于 top，因为 当前队列 的队尾即为我们模拟栈的栈顶，因此仅通过 back 即可简单实现</p>
+</li>
+<li><p>实现如下</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyStack</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; queue1;</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; queue2;</span><br><span class="line">    <span class="built_in">MyStack</span>() &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">        queue1.<span class="built_in">push</span>(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = queue1.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size - <span class="number">1</span>; ++i) &#123;</span><br><span class="line">            <span class="type">int</span> temp = queue1.<span class="built_in">front</span>();</span><br><span class="line">            queue2.<span class="built_in">push</span>(temp);</span><br><span class="line">            queue1.<span class="built_in">pop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> temp = queue1.<span class="built_in">front</span>();</span><br><span class="line">        queue1.<span class="built_in">pop</span>();</span><br><span class="line"></span><br><span class="line">        queue1 = queue2;</span><br><span class="line">        size = queue2.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">while</span> (size--) &#123;</span><br><span class="line">            queue2.<span class="built_in">pop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">top</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> queue1.<span class="built_in">back</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> queue1.<span class="built_in">empty</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其实我们还可以仅仅通过一个队列来模拟栈！<ul>
+<li>pop 时，我们将当前队列的 队尾元素 之前的所有元素重新 push 到当前队列中，那么此时的队首元素，即为我们需要的原来的队尾元素了！</li>
+<li>实现如下</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyStack</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    queue&lt;<span class="type">int</span>&gt; queue;</span><br><span class="line">    <span class="built_in">MyStack</span>() &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">        queue.<span class="built_in">push</span>(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> size = queue.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; size - <span class="number">1</span>; ++i) &#123;</span><br><span class="line">            <span class="type">int</span> temp = queue.<span class="built_in">front</span>();</span><br><span class="line">            queue.<span class="built_in">pop</span>();</span><br><span class="line">            queue.<span class="built_in">push</span>(temp);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> temp = queue.<span class="built_in">front</span>();</span><br><span class="line">        queue.<span class="built_in">pop</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">top</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> queue.<span class="built_in">back</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> queue.<span class="built_in">empty</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<li>Java 代码实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 难点在于如何在同一端进行入栈和出栈</span></span><br><span class="line"><span class="comment">// 当入栈时，先将元素入队列2，再将队列1的所有元素填充到队列2，即添加在新元素后边，再交换队列1，2</span></span><br><span class="line"><span class="comment">// 相当于队列2作为辅助队列，队列1队头就相当于栈顶，每次在对头做增加和删除</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyStack</span> &#123;</span><br><span class="line">    Queue&lt;Integer&gt; queue1;</span><br><span class="line">    Queue&lt;Integer&gt; queue2;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyStack</span><span class="params">()</span> &#123;</span><br><span class="line">        queue1 = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">        queue2 = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">push</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">        queue2.offer(x);</span><br><span class="line">        <span class="comment">// 将队列一所有元素入队列二</span></span><br><span class="line">        <span class="keyword">while</span> (!queue1.isEmpty()) &#123;</span><br><span class="line">            queue2.offer(queue1.poll());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 交换</span></span><br><span class="line">        Queue&lt;Integer&gt; temp = queue1;</span><br><span class="line">        queue1 = queue2;</span><br><span class="line">        queue2 = temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">pop</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> queue1.poll();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">top</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> queue1.peek();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">empty</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> queue1.isEmpty();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/01/31/LeetCode-232-%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/01/31/LeetCode-232-%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/" class="post-title-link" itemprop="url">LeetCode-232-用栈实现队列</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-01-31 12:21:37 / 修改时间：15:20:18" itemprop="dateCreated datePublished" datetime="2024-01-31T12:21:37+08:00">2024-01-31</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h1><img src="/2024/01/31/LeetCode-232-%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97/image-20240131122318814.png" class="" title="image-20240131122318814">
+
+<h1 id="我的题解"><a href="#我的题解" class="headerlink" title="我的题解"></a>我的题解</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyQueue</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    stack&lt;<span class="type">int</span>&gt; stack1;</span><br><span class="line">    stack&lt;<span class="type">int</span>&gt; stack2;</span><br><span class="line">    <span class="built_in">MyQueue</span>() &#123;</span><br><span class="line">       </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">swap</span>(stack2, stack1);</span><br><span class="line">        stack1.<span class="built_in">push</span>(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">swap</span>(stack1, stack2);</span><br><span class="line">        <span class="type">int</span> temp = stack2.<span class="built_in">top</span>();</span><br><span class="line">        stack2.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">peek</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">swap</span>(stack1, stack2);</span><br><span class="line">        <span class="keyword">return</span> stack2.<span class="built_in">top</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> stack1.<span class="built_in">empty</span>() &amp;&amp; stack2.<span class="built_in">empty</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">swap</span><span class="params">(stack&lt;<span class="type">int</span>&gt; &amp;stack1, stack&lt;<span class="type">int</span>&gt; &amp;stack2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (!stack1.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            <span class="type">int</span> temp = stack1.<span class="built_in">top</span>();</span><br><span class="line">            stack2.<span class="built_in">push</span>(temp);</span><br><span class="line">            stack1.<span class="built_in">pop</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="我的思考"><a href="#我的思考" class="headerlink" title="我的思考"></a>我的思考</h1><ul>
+<li><p>使用栈模拟队列，至少需要两个栈来实现，一个栈表示 <strong>输出栈</strong>，该栈的 栈顶 表示 队列的 队首，用来 <strong>peek 和 pop</strong>；另一个栈表示 <strong>输入栈</strong>，该栈的栈顶 表示 队尾，用来 <strong>push</strong>；我们通过不断翻转两个栈来实现这样的效果</p>
+</li>
+<li><p>队列为空 则当且仅当 两个栈 同时为空时 为空</p>
+</li>
+<li><p>有一点需要注意的是：C++ 中的队列和栈都是 <strong>容器适配器</strong>，仅能使用适配器自己的操作，而不能使用底层容器的操作（stack 底层默认是 deque 实现）</p>
+</li>
+<li><p>改进思路：</p>
+<ul>
+<li>其实我们并不需要每次 push 时，都将 输出栈 中的元素翻转到 输入栈 中后，再 push，直接 push 到 输入栈 中即可</li>
+<li>而对于 pop 和 peek 来说，因为采用了不同的 push 策略，因此只有当 输出栈 为空时，才需要将 输入栈 中的元素全部翻转到 输出栈中</li>
+<li>特别的，对于 peek，采用了 pop 来实现，通过复用减少了重复的代码</li>
+<li>实现如下</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyQueue</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    stack&lt;<span class="type">int</span>&gt; stack1; <span class="comment">// 输入栈</span></span><br><span class="line">    stack&lt;<span class="type">int</span>&gt; stack2; <span class="comment">// 输出栈</span></span><br><span class="line">    <span class="built_in">MyQueue</span>() &#123;</span><br><span class="line">       </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">push</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">        stack1.<span class="built_in">push</span>(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (stack2.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            <span class="keyword">while</span> (!stack1.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">                <span class="type">int</span> temp = stack1.<span class="built_in">top</span>();</span><br><span class="line">                stack2.<span class="built_in">push</span>(temp);</span><br><span class="line">                stack1.<span class="built_in">pop</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> temp = stack2.<span class="built_in">top</span>();</span><br><span class="line">        stack2.<span class="built_in">pop</span>();</span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">peek</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> temp = <span class="keyword">this</span>-&gt;<span class="built_in">pop</span>();</span><br><span class="line">        stack2.<span class="built_in">push</span>(temp);</span><br><span class="line">        <span class="keyword">return</span> temp;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> stack1.<span class="built_in">empty</span>() &amp;&amp; stack2.<span class="built_in">empty</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<li>Java 代码实现</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyQueue</span> &#123;</span><br><span class="line">    Deque&lt;Integer&gt; stack1;</span><br><span class="line">    Deque&lt;Integer&gt; stack2;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyQueue</span><span class="params">()</span> &#123;</span><br><span class="line">        stack1 = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">        stack2 = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">push</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">        stack1.push(x);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">pop</span><span class="params">()</span> &#123;</span><br><span class="line">        fillStack();</span><br><span class="line">        <span class="keyword">return</span> stack2.pop();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">peek</span><span class="params">()</span> &#123;</span><br><span class="line">        fillStack();</span><br><span class="line">        <span class="keyword">return</span> stack2.peek();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">empty</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 当stack1和stack2都为空时，队列才为空</span></span><br><span class="line">        <span class="keyword">return</span> stack1.isEmpty() &amp;&amp; stack2.isEmpty();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fillStack</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 如果stack2为空</span></span><br><span class="line">        <span class="keyword">if</span> (stack2.isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// 将stack1中所有元素放入stack2</span></span><br><span class="line">            <span class="keyword">while</span> (!stack1.isEmpty()) &#123;</span><br><span class="line">                stack2.push(stack1.pop());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/01/29/12-%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2480,7 +2761,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-19 17:50:07" itemprop="dateModified" datetime="2024-01-19T17:50:07+08:00">2024-01-19</time>
+                <time title="修改时间：2024-02-01 22:51:26" itemprop="dateModified" datetime="2024-02-01T22:51:26+08:00">2024-02-01</time>
               </span>
 
           
@@ -2738,6 +3019,115 @@
 <blockquote>
 <p>如果我们不确定不同运算符的优先级，加上括号让他符合你的逻辑总是没错的</p>
 </blockquote>
+<h1 id="howManyBits"><a href="#howManyBits" class="headerlink" title="howManyBits"></a>howManyBits</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* howManyBits - return the minimum number of bits required to represent x in</span></span><br><span class="line"><span class="comment"> *             two&#x27;s complement</span></span><br><span class="line"><span class="comment"> *  Examples: howManyBits(12) = 5</span></span><br><span class="line"><span class="comment"> *            howManyBits(298) = 10</span></span><br><span class="line"><span class="comment"> *            howManyBits(-5) = 4</span></span><br><span class="line"><span class="comment"> *            howManyBits(0)  = 1</span></span><br><span class="line"><span class="comment"> *            howManyBits(-1) = 1</span></span><br><span class="line"><span class="comment"> *            howManyBits(0x80000000) = 32</span></span><br><span class="line"><span class="comment"> *  Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *  Max ops: 90</span></span><br><span class="line"><span class="comment"> *  Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：返回表示 x 的二进制补码所需要的最小位数，即x的二进制补码至少需要几位表示</p>
+</li>
+<li><p>思路：</p>
+<ul>
+<li><p>对于正数来说，我们需要找到它最大位为 1 的位数，那么他所需要的最小位数为 n（最大位为1的数） + 1（符号位）</p>
+</li>
+<li><p>如果是负数的话，我们需要找到他最大位为 0 的位数，则此时他所需要的最小位数为 n（最大位为 0 的位数）+ 1</p>
+<ul>
+<li>比如 1101 表示 -3，而 101 也表示 -3，那么所需要的最小位数为：最大位为 0 的位数 n &#x3D; 2，n + 1 &#x3D; 3</li>
+<li>而对于 1001，其最大位为 0 的位数 n &#x3D; 3，n + 1 &#x3D; 4</li>
+</ul>
+</li>
+<li><p>因此，我们需要将负数和正数的情况统一起来，对于负数，我们可以将其取反，这样的话，无论是正数还是负数，我们都寻找 最大位 为 1 的 位数，再 + 1 得到答案所需要的最小位数</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">howManyBits</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="type">int</span> sign = x&gt;&gt;<span class="number">31</span>; <span class="comment">// 得到符号位</span></span><br><span class="line">  x = (sign &amp; ~x) | (~sign &amp; x); <span class="comment">// 如果 x 为负数，则取反，如果 x 为正数，则不变</span></span><br><span class="line">  </span><br><span class="line">  <span class="type">int</span> b16, b8, b4, b2, b1, b0; <span class="comment">// 分别表示是否至少需要相应的位数</span></span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 由于进行了上述处理，此时 x 的符号位已经全部为 0 </span></span><br><span class="line">  </span><br><span class="line">  b16 = !!(x&gt;&gt;<span class="number">16</span>)&lt;&lt;<span class="number">4</span>; 	<span class="comment">// 目的：检查其高 16 位中是否有 1</span></span><br><span class="line">    					<span class="comment">// 先 &gt;&gt;16 是为了去除低 16 位的影响，!! 用来检查是否有 1，</span></span><br><span class="line">    					<span class="comment">// &lt;&lt;4 是为后续步骤做铺垫，如果有 1，则 b16 = 16，如果没有 1，则 b16 = 0</span></span><br><span class="line">    					<span class="comment">// b16 不仅用于后续的右移操作，还表示此时至少需要 16 位 或 0 位</span></span><br><span class="line">  x = x&gt;&gt;b16; 			<span class="comment">// 如果高 16 位有 1 的话，则至少需要 16 位，将 x 右移 16 位，去除低 16 位的影响</span></span><br><span class="line">    					<span class="comment">// 便于后续检查高 16 位的情况</span></span><br><span class="line">    					<span class="comment">// 如果高 16 位没有 1 的话，右移 0 位，则后续检查低 16 位的情况</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 逐渐缩小检查范围</span></span><br><span class="line">  </span><br><span class="line">  b8 = !!(x&gt;&gt;<span class="number">8</span>)&lt;&lt;<span class="number">3</span>; <span class="comment">// 和上述思路一样，检查高 8 位是否有 1</span></span><br><span class="line">    				<span class="comment">// 这里隐含了上边操作的影响，如果高 16 位有 1 的话，则此时检查的是 高 16 位中的高 8 位</span></span><br><span class="line">    				<span class="comment">// 如果高 16 位中没有 1 的话，则此时检查的是低 16 位中的高 8 位</span></span><br><span class="line">  x = x&gt;&gt;b8; 		<span class="comment">// 同样的思路，缩小范围，</span></span><br><span class="line">  </span><br><span class="line">  b4 = !!(x&gt;&gt;<span class="number">4</span>)&lt;&lt;<span class="number">2</span>; </span><br><span class="line">  x = x&gt;&gt;b4;</span><br><span class="line">  </span><br><span class="line">  b2 = !!(x&gt;&gt;<span class="number">2</span>)&lt;&lt;<span class="number">1</span>;</span><br><span class="line">  x = x&gt;&gt;b2;</span><br><span class="line">  </span><br><span class="line">  b1 = !!(x&gt;&gt;<span class="number">1</span>);</span><br><span class="line">  x = x&gt;&gt;b1;</span><br><span class="line">  </span><br><span class="line">  b0 = x;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> b16 + b8 + b4 + b2 + b1 + b0 + <span class="number">1</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上述的查找最大位为 1 的位数的操作，很像一个 <strong>二分查找</strong>，通过检查高 n 位中是否含有 1 来代替通常的比较操作，通过 x 右移 bn 位的操作来缩小查找（比较）的范围</li>
+</ul>
+<h1 id="floatScale2"><a href="#floatScale2" class="headerlink" title="floatScale2"></a>floatScale2</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//float</span></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatScale2 - Return bit-level equivalent of expression 2*f for</span></span><br><span class="line"><span class="comment"> *   floating point argument f.</span></span><br><span class="line"><span class="comment"> *   Both the argument and result are passed as unsigned int&#x27;s, but</span></span><br><span class="line"><span class="comment"> *   they are to be interpreted as the bit-level representation of</span></span><br><span class="line"><span class="comment"> *   single-precision floating point values.</span></span><br><span class="line"><span class="comment"> *   When argument is NaN, return argument</span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. also if, while</span></span><br><span class="line"><span class="comment"> *   Max ops: 30</span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：使用无符号整数模拟单精度浮点数 float，返回 2 * f 的结果，可以使用任何整数或无符号数的运算，包括 ||、&amp;&amp;、if、while，对于 NaN（Not a Number），直接返回参数即可</p>
+</li>
+<li><p>首先我们需要了解浮点数的组成，<strong>V &#x3D; （-1）^s^ * M * 2^E^</strong></p>
+<ul>
+<li><p>其中，s 表示符号位，M 表示尾数，由二进制小数位进行编码，E 表示阶码，由二进制整数位进行编码</p>
+</li>
+<li><p>而浮点数又根据阶码的不同，分为了三种情况：</p>
+</li>
+<li><p>如果编码阶码 E 的二进制整数位有 0 有 1，则称为 <strong>规格化的值</strong>，因为 V &#x3D; …… * 2^E^ 的原因，因此对于规格化的值，仅仅让编码阶码部分的二进制整数部分加 <strong>+ 1</strong> 即可实现 2 * f 的效果</p>
+</li>
+<li><p>如果编码阶码 E 的二进制整数部分全为 0，则称为 <strong>无规格化的值</strong>，此时仅有小数位，因为 V &#x3D; ……* M 的原因， 仅仅让二进制小数位 <strong>左移一位</strong>，即可达到 2 * f 的效果</p>
+</li>
+<li><p>如果编码阶码 E 的二进制整数部分全为 1，则称为 <strong>特殊值</strong>，比如 NaN，此时直接返回参数即可</p>
+</li>
+<li><p>除了上述分类外，我们还需要了解对于单精度浮点数 float 来说，一共 32 位，1 位表示符号位，阶码E （整数部分）的有效位数为 8 位，小数位数为 23 位</p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">floatScale2</span><span class="params">(<span class="type">unsigned</span> uf)</span> &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> ((uf &amp; <span class="number">0x7f800000</span>) == <span class="number">0</span>) &#123; <span class="comment">// 通过和 0 111 1111 1 000 0……0 &amp; 检查是否阶码部分全为 0</span></span><br><span class="line">  	uf = (uf &lt;&lt; <span class="number">1</span>) | (uf &amp; <span class="number">0x80000000</span>); <span class="comment">// 将二进制小数部分左移 1 位实现 2 * f</span></span><br><span class="line">      									<span class="comment">// | (uf &amp; 0x80000000) 的目的是保留符号位不变 </span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((uf &amp; <span class="number">0x7f800000</span>) != <span class="number">0x7f800000</span>) &#123; <span class="comment">// 通过和 0x7f800000 &amp; 检查是否阶码部分不全为 1</span></span><br><span class="line">  	uf += <span class="number">0x00800000</span>; 	<span class="comment">// 如果不全为 1，则此时有 1 有 0，通过将阶码部分 + 1，实现 2 * f</span></span><br><span class="line">      				  	<span class="comment">// + 1 即 + 0 000 0000 1 000 0……0</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> uf;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="floatFloat2Int"><a href="#floatFloat2Int" class="headerlink" title="floatFloat2Int"></a>floatFloat2Int</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatFloat2Int - Return bit-level equivalent of expression (int) f</span></span><br><span class="line"><span class="comment"> *   for floating point argument f.</span></span><br><span class="line"><span class="comment"> *   Argument is passed as unsigned int, but</span></span><br><span class="line"><span class="comment"> *   it is to be interpreted as the bit-level representation of a</span></span><br><span class="line"><span class="comment"> *   single-precision floating point value.</span></span><br><span class="line"><span class="comment"> *   Anything out of range (including NaN and infinity) should return</span></span><br><span class="line"><span class="comment"> *   0x80000000u.</span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. also if, while</span></span><br><span class="line"><span class="comment"> *   Max ops: 30</span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：返回等效于表达式 （int）f 的位级，参数作为无符号整数传递，但被解释为单精度浮点数 float，任何超出返回的内容，都应返回 0x80000000，可以使用任何整数或无符号运算，包括 ||、&amp;&amp;、if、while</p>
+</li>
+<li><p>首先，我们还是需要明白二进制浮点数的解释方式：<strong>V &#x3D; (-1)^s^ * M * 2^E^</strong>，根据浮点数的解释方式寻求解决方法</p>
+<ul>
+<li>我们可以发现：因为 *M 的原因，所以如果将二进制浮点数解释为 int 的话， M 尾数部分是可以不动的</li>
+<li>由于 * 2^E^ 的原因，因此 解释为 int 的话，相当于右移阶码 E 位</li>
+<li>因此，我们可以通过将浮点数的各个部分得到，根据阶码 E 的取值情况，来以不同的方式处理 M 尾数部分，最后再根据符号位的情况来处理符号位</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">floatFloat2Int</span><span class="params">(<span class="type">unsigned</span> uf)</span> &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="type">int</span> sign = uf&gt;&gt;<span class="number">31</span>; 					<span class="comment">// 得到符号位</span></span><br><span class="line">  <span class="type">int</span> E = ((uf &amp; <span class="number">0x7f800000</span>)&gt;&gt;<span class="number">23</span>) - <span class="number">127</span>; <span class="comment">// 得到阶码部分，阶码部分有 8 位</span></span><br><span class="line">    									<span class="comment">// 阶码部分解释为 E = e - Basic，Basic 为偏置值，对于 float 来说为 127</span></span><br><span class="line">  <span class="type">int</span> M = (uf &amp; <span class="number">0x00700000</span>) | <span class="number">0x00800000</span>; 	<span class="comment">// 得到尾数部分，尾数部分有 23 位</span></span><br><span class="line">    										<span class="comment">// 在规格化的值的情况下时，M = 1 + f ，所以需要 | 0x00800000</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!(uf &amp; <span class="number">0x7fffffff</span>)) <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 如果浮点数原来就是 0，则直接返回 0</span></span><br><span class="line">  <span class="keyword">if</span> (E &gt;= <span class="number">31</span>) <span class="keyword">return</span> <span class="number">0x80000000</span>;  	<span class="comment">// 如果阶码部分大于等于 31，即超出解释为 int 后的取值范围，则返 0x80000000</span></span><br><span class="line">  <span class="keyword">if</span> (E &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>; 				<span class="comment">// 如果阶码部分小于 0，则仅有小数部分，因此解释为 int 时，小数被省略，返回 0</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (E &gt; <span class="number">23</span>) M = M &lt;&lt; (E - <span class="number">23</span>); 	<span class="comment">// 如果阶码 E 大于 23 小于 31，因为解释为浮点数时，M 尾数部分被解释为小数，</span></span><br><span class="line">    								<span class="comment">// 且有 23 位，因此当 * 2^E^ 时，在解释为 int 时，仅需要左移 E -23 位即可</span></span><br><span class="line">  <span class="keyword">else</span> M = M &gt;&gt; (<span class="number">23</span> - E); 			<span class="comment">// 如果阶码 E 小于 23 大于 0 的时，此时解释 为 int 时，</span></span><br><span class="line">    								<span class="comment">// 因为 M 尾数部分有 23 位，因此需要缩小 （舍弃）E - 23 位 （小数部分）</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!(M &gt;&gt; <span class="number">31</span>) ^ sign) <span class="keyword">return</span> M; 	<span class="comment">// 如果 M 尾数部分的符号位与解释为浮点数时的符号位相同，直接返回 M，</span></span><br><span class="line">    								<span class="comment">// 且这里提供了一个技巧，在使用位运算比较两个数是否相等时，</span></span><br><span class="line">    								<span class="comment">// 可以通过 ! 配合 ^ 异或进行比较</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> ~M + <span class="number">1</span>;   			<span class="comment">// 如果相反，则返回 -M ，即 ~M + 1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="floatPower2"><a href="#floatPower2" class="headerlink" title="floatPower2"></a>floatPower2</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatPower2 - Return bit-level equivalent of the expression 2.0^x</span></span><br><span class="line"><span class="comment"> *   (2.0 raised to the power x) for any 32-bit integer x.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *   The unsigned value that is returned should have the identical bit</span></span><br><span class="line"><span class="comment"> *   representation as the single-precision floating-point number 2.0^x.</span></span><br><span class="line"><span class="comment"> *   If the result is too small to be represented as a denorm, return</span></span><br><span class="line"><span class="comment"> *   0. If too large, return +INF.</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. Also if, while </span></span><br><span class="line"><span class="comment"> *   Max ops: 30 </span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>要求：返回表达式 <strong>2.0^x^</strong> 的等效位级表示，通过无符号值返回，且应具有相同的位表示单精度浮点数 2.0^x^ ，如果结果太小而无法表示，返回 0，如果结果太大而无法表示，返回 +INF，任何整数或无符号运算都可以使用，包括 ||、&amp;&amp;、if、while</p>
+</li>
+<li><p>首先，我们知道二进制浮点数的解释为 V &#x3D; (-1)^s^ * M * 2^E^， 且又分为 规格化的值，非规格化的值，特殊值</p>
+<ul>
+<li><p>对于非规格化的值来说：</p>
+<ul>
+<li><p><strong>V 的最小精度为 -149</strong>，为什么呢？因为此时对于 M 尾数来说，<strong>M 被解释为 M &#x3D; f</strong>，因此小数部分只有最后一位为1 ，其余位全为 0，因为小数部分有 23 位，则 M &#x3D; 2^-23^ ，对于阶码 E 来说，非规格化的值的解释为 <strong>E &#x3D; 1 - Basic</strong> &#x3D; -126，因此，此时 V 的最小精度 min &#x3D; 2^-23-126^ &#x3D;      2^-149^，即 -149</p>
+</li>
+<li><p>而非规格化的值的最大精度，因为 IEEE 浮点数的设计，非规格化的值的最大精度可以与规格化的值的最小精度无缝衔接，因此，我们可以通过规格化的值的最小精度得到，即 <strong>-127</strong></p>
+<blockquote>
+<p>当然我们也可以估算，此时小数部分全为 1，M &#x3D; 0.??? &#x3D; 2^-0.???^，那么此时最大精度为 2^-126.???^ ，精确到整数为 -127）</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>对于规格化的值来说：</p>
+<ul>
+<li><p><strong>V 的最小精度为 -126</strong>，因为对于非规格化的值来说，<strong>M 被解释为 M &#x3D; 1 + f</strong>，即此时 M 尾数的小数部分的所有位全都为0，M &#x3D; 1， 而阶码 E 整数部分仅有第一个位为 1，<strong>E 被解释为 E &#x3D; exp - Basic</strong>，因此 E &#x3D; 1 - Basic &#x3D; -126，则此时规格化的值的最小精度为 min &#x3D; 2^-126^</p>
+</li>
+<li><p><strong>最大精度为 127</strong> ，为什么呢？最大精度可以根据特殊值的情况得到的，特殊值的无穷大时，阶码 E 全为 1，小数部分全为 0，则此时阶码 E 至少为 128（1111 1111 - 127 &#x3D; 128），因此对于规格化的值来说，最大精度为 127</p>
+</li>
+</ul>
+<blockquote>
+<p>当然我们也可以再次估算，此时阶码 E 的最低位为 0，其余位全为 1，即 E &#x3D; 1111 1110 - 127 &#x3D; 127，M 尾数部分全为 1，即 M &#x3D; 1 + 0.??? &#x3D; 1.??? &#x3D; 2^0.???^，那么此时最大精度 max &#x3D; 2^127.???^ ，精确到整数为 127）</p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>在求精度时，对于规格化的值来说，因为小数很小，完全可以忽略小数部分的影响，此时精度完全由阶码 E 决定</p>
+</blockquote>
+<ul>
+<li>因此， 如果 <strong>x 属于 [-149, -126) 时</strong>，为非规格化的值，此时仅有小数部分，则我们可以仅仅将 <strong>1 左移 x + 149 位</strong> ，即左移 [0，23）位，即可得到 2.0^x^ 的二进制浮点数解释</li>
+<li>如果 **x 属于 [-126, 127]**，为规格化的值，需要求出整数部分 exp ，因为 E &#x3D; exp - Basic，所以 exp &#x3D; E + Basic，而此时阶码 E 即为 x，可以很简单的得到 exp，我们在将 <strong>exp 左移 23 位</strong> ,即可得到得到 2.0^x^ 的二进制浮点数解释（此时小数部分影响太小）</li>
+<li>如果 <strong>x  &gt;&#x3D; 128</strong>，即 exp 大于等于 255，此时为特殊值 ，因为太大而无法表示，<strong>返回 +INF，即 0x7f800000</strong></li>
+<li>如果 <strong>x &lt; -149</strong> ，因为太小而无法表示，<strong>返回 0</strong></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">floatPower2</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x &lt; <span class="number">-149</span>) <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 太小而无法表示 </span></span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">128</span>) <span class="keyword">return</span> <span class="number">0x7f800000</span>; <span class="comment">// 太大而无法表示</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">-149</span> &amp;&amp; x &lt; <span class="number">-126</span>) <span class="keyword">return</span> <span class="number">1</span> &lt;&lt; (x + <span class="number">149</span>); <span class="comment">// 非规格化的值</span></span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> <span class="built_in">exp</span> = x + <span class="number">127</span>; </span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">exp</span> &lt;&lt; <span class="number">23</span>;  <span class="comment">// 规格化的值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h1><img src="/2024/01/17/CSAPP-Lab1/image-20240201225023110.png" class="" title="image-20240201225023110">
+
 <h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
 <li>虚拟机下载相关</li>
 </ul>
@@ -2768,7 +3158,7 @@
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/59534845">CSAPP 之 DataLab详解，没有比这更详细的了 - 知乎 (zhihu.com)</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Yuan_Cl/article/details/83960550">CS:APP Data Lab_cs:app data lab 中文翻译-CSDN博客</a></p>
 <ul>
-<li>关于我</li>
+<li>About me</li>
 </ul>
 <p><strong>虚拟机全名</strong>：YiweiBoi</p>
 <p><strong>用户名</strong>：yiweiboi</p>
@@ -2849,7 +3239,7 @@
 <li>32位程序和64位程序的区别在于 <strong>程序是如何编译的，而不是其运行的机器的类型</strong></li>
 <li>为了避免依赖 <strong>典型</strong> 大小和不同编译器设置带来的奇怪行为，设计了一些固定大小的数据类型</li>
 </ul>
-<style>.gapolxkmzems{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.1.2.png" class="gapolxkmzems" alt="image-20240113161658749">
+<style>.uvjdyipthxzh{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.1.2.png" class="uvjdyipthxzh" alt="image-20240113161658749">
 
 <h3 id="2-1-3寻址和字节顺序"><a href="#2-1-3寻址和字节顺序" class="headerlink" title="2.1.3寻址和字节顺序"></a>2.1.3寻址和字节顺序</h3><ul>
 <li>多字节对象都被存储在 <strong>连续的字节序列</strong>，对象的 <strong>地址</strong> 为所使用字节中最小地址</li>
@@ -2860,14 +3250,14 @@
 </ul>
 </li>
 </ul>
-<style>.yjmeirwlnlqb{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.1.3.png" class="yjmeirwlnlqb" alt="image-20240113162025395">
+<style>.pelmmduhsdxl{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.1.3.png" class="pelmmduhsdxl" alt="image-20240113162025395">
 
 <ul>
 <li>由于不同字节顺序所引发的问题：网络传输二进制数据、阅读整数数据的字节序列、编写规避正常的类型系统的程序</li>
 <li>整数和浮点数编码不同的原因是：两种格式使用不同的编码方法</li>
 <li>指针值编码完全不同的原因：不同机器 &#x2F; 操作系统配置使用不同的存储分配规则</li>
 </ul>
-<style>.cbxrsgjkcvef{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.1.3.1.png" class="cbxrsgjkcvef" alt="image-20240113162214103">
+<style>.ywqxbristixi{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.1.3.1.png" class="ywqxbristixi" alt="image-20240113162214103">
 
 <h3 id="2-1-4-表示字符串"><a href="#2-1-4-表示字符串" class="headerlink" title="2.1.4 表示字符串"></a>2.1.4 表示字符串</h3><ul>
 <li>字符编码与字节顺序和字大小规则无关，与使用编码规则有关，如ASCLL字符码，使用相同字符编码规则在任何系统上都会得到相同的结果，因此文本数据比二进制数据有更好的平台独立性</li>
@@ -2893,7 +3283,7 @@
 <h2 id="2-2-整数表示"><a href="#2-2-整数表示" class="headerlink" title="2.2 整数表示"></a>2.2 整数表示</h2><blockquote>
 <p>主要描述用位来编码整数的两种不同的方式：无符号数、有符号数</p>
 </blockquote>
-<h3 id="2-2-1-整数数据类型"><a href="#2-2-1-整数数据类型" class="headerlink" title="2.2.1 整数数据类型"></a>2.2.1 整数数据类型</h3><style>.hfdritvjgfci{zoom: 67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.1.png" class="hfdritvjgfci" alt="image-20240113165907711"><style>.uqdffucjcduy{zoom: 67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.1.1.png" class="uqdffucjcduy" alt="image-20240113165956780">
+<h3 id="2-2-1-整数数据类型"><a href="#2-2-1-整数数据类型" class="headerlink" title="2.2.1 整数数据类型"></a>2.2.1 整数数据类型</h3><style>.tthpyepsclju{zoom: 67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.1.png" class="tthpyepsclju" alt="image-20240113165907711"><style>.kelighdjdszi{zoom: 67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.1.1.png" class="kelighdjdszi" alt="image-20240113165956780">
 
 <ul>
 <li>这里给出的唯一一个取值范围与机器相关的类型位 long</li>
@@ -2902,7 +3292,7 @@
 <h3 id="2-2-2-无符号数的编码"><a href="#2-2-2-无符号数的编码" class="headerlink" title="2.2.2 无符号数的编码"></a>2.2.2 无符号数的编码</h3><ul>
 <li>无符号编码的基本原理：</li>
 </ul>
-<style>.ucvbtxblnxdt{zoom: 80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.png" class="ucvbtxblnxdt" alt="image-20240113170435788"><style>.cuipkjdocadd{zoom:67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.1.png" class="cuipkjdocadd" alt="image-20240113170602003">
+<style>.xtxzxodfoypl{zoom: 80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.png" class="xtxzxodfoypl" alt="image-20240113170435788"><style>.wxfyfvfqjwfa{zoom:67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.1.png" class="wxfyfvfqjwfa" alt="image-20240113170602003">
 
 <ul>
 <li>无符号编码具有唯一性，即每个介于 <strong>0 ~ 2^w^-1</strong> 之间的数都有唯一一个 <strong>w</strong> 位的值编码</li>
@@ -2910,7 +3300,7 @@
 <h3 id="2-2-3-补码编码"><a href="#2-2-3-补码编码" class="headerlink" title="2.2.3 补码编码"></a>2.2.3 补码编码</h3><ul>
 <li>最常见的有符号数的计算机表示方式就是 <strong>补码</strong>，在补码的定义中，字的最高有效位解释位 <strong>负权</strong></li>
 </ul>
-<style>.thtgvyhjttcn{zoom:67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.2.png" class="thtgvyhjttcn" alt="image-20240113170936379"><style>.eawjnirvolsz{zoom:67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.3.png" class="eawjnirvolsz" alt="image-20240113171032126">
+<style>.mgrbjpxdidbp{zoom:67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.2.png" class="mgrbjpxdidbp" alt="image-20240113170936379"><style>.bbnwgsfbzudg{zoom:67%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.2.3.png" class="bbnwgsfbzudg" alt="image-20240113171032126">
 
 <ul>
 <li>同无符号表示一样，在可表示的取值范围内的每个数字都有一个唯一的 <strong>w</strong> 位的补码编码</li>
@@ -2935,7 +3325,7 @@
 <h3 id="2-2-6-扩展一个数字的位表示"><a href="#2-2-6-扩展一个数字的位表示" class="headerlink" title="2.2.6 扩展一个数字的位表示"></a>2.2.6 扩展一个数字的位表示</h3><ul>
 <li>无符号数的零扩展：</li>
 </ul>
-<style>.lklsrmngkpnx{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.6.png" class="lklsrmngkpnx" alt="image-20240113173032471">
+<style>.yimpzhrkhqpd{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.2.6.png" class="yimpzhrkhqpd" alt="image-20240113173032471">
 
 <ul>
 <li>有符号数的符合扩展</li>
@@ -3019,12 +3409,12 @@
 <ul>
 <li>我们认为对于无符号和补码乘法来说，乘法运算的位级表示都是一样的</li>
 </ul>
-<style>.lnopakcsulin{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.5.1.png" class="lnopakcsulin" alt="image-20240114122632606">
+<style>.xjccsakykvjq{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.5.1.png" class="xjccsakykvjq" alt="image-20240114122632606">
 
 <h3 id="2-3-6-乘以常数"><a href="#2-3-6-乘以常数" class="headerlink" title="2.3.6 乘以常数"></a>2.3.6 乘以常数</h3><ul>
 <li>首先考虑乘以 2 的幂的情况：</li>
 </ul>
-<style>.tdtqcxmgsnmi{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.6.png" class="tdtqcxmgsnmi" alt="image-20240114123451331">
+<style>.xmfkngxtcevs{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.6.png" class="xmfkngxtcevs" alt="image-20240114123451331">
 
 <ul>
 <li>我们可以看出左移一个数值等价于执行一个与 2 的幂相乘的无符号乘法</li>
@@ -3056,7 +3446,7 @@
 </ul>
 <img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.7.2.png" class="" title="image-20240114140311743">
 
-<style>.sjvirbysmvog{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.7.3.png" class="sjvirbysmvog" alt="image-20240114140339504">
+<style>.gsymqydbcpvl{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.3.7.3.png" class="gsymqydbcpvl" alt="image-20240114140339504">
 
 <ul>
 <li>我们可以通过在移位之前 <strong>偏置</strong> 这个值，来修正这种不合适的舍入：</li>
@@ -3109,7 +3499,7 @@
 <li><p>双精度浮点格式 double，1 个符号位，k &#x3D; 11，n &#x3D; 52，得到一个 64 位的表示</p>
 </li>
 </ul>
-<style>.tucicsjgndry{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.2.png" class="tucicsjgndry" alt="image-20240114152534113">
+<style>.aossnrljgqbe{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.2.png" class="aossnrljgqbe" alt="image-20240114152534113">
 
 <ul>
 <li><p>根据 exp（阶码字段）的值，被编码的值可以分成三中不同的情况</p>
@@ -3154,17 +3544,17 @@
 </ul>
 </li>
 </ul>
-<style>.ylmljlqlkklm{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.2.1.png" class="ylmljlqlkklm" alt="image-20240114154957055">
+<style>.bshbmqdollin{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.2.1.png" class="bshbmqdollin" alt="image-20240114154957055">
 
 <h3 id="2-4-3-数字示例"><a href="#2-4-3-数字示例" class="headerlink" title="2.4.3 数字示例"></a>2.4.3 数字示例</h3><ul>
 <li>越靠近原点 0，可表示的数越稠密</li>
 </ul>
-<style>.xkxgyydqeiqq{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.3.png" class="xkxgyydqeiqq" alt="image-20240114155045884">
+<style>.yhhcoirddieo{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.3.png" class="yhhcoirddieo" alt="image-20240114155045884">
 
 <ul>
 <li>最大非规格化数和最小规格化数之间的平滑转变，归功于将 E 定义为 1 - Bias，可以补充非规格化数的尾数没有隐含的开头的 1</li>
 </ul>
-<style>.qnallwjfstiq{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.3.1.png" class="qnallwjfstiq" alt="image-20240114155308630">
+<style>.otefnctmcbtw{zoom:80%;}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.3.1.png" class="otefnctmcbtw" alt="image-20240114155308630">
 
 <ul>
 <li>如果按照无符号解释，它们就是按照升序排列的，这样设计是为了浮点数能够使用整数排序函数来进行排序</li>
@@ -3190,7 +3580,7 @@
 </ul>
 </li>
 </ul>
-<style>.nsqfdomqmnns{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.4.png" class="nsqfdomqmnns" alt="image-20240114161650259">
+<style>.brolteevhgqb{}</style><img src="/2024/01/16/CSAPP-2-%E4%BF%A1%E6%81%AF%E7%9A%84%E8%A1%A8%E7%A4%BA%E4%B8%8E%E5%A4%84%E7%90%86/2.4.4.png" class="brolteevhgqb" alt="image-20240114161650259">
 
 <h3 id="2-4-5-浮点运算"><a href="#2-4-5-浮点运算" class="headerlink" title="2.4.5 浮点运算"></a>2.4.5 浮点运算</h3><ul>
 <li><p>对于实数 x、y，计算将产生 **Round(x * y)**，这是对实数运算的精确结果进行舍入后的结果，但在实际中，通常会避免执行这些精确的运算，因为计算只要精确到能够保证得到一个正确的舍入结果就可以了</p>
@@ -3215,376 +3605,6 @@
 </blockquote>
 </li>
 </ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/01/16/%E4%BB%A3%E7%A0%81%E9%9A%8F%E6%83%B3%E5%BD%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="yiweiBoi">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/01/16/%E4%BB%A3%E7%A0%81%E9%9A%8F%E6%83%B3%E5%BD%95/" class="post-title-link" itemprop="url">代码随想录</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2024-01-16 09:07:05" itemprop="dateCreated datePublished" datetime="2024-01-16T09:07:05+08:00">2024-01-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-25 11:07:57" itemprop="dateModified" datetime="2024-01-25T11:07:57+08:00">2024-01-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="代码随想录"><a href="#代码随想录" class="headerlink" title="代码随想录"></a>代码随想录</h1><h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p>全面：YiweiBoi</p>
-<p>用户名：yiweiboi</p>
-<p>密码：woainimen1314</p>
-<h1 id="博客"><a href="#博客" class="headerlink" title="博客"></a>博客</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43031092/article/details/105322677">Markdown如何实现多文档之间的跳转_markdown 跳转其他md文件-CSDN博客</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/2301_77285173/article/details/130189857">在hexo博客中插入图片的方法_hexo 博客添加图片-CSDN博客</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_43401436/article/details/107191688">hexo博客中插入图片失败——解决思路及个人最终解决办法_hexo无法插入图片-CSDN博客</a></p>
-<p><a target="_blank" rel="noopener" href="https://acacac13.top/2021/04/25/OvertimeOfHexo-d/">解决hexo d 报超时的问题 - Blog Of AC (acacac13.top)</a></p>
-<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p><a href="./LeetCode-704-%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE.md">二分查找</a></p>
-<p><a href="./LeetCode-27-%E7%A7%BB%E5%87%BA%E5%85%83%E7%B4%A0.md">移出元素</a></p>
-<p><a href="./LeetCode-977-%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E5%B9%B3%E6%96%B9.md">有序数组的平方</a></p>
-<p><a href="./LeetCode-209-%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84.md">长度最小的子数组</a></p>
-<p><a href="./LeetCode-59-%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B52.md">螺旋矩阵2</a></p>
-<h1 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h1><p><a href="./LeetCode-203-%E7%A7%BB%E5%87%BA%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0.md">移出链表元素</a></p>
-<p><a href="./LeetCode-206-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8.md">反转链表</a></p>
-<p><a href="./LeetCode-24-%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9.md">两两交换链表中的结点</a></p>
-<p><a href="./LeetCode-19-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9.md">删除链表的倒数第N个结点</a></p>
-<p><a href="./LeetCode-%E9%9D%A2%E8%AF%95%E9%A2%9802-07-%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.md">链表相交</a></p>
-<p><a href="./LeetCode-142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A82.md">环形链表2</a></p>
-<h1 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h1><p><a href="./LeetCode-242-%E6%9C%89%E6%95%88%E7%9A%84%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D.md">有效的字母异位词</a></p>
-<p><a href="./LeetCode-349-%E4%B8%A4%E4%B8%AA%E6%95%B0%E7%BB%84%E7%9A%84%E4%BA%A4%E9%9B%86.md">两个数组的交集</a></p>
-<p><a href="./LeetCode-202-%E5%BF%AB%E4%B9%90%E6%95%B0.md">快乐数</a></p>
-<p><a href="./LeetCode-1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C.md">两数之和</a></p>
-<p><a href="./LeetCode-454-%E5%9B%9B%E6%95%B0%E7%9B%B8%E5%8A%A02.md">四数相加2</a></p>
-<p><a href="./LeetCode-383-%E8%B5%8E%E9%87%91%E4%BF%A1.md">赎金信</a></p>
-<p><a href="./LeetCode-15-%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.md">三数之和</a></p>
-<p><a href="./LeetCode-18-%E5%9B%9B%E6%95%B0%E4%B9%8B%E5%92%8C.md">四数之和</a></p>
-<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><p><a href="./LeetCode-344-%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2.md">反转字符串</a></p>
-<p><a href="./LeetCode-541-%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B22.md">反转字符串2</a></p>
-<p><a href="./LeetCode-151-%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%AD%E7%9A%84%E5%8D%95%E8%AF%8D.md">反转字符串中的单词</a></p>
-<p><a href="./LeetCode-28-%E6%89%BE%E5%87%BA%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%AD%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8C%B9%E9%85%8D%E9%A1%B9%E7%9A%84%E4%B8%8B%E6%A0%87.md">找出字符串中第一个匹配项的下标</a></p>
-<p><a href="./LeetCode-459-%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2.md">重复的子字符串</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2023/11/29/KMP%E7%AE%97%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="yiweiBoi">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/29/KMP%E7%AE%97%E6%B3%95/" class="post-title-link" itemprop="url">KMP算法</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-11-29 23:11:20" itemprop="dateCreated datePublished" datetime="2023-11-29T23:11:20+08:00">2023-11-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-15 16:10:47" itemprop="dateModified" datetime="2024-01-15T16:10:47+08:00">2024-01-15</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="KMP算法详解"><a href="#KMP算法详解" class="headerlink" title="KMP算法详解"></a>KMP算法详解</h1><ul>
-<li><p>KMP算法常用来在一个字符串中匹配另一个字符串，它的核心是通过构建一个next数组，通过next数组中对应的值来快速跳转到下一个需要比较节点的位置！（原来是LeetCode28的题解的延申，这里把它独立出来方便查阅）</p>
-<ul>
-<li><p>首先我们要明白为什么要使用KMP算法，我们可以通过比较暴力算法和KMP算法在匹配过程中的区别：</p>
-<ul>
-<li>暴力算法：当原串和匹配串不匹配时，原串指针重新移动到<strong>发起点</strong>的下一个位置，匹配串的指针重新回到发起点</li>
-<li>KMP算法：当原串和匹配串不匹配时，原串指针不动，匹配串检测是否有<strong>相同的前缀和后缀</strong>，如果有的话，移动到<strong>前缀的下一个位置</strong>，否则重新回到发起点</li>
-</ul>
-</li>
-<li><p>此时，我们就需要理解什么是前缀、后缀以及什么是相同前后缀：</p>
-<ul>
-<li>前缀：<code>aaa*****bc</code>，那么当前字符串的前缀就是<code>aaa</code></li>
-<li>后缀：同理，当前字符串的后缀就是<code>bc</code></li>
-<li>相同前后缀：可以很明显的看出当前字符串没有相同的前后缀，如果字符串为<code>aaa****aa</code>，那么此时相同前后缀即为<code>aa</code></li>
-</ul>
-</li>
-<li><p>到这里，我们就已经明白了为什么KMP算法效率更高了！</p>
-<ul>
-<li>在匹配过程中，暴力算法总是将原串指针移动到发起点的下一个位置，而KMP算法则保证了原串指针不会回溯，始终坚定的向前走</li>
-<li>并且暴力算法的匹配串指针也总是回到发起点，而KMP算法的匹配串指针可以根据是否有相同前后缀来确定移动位置</li>
-</ul>
-</li>
-<li><p>可能有同学要问：<strong>为什么KMP算法需要将匹配串指针移动到前缀的下一个位置呢？原串指针为什么可以保持始终前进呢？</strong></p>
-<ul>
-<li>假设原串为<code>abeababeabf</code>，匹配串为<code>abeabf</code></li>
-<li>当第一次不匹配时，即原串中&#x3D;<code>abeaba</code>部分的字符<code>a</code>和匹配串<code>abeabf</code>中的字符<code>f</code>不匹配</li>
-<li>此时匹配串<code>abeab</code>部分的相同前后缀为<code>ab</code>，我们观察原串和匹配串，由于相同前后缀，<strong>我们可以省去原串（<code>abeab</code>部分）中后缀<code>ab</code>和匹配串中（<code>abeab</code>部分）的前缀<code>ab</code>的比较</strong>，而直接从匹配串中字符<code>e</code>（前缀的下一个位置）和原串中不匹配字符<code>a</code>（后缀的下一个位置）进行比较，而不移动原串指针（讲的好乱！！！）</li>
-<li>如果还还不匹配，检查匹配串中<code>ab</code>部分是否有相同前后缀，我们发现没有相同前后缀，那么此时重新从发起点进行比较</li>
-</ul>
-</li>
-<li><p>为了不去重复的扫描匹配串（子串）中是否有相同前后缀，以及需要移动到的位置（前缀的下一个位置），我们显然可以通过预处理得到<strong>next数组</strong>，数组中每一个位置的元素值都为该下标应该跳转的目标位置</p>
-</li>
-<li><p><strong>同时我们发现，对于匹配串的任意一个位置而言，该位置的跳转目标位置与原串无关！</strong>举一个例子：<code>abcabd</code>中字符<code>d</code>的跳转位置一定是<code>c</code>，而与原串无关</p>
-</li>
-<li><p>如何通过预处理得到next数组呢？如何在时间复杂度为O（n）的基础上进行构建呢？</p>
-<ul>
-<li>设置两个指针，<strong>i从0开始，j从1开始，将<code>next[0]</code>初始化为0</strong></li>
-<li><strong>如果<code>nums[i] == nums[j]</code>，令next[j] &#x3D; i + 1（将j的回溯位置设置为i + 1，即前缀的下一个位置），i和j同时后移</strong></li>
-<li><strong>如果<code>nums[i] != nums[j]</code>，令nums[i] &#x3D; nums[j - 1]（进行回溯，回溯位置为j - 1中前缀的下一个位置），直到nums[i] &#x3D; nums[j] 或则 i &#x3D;&#x3D; 0，如果i &#x3D;&#x3D; 0还不相等，令nums[j] &#x3D; 0，i不变，j向后移</strong></li>
-</ul>
-</li>
-<li><p>next数组的实际实现细节如下：</p>
-<ul>
-<li><p><strong>我们发现如果i位置发生不匹配，那么i指针回溯的位置是next[i - 1]，而在编程过程中，为了解题方便，我们通常将next数组后移一位，即i指针回溯的位置为next[i]</strong></p>
-<ul>
-<li>怎么实现将next数组后移一位呢？很简单：我们通过先移动再赋值的方式实现，将当前位置的相同前缀下一个位置赋值给当前位置的下一个位置！</li>
-</ul>
-</li>
-<li><p><strong>可能有同学有一些疑问：为什么要将next[0]初始化为-1呢？</strong>其实这里并没有什么特殊含义，只是为了编程方便！</p>
-</li>
-<li><p>如果我们将next[0]初始化为0，可能会有如下判断语句：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (array[i] == array[j]) &#123; </span><br><span class="line">    i++;</span><br><span class="line">    j++;</span><br><span class="line">    next[j] = i; </span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">0</span>) &#123; <span class="comment">// 我们还需要在array[i] != array[j]时再判断i是否已经为0</span></span><br><span class="line">        j++;</span><br><span class="line">        next[j] = <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        i = next[i];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而如果我们将next[0]初始化为-1，我们就可能有如下判断语句：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (i == -<span class="number">1</span> || array[i] == array[j]) &#123; </span><br><span class="line">    i++;</span><br><span class="line">    j++;</span><br><span class="line">    next[j] = i; <span class="comment">// 如果array[i] != array[j]，i就会回溯到-1，直接通过第一个判断语句将next[j]赋值为0</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    i = next[i];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>可能有些同学又有一些疑问：<strong>为什么i从-1开始，j从0开始呢？</strong></li>
-<li>如果i从0开始，j从1开始，由于我们先移动再赋值的策略，<strong>我们会跳过next[1]的赋值</strong>（虽然next[1]的值无论如何都是0，而Java数组中每个元素初始值都为0，影响不大），当然我们也可以显示的将next[1]赋值为0，但你懂的…</li>
-<li>而如果i从-1开始，j从0开始，我们就不会跳过next[1]位置的赋值，<strong>而且i &#x3D;&#x3D; -1恰好是需要将 j（其实是j + 1） 赋值为0的标志</strong>，所以我们就可以顺理成章的在循环中将next[1]赋值为0，而不用额外显示赋值！很高级！！！</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>具体构建next数组实现代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 构建next数组</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span>[] getNext(<span class="type">char</span>[] array) &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> -<span class="number">1</span>, j = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>[] next = <span class="keyword">new</span> <span class="title class_">int</span>[array.length];</span><br><span class="line">    next[<span class="number">0</span>] = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (j &lt; array.length - <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果t == -1，说明回溯到底了，当前位置i还是没有相同前后缀，通过t++、i++将i+1的回溯位置设置为0</span></span><br><span class="line">        <span class="comment">// 如果array[t] == array[i]，说明发现相同前后缀，通过t++、i++将i+1的回溯位置设置为t+1，即前缀的下一个位置</span></span><br><span class="line">        <span class="keyword">if</span> (i == -<span class="number">1</span> || array[i] == array[j]) &#123; </span><br><span class="line">            i++;</span><br><span class="line">            j++;</span><br><span class="line">            next[j] = i; <span class="comment">// 先移动再赋值，将next数组后移一位</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">// 否则进行回溯</span></span><br><span class="line">            i = next[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>KMP算法实现代码如下：（构建next数组省略了）</p>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">strStr</span><span class="params">(String haystack, String needle)</span> &#123;</span><br><span class="line">        <span class="type">char</span>[] mainString = haystack.toCharArray();</span><br><span class="line">        <span class="type">char</span>[] subString = needle.toCharArray();</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">begin</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span>[] next = getNext(subString);</span><br><span class="line">        <span class="keyword">while</span> (j &lt; subString.length &amp;&amp; i &lt; mainString.length) &#123;</span><br><span class="line">            <span class="comment">// 如果j=-1,说明主串需要进一位再重新和子串的第一个位置开始比较</span></span><br><span class="line">            <span class="comment">// 如果相等,i++，j++,继续比较下一个</span></span><br><span class="line">            <span class="comment">// 如果不相等,j根据next表找到回溯点继续和i比较</span></span><br><span class="line">            <span class="keyword">if</span> (j == -<span class="number">1</span> || subString[j] == mainString[i]) &#123; </span><br><span class="line">                <span class="keyword">if</span> (j == subString.length - <span class="number">1</span>) &#123; <span class="comment">// 此时最后一个字符已经比较完成</span></span><br><span class="line">                    <span class="keyword">return</span> begin; <span class="comment">// 其实不用begin记录，直接返回i - j也可以</span></span><br><span class="line">                &#125;</span><br><span class="line">                j++;</span><br><span class="line">                i++;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                j = next[j];</span><br><span class="line">                begin = i - j; </span><br><span class="line">            &#125; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2023/11/23/LeetCode-459-%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="yiweiBoi">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/11/23/LeetCode-459-%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2/" class="post-title-link" itemprop="url">LeetCode.459.重复的子字符串</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-11-23 21:17:54" itemprop="dateCreated datePublished" datetime="2023-11-23T21:17:54+08:00">2023-11-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-16 11:58:17" itemprop="dateModified" datetime="2024-01-16T11:58:17+08:00">2024-01-16</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h1><img src="/2023/11/23/LeetCode-459-%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2/459.png" class="" title="image-20240115161254056">
-
-<h1 id="我的题解"><a href="#我的题解" class="headerlink" title="我的题解"></a>我的题解</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">repeatedSubstringPattern</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="type">char</span>[] ch = s.toCharArray();</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// i指针指向子串的尾部</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; <span class="comment">// j指针指向原串中需要比较的位置</span></span><br><span class="line">        <span class="keyword">while</span> ((i + <span class="number">1</span>) * <span class="number">2</span> &lt;= ch.length) &#123; <span class="comment">// 子串长度需要小于等于原串长度的一半</span></span><br><span class="line">            j = i + <span class="number">1</span>; <span class="comment">// 更新比较位置</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> (j &lt; ch.length) &#123;</span><br><span class="line">                <span class="keyword">if</span> (ch[k] != ch[j]) <span class="keyword">break</span>; </span><br><span class="line">                <span class="keyword">if</span> (k == i) k = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">else</span> k++;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// j==ch.length，说明原串已经比较完了</span></span><br><span class="line">            <span class="comment">// k==0，说明子串也恰好比较完了，原串是子串的整数倍，防止原串比较完了但子串没有比较完的情况</span></span><br><span class="line">            <span class="comment">// 也可以判断ch.length%(i+1)==0，判断原串是否是子串的整数倍</span></span><br><span class="line">            <span class="keyword">if</span> (j == ch.length &amp;&amp; k == <span class="number">0</span>) <span class="keyword">return</span> <span class="literal">true</span>; </span><br><span class="line">            <span class="keyword">else</span> i++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="我的思考"><a href="#我的思考" class="headerlink" title="我的思考"></a>我的思考</h1><ul>
-<li><p>可以很明显的看到，我上边的解法又是暴力算法，时间复杂度为O（n^2）！</p>
-</li>
-<li><p>通过看一些大佬的题解，发现这道题还有很多很有趣的解法，我会在下面一一列举！</p>
-</li>
-<li><p>移动匹配法：</p>
-<ul>
-<li><p>当一个字符串可以由重复子串构成时，如果当前字符串为s，那么对于s + s这样的字符串，其内部（不包含头尾）就一定也包含一个s！</p>
-</li>
-<li><p>假设字符串为<code>abcabc</code>，对于s + s字符串为<code>abcabcabcabc</code>，我们发现<code>abc(abcabc)abc</code>其内部有一个s，说明它可以由重复子串构成！</p>
-</li>
-<li><p>代码实现如下：</p>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">repeatedSubstringPattern</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> s + s;</span><br><span class="line">        <span class="keyword">return</span> str.substring(<span class="number">1</span>, str.length() - <span class="number">1</span>).contains(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>对于移动匹配法，我们也可以换一种思路去理解！</p>
-<ul>
-<li><p>对于一个可以由重复子串构成的字符串s，它可以经过有效次移动来重新得到它本身！</p>
-</li>
-<li><p>假设当前字符串为<code>abcabc</code>：</p>
-<ul>
-<li>一次移动：<code>cabcab</code>；二次移动：<code>bcabca</code>；三次移动：<code>abcabc</code>！匹配到字符串自己了！</li>
-</ul>
-</li>
-<li><p>基于这个思想，我们可以经过至多length - 1次移动，如果还匹配不到，则不能由重复子串构成，但这样的效率很低</p>
-</li>
-<li><p>因此我们可以通过s + s这样的字符串，它包含了所有需要移动的字符串，比如对于字符串<code>abcabc</code>：</p>
-<ul>
-<li>s + s为<code>abcabcabcabc</code>，一次移动<code>abcab(cabcab)c</code>；两次移动：<code>abca(bcabca)bc</code>；三次移动：<code>abc(abcabc)abc</code>，匹配到了s！</li>
-<li>移动的可能都包含在了s + s，匹配的过程就像一个滑动窗口一样！</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>KMP算法：</p>
-<ul>
-<li><p>是的你没有看错，KMP算法不仅可以用于匹配一个字符串中是否包含另一个字符串，也可以用来查看字符串是否可以由重复子串构成！</p>
-</li>
-<li><p>首先先回顾一下前后缀的定义：</p>
-<ul>
-<li>前缀是指不包含最后一个字符的所有以第一个字符开头的连续子串</li>
-<li>后缀是指不包含最后一个字符的所有以最后一个字符结尾的连续子串</li>
-</ul>
-</li>
-<li><p>而对于可以由重复子串构成的字符串，我们应该知道：<strong>由重复子串构成的字符串中，这个字符串中最长相同前后缀不包含的子串就是最小重复子串！</strong></p>
-<ul>
-<li>假设字符串为<code>abababab</code>，它的最长相同前后缀为：<code>ababab</code>，那么最小重复子串为：<code>ab</code>！</li>
-</ul>
-</li>
-<li><p>实现代码如下：</p>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">repeatedSubstringPattern</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="type">char</span>[] ch = s.toCharArray();</span><br><span class="line">        <span class="type">int</span>[] next = getNext(ch);</span><br><span class="line">        <span class="comment">// 如果拥有最长相同前后缀且最长前缀不包含的子串可以整除整个字符串长度，即表示可以由重复子串构成</span></span><br><span class="line">        <span class="keyword">return</span> next[ch.length - <span class="number">1</span>] != -<span class="number">1</span> &amp;&amp; ch.length % (ch.length - (next[ch.length - <span class="number">1</span>] + <span class="number">1</span>)) == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] getNext(<span class="type">char</span>[] ch) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span>[] next = <span class="keyword">new</span> <span class="title class_">int</span>[ch.length];</span><br><span class="line">        next[<span class="number">0</span>] = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (j &lt; ch.length - <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="comment">// if (i == -1 || ch[i] == ch[j]) &#123;</span></span><br><span class="line">            <span class="comment">//     i++;</span></span><br><span class="line">            <span class="comment">//     j++;</span></span><br><span class="line">            <span class="comment">//     next[j] = i;</span></span><br><span class="line">            <span class="comment">// &#125; else &#123;</span></span><br><span class="line">            <span class="comment">//     i = next[i];</span></span><br><span class="line">            <span class="comment">// &#125;</span></span><br><span class="line">            <span class="comment">// 这个方法得到的next数组和以往的不太一样，之前的next数组中的元素值为当前下标需要回溯的位置(前缀的下一个位置)</span></span><br><span class="line">            <span class="comment">// 而这个方法得到的next数组中的元素值为当前下标对应的前缀的尾部</span></span><br><span class="line">            <span class="comment">// 而且这个next数组中对于没有相同前后缀回溯值位置为-1</span></span><br><span class="line">            <span class="comment">// 之前的情况是，没有相同前后缀的回溯位置为0</span></span><br><span class="line">            <span class="comment">// 这样做的目的是为了区分对于aa这种特殊情况，即使有相同前后缀，回溯位置也是0，无法和没有相同前后缀的字符串区分</span></span><br><span class="line">            j++;</span><br><span class="line">            <span class="keyword">while</span> (i != -<span class="number">1</span> &amp;&amp; ch[i + <span class="number">1</span>] != ch[j]) i = next[i];</span><br><span class="line">            <span class="keyword">if</span> (ch[i + <span class="number">1</span>] == ch[j]) i++;</span><br><span class="line">            next[j] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>其实对于KMP算法，我们还可以有另一种解题思路：<ul>
-<li>因为KMP算法主要是为了查找一个字符串中是否包含另一个字符串，而对于s + s这样的字符串，我们去除首尾字符，使用KMP算法来查找内部是否包含了s</li>
-<li>不仅运用了移动匹配法的基本思想：如果s可以由重复子串构成，那么s + s（除去首尾字符）一定可以包含了一个s！还结合了KMP算法的使用！</li>
-<li>代码的实际实现就不列举了</li>
-</ul>
-</li>
-</ul>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p><a href="./KMP%E7%AE%97%E6%B3%95">KMP算法详解</a></p>
 
       
     </div>
@@ -3669,12 +3689,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
