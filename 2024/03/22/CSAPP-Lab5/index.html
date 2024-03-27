@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="注意事项 实验讲义：cachelab.dvi (cmu.edu)  本实验将帮助您了解缓存内存对 C 程序性能的影响  该实验室由两部分组成：  在第一部分中，您将编写一个模拟缓存行为的小型 C 程序（大约 200-300 行） 在第二部分中，您将优化一个小矩阵转置函数，目标是最大限度地减少缓存未命中次数。   您将修改两个文件：csim.c 和 trans.c。若要编译这些文件，请键入 make">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSAPP CacheLab">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="注意事项 实验讲义：cachelab.dvi (cmu.edu)  本实验将帮助您了解缓存内存对 C 程序性能的影响  该实验室由两部分组成：  在第一部分中，您将编写一个模拟缓存行为的小型 C 程序（大约 200-300 行） 在第二部分中，您将优化一个小矩阵转置函数，目标是最大限度地减少缓存未命中次数。   您将修改两个文件：csim.c 和 trans.c。若要编译这些文件，请键入 make">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326183041125.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240325211925698.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326163543422.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240325225426182.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326135509782.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326140925130.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326143513458.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326144644822.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326152558868.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326152805960.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326154309061.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326154418669.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326155210874.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326155825011.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326160516439.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326161646360.png">
+<meta property="article:published_time" content="2024-03-22T09:00:27.000Z">
+<meta property="article:modified_time" content="2024-03-27T06:35:15.281Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="CSAPP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/image-20240326183041125.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CSAPP CacheLab | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/03/22/CSAPP-Lab5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSAPP CacheLab
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-22 17:00:27" itemprop="dateCreated datePublished" datetime="2024-03-22T17:00:27+08:00">2024-03-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-27 14:35:15" itemprop="dateModified" datetime="2024-03-27T14:35:15+08:00">2024-03-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>实验讲义：<a target="_blank" rel="noopener" href="http://csapp.cs.cmu.edu/3e/cachelab.pdf">cachelab.dvi (cmu.edu)</a></p>
+</li>
+<li><p>本实验将帮助您了解缓存内存对 C 程序性能的影响</p>
+</li>
+<li><p>该实验室由两部分组成：</p>
+<ul>
+<li>在第一部分中，您将编写一个模拟缓存行为的小型 C 程序（大约 200-300 行）</li>
+<li>在第二部分中，您将优化一个小矩阵转置函数，目标是最大限度地减少缓存未命中次数。</li>
+</ul>
+</li>
+<li><p>您将修改两个文件：csim.c 和 trans.c。若要编译这些文件，请键入 <strong>make clean</strong>、<strong>make</strong></p>
+</li>
+<li><p>traces 子目录包含引用跟踪文件的集合，我们将使用这些文件来评估您在 A 部分中编写的缓存模拟器的正确性</p>
+</li>
+<li><p>跟踪文件中的内容具有以下形式：[space] operation address,size</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">I 0400d7d4,8</span><br><span class="line"> M 0421c7f0,4</span><br><span class="line"> L 04f6b868,8</span><br><span class="line"> S 7ff0005c8,8</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>I 表示指令加载，每个 I 之前永远不会有空格</li>
+<li>L 表示数据加载，S 表示数据存储，M 表示数据修改（即数据加载后跟数据存储），每个 M、L 和 S 之前总是有一个空格</li>
+<li>address 字段指定 64 位十六进制内存地址</li>
+<li>size 字段指定操作访问的字节数</li>
+</ul>
+<h1 id="Part-A"><a href="#Part-A" class="headerlink" title="Part A"></a>Part A</h1><ul>
+<li><p>Part A 要求我们在 <strong>csim.c</strong> 文件中编写一个缓存模拟器，它可以跟踪并输出缓存的命中、未命中、逐出的次数</p>
+</li>
+<li><p>官方提供了一个可执行的二进制文件 <strong>csim-ref</strong> 模拟缓存的行为</p>
+</li>
+<li><p>csim-ref 在选择要逐出的缓存行时，它使用 LRU（最近最少使用）替换策略</p>
+</li>
+<li><p>csim-ref 可以通过 <strong>.&#x2F;csim-ref [-hv] -s &lt; s &gt; -E &lt; E &gt; -b &lt; b &gt; -t &lt; tracefile &gt;</strong> 运行</p>
+<ul>
+<li>&lt; s &gt; 表示缓存的组数；&lt; E &gt; 表示关联性，即每组的行数</li>
+<li>&lt; b &gt; 表示一个块的字节数；&lt; tracefile &gt; 表示跟踪文件的名称</li>
+<li>-hv 是可选的，-h 表示打印帮助，-v 表示显示详细跟踪信息</li>
+</ul>
+</li>
+<li><p>运行结果如下</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">linux&gt; ./csim-ref -s 4 -E 1 -b 4 -t traces/yi.trace</span><br><span class="line">hits:4 misses:5 evictions:3</span><br><span class="line"></span><br><span class="line">linux&gt; ./csim-ref -v -s 4 -E 1 -b 4 -t traces/yi.trace</span><br><span class="line">L 10,1 miss</span><br><span class="line">M 20,1 miss hit</span><br><span class="line">L 22,1 hit</span><br><span class="line">S 18,1 hit</span><br><span class="line">L 110,1 miss eviction</span><br><span class="line">L 210,1 miss eviction</span><br><span class="line">M 12,1 miss eviction hit</span><br><span class="line">hits:4 misses:5 evictions:3</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们的工作是填充 csim.c 文件，以便它 <strong>采用相同的命令行参数并生成与 csim-ref 相同的输出</strong> </li>
+<li>注意事项<ul>
+<li>使用 malloc 函数为模拟器的数据结构分配存储，通过 man malloc 以获取有关此函数的信息</li>
+<li>我们只对数据缓存性能感兴趣，因此您的模拟器应忽略所有指令缓存访问（以 I 开头的行）</li>
+<li>您必须在主函数的末尾调用函数 printSummary，其中包含命中、未命中和逐出的总数：<strong>printSummary(hit_count, miss_count, eviction_count);</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><ul>
+<li>定义 cache 中组的一行，通过时间戳来记录组中每行使用的先后情况</li>
+<li>bool 类型需要头文件：stdbool.h</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">L</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> tag;	<span class="comment">// 标记位</span></span><br><span class="line">    <span class="type">bool</span> vaild;	<span class="comment">// 有效位</span></span><br><span class="line">    <span class="type">int</span> stamp;	<span class="comment">// 时间戳</span></span><br><span class="line">    <span class="comment">// int *block;  这里只是模拟，并不需要实际定义块</span></span><br><span class="line">&#125; Line;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>定义 cache，groups 表示 cache 中所有的组，一个组有多个行，所以用 Line **</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">g</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> s;	<span class="comment">// 组数</span></span><br><span class="line">    <span class="type">int</span> e;	<span class="comment">// 关联性</span></span><br><span class="line">    <span class="type">int</span> b;	<span class="comment">// 块位数</span></span><br><span class="line">    Line **groups;	</span><br><span class="line">&#125; Cache;</span><br></pre></td></tr></table></figure>
+
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><ul>
+<li>这里有一个 “小” 细节，参数 s 并不是真正的组数，组数 &#x3D; 2^s^；b 也不是真正的块位数，块位数 &#x3D; 2^b^；而 e 确实是真正的一组中的行数。这个 “小” 细节让我检查了半天！</li>
+<li>malloc 需要包含头文件：stdlib.h</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> s 组数</span></span><br><span class="line"><span class="comment"> e 关联性</span></span><br><span class="line"><span class="comment"> b 块位数</span></span><br><span class="line"><span class="comment"> 初始化缓存（尽量所用 sizeof，增强可移植性）</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">init</span><span class="params">(<span class="type">int</span> s, <span class="type">int</span> e, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    <span class="type">int</span> S = <span class="number">1</span> &lt;&lt; s;</span><br><span class="line">    <span class="type">int</span> B = <span class="number">1</span> &lt;&lt; b;</span><br><span class="line">    cache.s = S;</span><br><span class="line">    cache.e = e;</span><br><span class="line">    cache.b = B;</span><br><span class="line">    cache.groups = (Line**)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Line*) * S); </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; S; i++) &#123;</span><br><span class="line">    	cache.groups[i] = (Line*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Line) * e);</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; e; j++) &#123;</span><br><span class="line">    	    cache.groups[i][j].tag = <span class="number">-1</span>;</span><br><span class="line">    	    cache.groups[i][j].stamp = <span class="number">0</span>;</span><br><span class="line">    	    cache.groups[i][j].vaild = <span class="literal">false</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="跟踪文件"><a href="#跟踪文件" class="headerlink" title="跟踪文件"></a>跟踪文件</h2><ul>
+<li>这里我们需要读入跟踪文件的内容，根据文件内容的形式 [space] operation address,size 读取出 space 和 address，根据 address 读出访问的组索引和标记，根据 space 来选择进行一次还是两次的更新</li>
+<li>读文件时，要根据内容的形式设置相应的格式说明符，例如：space address,size 就应该设置为 %c %x,%d，如果你没有注意，设置成了 %c, %x, %d，那就很难检查出来了（说的就是我！）</li>
+<li>根据 address 提取 groupIndex，利用了位运算的相关知识<ul>
+<li>address &gt;&gt; b 使得 address 的低 s 位为 groupIndex</li>
+<li>（unsigned）-1 得到 11……11，右移时默认为了逻辑右移</li>
+<li>sizeof（unsigned）* 8 可以得到任何机器系统上的 int 的位数，sizeof 增强了代码的可移植性，* 8 是因为一个字节 8 位</li>
+<li>-s 使得当进行 &amp; 运算时保留低 s 位</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> s 组数</span></span><br><span class="line"><span class="comment"> b 块位数</span></span><br><span class="line"><span class="comment"> 读取文件，根据地址模拟缓存中的行为</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">trace</span><span class="params">(<span class="type">int</span> s, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    FILE *file = fopen(tracefile, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (file == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">&quot;Fail to open the file!\n&quot;</span>);</span><br><span class="line">    	<span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">char</span> space;	<span class="comment">// 内存访问类型</span></span><br><span class="line">    <span class="type">unsigned</span> address; 	<span class="comment">// 操作地址</span></span><br><span class="line">    <span class="type">int</span> size;	<span class="comment">// 访问字节数</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">fscanf</span>(file, <span class="string">&quot;%c %x, %d&quot;</span>, &amp;space, &amp;address, &amp;size) != EOF) &#123; <span class="comment">// 细节</span></span><br><span class="line">    	<span class="type">int</span> tag = address &gt;&gt; (s + b);	</span><br><span class="line">    	<span class="type">int</span> groupIndex = (address &gt;&gt; b) &amp; ((<span class="type">unsigned</span>)(<span class="number">-1</span>) &gt;&gt; (<span class="keyword">sizeof</span>(<span class="type">unsigned</span>) * <span class="number">8</span>  - s)); </span><br><span class="line">    	<span class="keyword">switch</span> (space) &#123;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">    	    update(groupIndex, tag);	<span class="comment">// 数据加载</span></span><br><span class="line">    	    <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">&#x27;S&#x27;</span>:</span><br><span class="line">    	    update(groupIndex, tag);	<span class="comment">// 数据存储</span></span><br><span class="line">    	    <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">&#x27;M&#x27;</span>:</span><br><span class="line">    	    update(groupIndex, tag);	<span class="comment">// 数据修改（加载 + 存储）</span></span><br><span class="line">    	    update(groupIndex, tag);</span><br><span class="line">    	    <span class="keyword">break</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(file);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="更新"><a href="#更新" class="headerlink" title="更新"></a>更新</h2><ul>
+<li>更新命中 &#x2F; 未命中 &#x2F; 驱逐总数</li>
+<li>这里有一个小细节，如果冲突未命中，那么一定缓存未命中，反之则不一定</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 更新命中数/不命中数/驱逐数</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">update</span><span class="params">(<span class="type">int</span> groupIndex, <span class="type">int</span> tag)</span> &#123;</span><br><span class="line">    <span class="type">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> ((index = isHit(groupIndex, tag)) != <span class="number">-1</span>) &#123; <span class="comment">// 判断是否命中</span></span><br><span class="line">    	update_stamp(groupIndex, index, tag);</span><br><span class="line">    	++hit_count;</span><br><span class="line">    	<span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">&quot;hit&quot;</span>);</span><br><span class="line">    	<span class="keyword">return</span>;</span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    ++miss_count;</span><br><span class="line">    <span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">&quot;mis&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> ((index = isNotEvict(groupIndex)) == <span class="number">-1</span>) &#123; <span class="comment">// 判断是否不是冲突未命中</span></span><br><span class="line">    	</span><br><span class="line">    	index = getLast(groupIndex);</span><br><span class="line">    	++eviction_count;</span><br><span class="line">    	<span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">&quot;eviction&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    &#125; </span><br><span class="line">    update_stamp(groupIndex, index, tag);	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>得到当前组中最久没有使用过的行。我们使用 LRU 替换策略，定义时间戳为越大说明越久没有使用</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> 在相关组中，得到时间戳最大的行索引</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">getLast</span><span class="params">(<span class="type">int</span> groupIndex)</span> &#123;</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="type">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> max = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (line[i].stamp &gt; max) &#123; </span><br><span class="line">            index = i;</span><br><span class="line">            max = line[i].stamp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>更新时间戳，将当前使用过的行的时间戳更新为 0，组中其余行的时间戳 +1</li>
+<li>这里也包含了对于冲突未命中和缓存未命中的行的处理，设置相关的 tag、vaild，对于命中的情况则没有作用</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> index 行索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 在相关组中，将相关行的时间戳更新为 0 更新 tag 更新 vaild，其余行时间戳增加</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">update_stamp</span><span class="params">(<span class="type">int</span> groupIndex, <span class="type">int</span> index, <span class="type">int</span> tag)</span> &#123;</span><br><span class="line">    cache.groups[groupIndex][index].vaild = <span class="literal">true</span>;</span><br><span class="line">    cache.groups[groupIndex][index].tag = tag;</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">    	<span class="keyword">if</span> (line[i].vaild) &#123;</span><br><span class="line">    	    ++line[i].stamp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cache.groups[groupIndex][index].stamp = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="判断"><a href="#判断" class="headerlink" title="判断"></a>判断</h2><ul>
+<li>判断当前组中是否命中，只有当 vaild 有效和 tag 相同同时满足时才表示命中</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 如果命中了，返回命中行的索引，否则返回 -1</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">isHit</span><span class="params">(<span class="type">int</span> groupIndex, <span class="type">int</span> tag)</span> &#123;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">    	<span class="keyword">if</span> (line[i].vaild &amp;&amp; line[i].tag == tag) &#123;</span><br><span class="line">    	    <span class="keyword">return</span> i;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>判断是否不是冲突未命中，如果当前组中有一个 vaild 无效，就说明不是冲突未命中，因为 vaild 无效表示当前组中还有行为空</li>
+<li>我们这里有一个条件假设，即我们每次都是在调用完 isHit 后才调用这个函数的，所以当不是冲突未命中时一定是缓存未命中（就是那种 “不是冲突未命中” 的缓存未命中啊！）</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 这里有一个条件假设，即我们每次都是在调用完 isHit 后才调用 isNotEvict 的</span></span><br><span class="line"><span class="comment"> 如果不是冲突导致的不命中，返回第一个不冲突的行索引，否则返回 -1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">isNotEvict</span><span class="params">(<span class="type">int</span> groupIndex)</span> &#123;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">    	<span class="keyword">if</span> (!line[i].vaild) </span><br><span class="line">    	    <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="main"><a href="#main" class="headerlink" title="main"></a>main</h2><ul>
+<li>讲义中提示我们使用 getopt 方法读取命令行参数，hv 后没有：说明 hv 是可选的，s、E、b、t 后都有 ：说明后边必须跟着参数值</li>
+<li>atoi 函数将字符串转换为 int</li>
+<li>getopt 需要包含头文件：stdlib.h、unistd.h、getopt.h</li>
+<li>strcpy 需要包含头文件：string.h</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;	</span><br><span class="line">    <span class="type">int</span> opt = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> s = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> e = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> ((opt = getopt(argc, argv, <span class="string">&quot;hvs:E:b:t:&quot;</span>)) != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (opt) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;h&#x27;</span>:</span><br><span class="line">            print_help();</span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;v&#x27;</span>:</span><br><span class="line">            verbose = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;s&#x27;</span>:</span><br><span class="line">            s = atoi(optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;E&#x27;</span>:</span><br><span class="line">            e = atoi(optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;b&#x27;</span>:</span><br><span class="line">            b = atoi(optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;t&#x27;</span>:</span><br><span class="line">            <span class="built_in">strcpy</span>(tracefile, optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            print_help();</span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    init(s, e, b);</span><br><span class="line">    trace(s, b);</span><br><span class="line">    free_cache();</span><br><span class="line">    printSummary(hit_count, miss_count, eviction_count);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h2><ul>
+<li>整理过后，Part A 的实现代码如下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;cachelab.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;limits.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;getopt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">L</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> tag;	<span class="comment">// 标志位</span></span><br><span class="line">    <span class="type">bool</span> vaild;	<span class="comment">// 有效位</span></span><br><span class="line">    <span class="type">int</span> stamp;	<span class="comment">// 时间戳</span></span><br><span class="line">    <span class="comment">// int *block;  不需要块，这里只是模拟</span></span><br><span class="line">&#125; Line;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">g</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> s;	<span class="comment">// 组数</span></span><br><span class="line">    <span class="type">int</span> e;	<span class="comment">// 关联性</span></span><br><span class="line">    <span class="type">int</span> b;	<span class="comment">// 块位数</span></span><br><span class="line">    Line **groups;	</span><br><span class="line">&#125; Cache;</span><br><span class="line"></span><br><span class="line">Cache cache;	<span class="comment">// 缓存</span></span><br><span class="line"><span class="type">char</span> tracefile[<span class="number">1000</span>];	<span class="comment">// 跟踪文件</span></span><br><span class="line"><span class="type">int</span> miss_count;	<span class="comment">// 未命中数量</span></span><br><span class="line"><span class="type">int</span> hit_count;	<span class="comment">// 命中数量</span></span><br><span class="line"><span class="type">int</span> eviction_count;	<span class="comment">// 驱逐数量</span></span><br><span class="line"><span class="type">bool</span> verbose;	<span class="comment">// 是否详细显示</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> s 组数</span></span><br><span class="line"><span class="comment"> e 关联性</span></span><br><span class="line"><span class="comment"> b 块位数</span></span><br><span class="line"><span class="comment"> 初始化缓存（尽量所用 sizeof，增强可移植性）</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">init</span><span class="params">(<span class="type">int</span> s, <span class="type">int</span> e, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    <span class="type">int</span> S = <span class="number">1</span> &lt;&lt; s;</span><br><span class="line">    <span class="type">int</span> B = <span class="number">1</span> &lt;&lt; b;</span><br><span class="line">    cache.s = S;</span><br><span class="line">    cache.e = e;</span><br><span class="line">    cache.b = B;</span><br><span class="line">    cache.groups = (Line**)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Line*) * S); </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; S; i++) &#123;</span><br><span class="line">    	cache.groups[i] = (Line*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Line) * e);</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; e; j++) &#123;</span><br><span class="line">    	    cache.groups[i][j].tag = <span class="number">-1</span>;</span><br><span class="line">    	    cache.groups[i][j].stamp = <span class="number">0</span>;</span><br><span class="line">    	    cache.groups[i][j].vaild = <span class="literal">false</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> index 行索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 在相关组中，将相关行的时间戳更新为 0 更新 tag 更新 vaild，其余行时间戳增加</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">update_stamp</span><span class="params">(<span class="type">int</span> groupIndex, <span class="type">int</span> index, <span class="type">int</span> tag)</span> &#123;</span><br><span class="line">    cache.groups[groupIndex][index].vaild = <span class="literal">true</span>;</span><br><span class="line">    cache.groups[groupIndex][index].tag = tag;</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">    	<span class="keyword">if</span> (line[i].vaild) &#123;</span><br><span class="line">    	    ++line[i].stamp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cache.groups[groupIndex][index].stamp = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 如果命中了，返回命中行的索引，否则返回 -1</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">isHit</span><span class="params">(<span class="type">int</span> groupIndex, <span class="type">int</span> tag)</span> &#123;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">    	<span class="keyword">if</span> (line[i].vaild &amp;&amp; line[i].tag == tag) &#123;</span><br><span class="line">    	    <span class="keyword">return</span> i;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 这里有一个条件假设，即我们每次都是在调用完 isHit 后才调用 isNotEvict 的</span></span><br><span class="line"><span class="comment"> 如果不是冲突导致的不命中，返回第一个不冲突的行索引，否则返回 -1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">isNotEvict</span><span class="params">(<span class="type">int</span> groupIndex)</span> &#123;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">    	<span class="keyword">if</span> (!line[i].vaild) </span><br><span class="line">    	    <span class="keyword">return</span> i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> 在相关组中，得到时间戳最大的行索引</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">getLast</span><span class="params">(<span class="type">int</span> groupIndex)</span> &#123;</span><br><span class="line">    <span class="type">int</span> length = cache.e;</span><br><span class="line">    Line *line = cache.groups[groupIndex];</span><br><span class="line">    <span class="type">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> max = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (line[i].stamp &gt; max) &#123; </span><br><span class="line">            index = i;</span><br><span class="line">            max = line[i].stamp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> groupIndex 组索引</span></span><br><span class="line"><span class="comment"> tag 标记值</span></span><br><span class="line"><span class="comment"> 更新命中数/不命中数/驱逐数</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">update</span><span class="params">(<span class="type">int</span> groupIndex, <span class="type">int</span> tag)</span> &#123;</span><br><span class="line">    <span class="type">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> ((index = isHit(groupIndex, tag)) != <span class="number">-1</span>) &#123;</span><br><span class="line">    	update_stamp(groupIndex, index, tag);</span><br><span class="line">    	++hit_count;</span><br><span class="line">    	<span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">&quot;hit&quot;</span>);</span><br><span class="line">    	<span class="keyword">return</span>;</span><br><span class="line">    &#125; </span><br><span class="line">    </span><br><span class="line">    ++miss_count;</span><br><span class="line">    <span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">&quot;mis&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> ((index = isNotEvict(groupIndex)) == <span class="number">-1</span>) &#123;</span><br><span class="line">    	</span><br><span class="line">    	index = getLast(groupIndex);</span><br><span class="line">    	++eviction_count;</span><br><span class="line">    	<span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">&quot;eviction&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    &#125; </span><br><span class="line">    update_stamp(groupIndex, index, tag);	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> s 组数</span></span><br><span class="line"><span class="comment"> b 块位数</span></span><br><span class="line"><span class="comment"> 读取文件，根据地址模拟缓存中的行为</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">trace</span><span class="params">(<span class="type">int</span> s, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    FILE *file = fopen(tracefile, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (file == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    	<span class="built_in">printf</span>(<span class="string">&quot;Fail to open the file!\n&quot;</span>);</span><br><span class="line">    	<span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">char</span> space;	<span class="comment">// 内存访问类型</span></span><br><span class="line">    <span class="type">unsigned</span> address; 	<span class="comment">// 操作地址</span></span><br><span class="line">    <span class="type">int</span> size;	<span class="comment">// 访问字节数</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="built_in">fscanf</span>(file, <span class="string">&quot;%c %x, %d&quot;</span>, &amp;space, &amp;address, &amp;size) != EOF) &#123; <span class="comment">// 细节</span></span><br><span class="line">    	<span class="type">int</span> tag = address &gt;&gt; (s + b);	</span><br><span class="line">    	<span class="type">int</span> groupIndex = (address &gt;&gt; b) &amp; ((<span class="type">unsigned</span>)(<span class="number">-1</span>) &gt;&gt; (<span class="keyword">sizeof</span>(<span class="type">unsigned</span>) * <span class="number">8</span>  - s)); </span><br><span class="line">    	<span class="keyword">switch</span> (space) &#123;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">    	    update(groupIndex, tag);	<span class="comment">// 数据加载</span></span><br><span class="line">    	    <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">&#x27;S&#x27;</span>:</span><br><span class="line">    	    update(groupIndex, tag);	<span class="comment">// 数据存储</span></span><br><span class="line">    	    <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">&#x27;M&#x27;</span>:</span><br><span class="line">    	    update(groupIndex, tag);	<span class="comment">// 数据修改（加载 + 存储）</span></span><br><span class="line">    	    update(groupIndex, tag);</span><br><span class="line">    	    <span class="keyword">break</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(file);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">free_cache</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> length = cache.s;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        <span class="built_in">free</span>(cache.groups[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">free</span>(cache.groups);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> 打印帮助</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">print_help</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;./csim-ref: Missing required command line argument\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Usage: ./csim-ref [-hv] -s &lt;num&gt; -E &lt;num&gt; -b &lt;num&gt; -t &lt;file&gt;\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Options:\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  -h         Print this help message.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  -v         Optional verbose flag.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  -s &lt;num&gt;   Number of set index bits.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  -E &lt;num&gt;   Number of lines per set.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  -b &lt;num&gt;   Number of block offset bits.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  -t &lt;file&gt;  Trace file.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Examples:\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  linux&gt;  ./csim-ref -s 4 -E 1 -b 4 -t traces/yi.trace\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;  linux&gt;  ./csim-ref -v -s 8 -E 2 -b 4 -t traces/yi.trace\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;	</span><br><span class="line">    <span class="type">int</span> opt = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> s = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> e = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> b = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> ((opt = getopt(argc, argv, <span class="string">&quot;hvs:E:b:t:&quot;</span>)) != <span class="number">-1</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (opt) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;h&#x27;</span>:</span><br><span class="line">            print_help();</span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;v&#x27;</span>:</span><br><span class="line">            verbose = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;s&#x27;</span>:</span><br><span class="line">            s = atoi(optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;E&#x27;</span>:</span><br><span class="line">            e = atoi(optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;b&#x27;</span>:</span><br><span class="line">            b = atoi(optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;t&#x27;</span>:</span><br><span class="line">            <span class="built_in">strcpy</span>(tracefile, optarg);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            print_help();</span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    init(s, e, b);</span><br><span class="line">    trace(s, b);</span><br><span class="line">    free_cache();</span><br><span class="line">    printSummary(hit_count, miss_count, eviction_count);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-csim</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326183041125.png" class="" title="image-20240326183041125">
+
+<ul>
+<li>27 分满分！！！</li>
+</ul>
+<h1 id="Part-B"><a href="#Part-B" class="headerlink" title="Part B"></a>Part B</h1><ul>
+<li><p>B 部分要求我们在 trans.c 中编写一个转置矩阵函数，尽可能的减少缓存未命中的情况</p>
+</li>
+<li><p>我们的转置矩阵函数需要分别工作在不同的情况下，因此需要针对不同的 M 和 N 做对应的优化</p>
+<ul>
+<li>32 * 32，未命中次数小于 300 满分，大于 600 不通过</li>
+<li>64 * 64，未命中次数小于 1300 满分，大于 2000 不通过</li>
+<li>61 * 67，未命中次数小于 2000 满分，大于 3000 不通过</li>
+</ul>
+</li>
+<li><p>对于缓存，给出的参数为 <strong>s &#x3D; 5，E &#x3D; 1，b &#x3D; 5</strong>，即缓存有 32 个组，每组 1 行，每块（行） 8 个 int</p>
+</li>
+<li><p>我们先来分析一下为什么要做优化</p>
+</li>
+<li><p>trans.c 中包含了一个帮助我们入门的转置矩阵函数，没有做任何优化，我们通过 <strong>.&#x2F;test-trans -M 32 -N 32</strong> 运行它</p>
+<blockquote>
+<p>每次更新都需要通过 <strong>make</strong> 重新编译，这很重要！</p>
+</blockquote>
+</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240325211925698.png" class="" title="image-20240325211925698">
+
+<ul>
+<li>我们发现对于 32 * 32 的矩阵，缓存未命中次数很容易的就达到了 1183，我们看一下它的源码</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> i, j, tmp;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; N; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; M; j++) &#123;</span><br><span class="line">            tmp = A[i][j];</span><br><span class="line">            B[j][i] = tmp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们来分析一下到底发生了什么造成这么多的缓存未命中</li>
+<li>我们的 cache 大小为 32 组，每组一行，每块 8 个 int，而对于 32 * 32 的矩阵来说，矩阵的 8 行就可以填满整个 cache</li>
+<li>对于 32 * 32 的矩阵，每 4 组为矩阵的一行，cache 中块的大致分布如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326163543422.png" class="" title="image-20240326163543422">
+
+<ul>
+<li><p>读入 A[0] [0] ，A[0] [0] 会造成一次缓存未命中，之后不仅 A[0] [0] 被存入第一个块了，A[0] [1] …… A[0] [7] 都会读入 cache 中第一个块，因为 cache 都是以块为单位操作的</p>
+</li>
+<li><p>将 A[0] [0] 写入 B[0] [0]，B[0] [0] 由于索引相同，也会映射到第一个块，这样就造成了一次缓存未命中和一次冲突未命中，之后 B[0] [0] 存入第一个块，将第一个块覆盖，当然 B[0] [1] …… B[0] [7] 也存入了</p>
+</li>
+<li><p>接着，读入 A[0] [1]，还是映射到第一个块，造成了一次缓存未命中和一次冲突未命中， 重新将 A[0] [0] …… A[0] [7] 覆盖到第一个块</p>
+</li>
+<li><p>将 A[0] [1] 写入 B[1] [0]，B[1] [0] 会映射到第二个块，只会造成一次缓存未命中，所以 B[0] [0] …… B[0] [7] 覆盖到第二个块</p>
+</li>
+<li><p>之后的情况就很明了了</p>
+</li>
+<li><p>我们发现对于 A 的每 8 个元素都会造成一次缓存未命中，即 A 的每一行都会有 32 &#x2F; 8 &#x3D; 4 次不命中</p>
+</li>
+<li><p>由于 B 是按列写入的，当 B 存入 8 行填满 cache 后，接下来还会再继续存入 8 行，会重新映射到第一个块，覆盖已经存入的行，造成一次冲突未命中和一次缓存未命中，所以 B 的每一行都会造成缓存不命中</p>
+</li>
+<li><p>除此之外，我们还没有考虑对角线的情况，即当 B[i] [i] &#x3D; A[i] [i] 时，先读取 A[i] [i] 可能造成一次缓存未命中，写入 B[i] [i] 时，由于会映射到同一个块，造成一次冲突未命中和一次缓存未命中，接下来读入 A[i] [i + 1] 时还会造成一次冲突未命中和一次缓存未命中</p>
+</li>
+<li><p>我们已经知道为什么会造成这么多的缓存未命中了，而对于怎么优化，讲义中已经给出了提示：<strong>分块优化</strong></p>
+</li>
+</ul>
+<h2 id="32-32"><a href="#32-32" class="headerlink" title="32 * 32"></a>32 * 32</h2><ul>
+<li>根据上述对未优化的转置矩阵函数的行为描述，我发现了一个很严重的问题，当我们存入 B 的行后，我们并没有充分利用缓存，甚至造成了极大的缓存浪费。例如：当存入 B[1] [0] 后，我们并没有利用已将存入当前块的 B[1] [1] …… B[1] [7]，当我们读入 B[9] [0] 时就会重新映射到这个块，B[9] [0] …… B[9] [7] 会覆盖它</li>
+<li>这是造成大量缓存未命中的主要原因，我们没有利用缓存中已有的元素</li>
+<li>如果我们可以在将 A[0] [0] …… A[0] [7] 存入 B[0] [0] …… B[7] [0] 后，再将 A[1] [0] …… A[1] [7] 存入 B[0] [1] …… B[7] [1]，甚至按照这样的思路，不断的将 A 的一行 8 个元素存放到 B 的一列中，直到将 A[7] [0] …… A[7] [7] 存入 B[0] [7] …… B[7] [7]，这样不就充分利用了 B 已经存入缓存中的元素了吗</li>
+<li>上述的思路就是一种分块的思想，我们将 A 的 8 * 8 块存入 B 的 8 * 8 块，充分利用了缓存</li>
+<li>具体实现如下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">8</span>) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">8</span>) &#123;</span><br><span class="line">    	    <span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; i + <span class="number">8</span>; k++) &#123;</span><br><span class="line">    	    	<span class="keyword">for</span> (<span class="type">int</span> s = j; s &lt; j + <span class="number">8</span>; s++) &#123;</span><br><span class="line">    	    	    B[s][k] = A[k][s];</span><br><span class="line">    	    	&#125;</span><br><span class="line">    	    &#125;</span><br><span class="line">    	&#125; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-trans -M 32 -N 32</strong> 运行程序，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240325225426182.png" class="" title="image-20240325225426182">
+
+<ul>
+<li><p>没有得到满分，这是因为由于对角线的情况，当 B[i] [i] &#x3D; A[i] [i] 时，B 覆盖 A，A 又会覆盖 B，会造成额外的冲突不命中和缓存不命中</p>
+</li>
+<li><p>这时就可以利用到讲义中提到的一个条件（也是提示）：不能使用超过 12 个局部变量。我们可能有些疑惑，这些局部变量有什么用，为什么还要限制使用呢</p>
+</li>
+<li><p>我们可以利用局部变量，一次性的将 A 中一行 8 个元素存到局部变量中，再将它们写入到 B 的一列，这样就不会遇到：当一次一次赋值时，B[i] [i] &#x3D; A[i] [i] 造成额外的冲突不命中和缓存不命中了。仅仅是 A 的每一行 8 个元素会造成一次缓存不命中（已经是 A 的最优情况了）</p>
+</li>
+<li><p>具体实现如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">    <span class="type">int</span> x1, x2, x3, x4, x5, x6, x7, x8;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">8</span>) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">8</span>) &#123;</span><br><span class="line">    	    <span class="keyword">for</span> (<span class="type">int</span> k = <span class="number">0</span>; k &lt; <span class="number">8</span>; k++) &#123;</span><br><span class="line">	    	    x1 = A[k + i][j];</span><br><span class="line">	    	    x2 = A[k + i][j + <span class="number">1</span>];</span><br><span class="line">	    	    x3 = A[k + i][j + <span class="number">2</span>];</span><br><span class="line">	    	    x4 = A[k + i][j + <span class="number">3</span>];</span><br><span class="line">	    	    x5 = A[k + i][j + <span class="number">4</span>];</span><br><span class="line">	    	    x6 = A[k + i][j + <span class="number">5</span>];</span><br><span class="line">	    	    x7 = A[k + i][j + <span class="number">6</span>];</span><br><span class="line">	    	    x8 = A[k + i][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[j][k + i] = x1;</span><br><span class="line">	    	    B[j + <span class="number">1</span>][k + i] = x2;</span><br><span class="line">	    	    B[j + <span class="number">2</span>][k + i] = x3;</span><br><span class="line">	    	    B[j + <span class="number">3</span>][k + i] = x4;</span><br><span class="line">	    	    B[j + <span class="number">4</span>][k + i] = x5;</span><br><span class="line">	    	    B[j + <span class="number">5</span>][k + i] = x6;</span><br><span class="line">	    	    B[j + <span class="number">6</span>][k + i] = x7;</span><br><span class="line">	    	    B[j + <span class="number">7</span>][k + i] = x8;</span><br><span class="line">    	    &#125;</span><br><span class="line">    	&#125; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-trans -M 32 -N 32</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326135509782.png" class="" title="image-20240326135509782">
+
+<ul>
+<li><p>满分！但其实这还不是最优解，因为仅仅是 A 达到了最优情况，当遇到对角线情况时，B 还是会再造成额外的缓存不命中</p>
+</li>
+<li><p>我们思考一下为什么会有这种情况：当读入 A 的一行时，可能会覆盖缓存中已经存在的 B 的一行，当写入 B 的一列时就会造成额外的冲突不命中和缓存不命中</p>
+</li>
+<li><p>如果我们可以保证对于 A、B 会映射到的同一个块，A 访问完后 B 再访问，那不就可以避免写入 B 时额外的缓存不命中了吗</p>
+</li>
+<li><p>但仔细想想这样又很不现实，先读入 A 的一行后，我们是要将它写入 B 的一列的，这样就会不可避免的造成额外的缓存不命中，如果我们可以将先读入的 A 的 8 行都保存起来，再一次性写入 B 不就可以了吗（发现了吗，这就是为什么要限制局部变量的使用的原因）</p>
+</li>
+<li><p>按照这个思路，由于局部变量有限，我们需要将读入的 A 的行保存在其他地方，现在唯一可以保存的地方好像就只有 B 了，我们并不关心 B 中的原来元素的什么。如果我们可以把每次读入的 A 的行保存在 B 的行中，在每次读入新的 A 的行到 B 之前，将 B 中已经读入的需要（可以）转置的元素移动到 B 中的指定位置从而完成转置。听起来很不可思议！但还真有这种方法！</p>
+</li>
+<li><p>过程的实现中有大量的细节，这里就不过多展开了，如果想了解具体发生了什么，可以按照下面的代码进行模拟，具体实现如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">    <span class="type">int</span> x, x1, x2, x3, x4, x5, x6, x7, x8;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">8</span>) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">8</span>) &#123;</span><br><span class="line"> 	    <span class="keyword">if</span> (i == j) &#123;</span><br><span class="line"> 	    	    x = i;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x][j];		x2 = A[x][j + <span class="number">1</span>];	x3 = A[x][j + <span class="number">2</span>];	x4 = A[x][j + <span class="number">3</span>];	</span><br><span class="line">	    	    x5 = A[x][j + <span class="number">4</span>];	x6 = A[x][j + <span class="number">5</span>];	x7 = A[x][j + <span class="number">6</span>];	x8 = A[x][j + <span class="number">7</span>];</span><br><span class="line">	    	    	</span><br><span class="line">	    	    B[x][j] = x1;		B[x][j + <span class="number">1</span>] = x2;	B[x][j + <span class="number">2</span>] = x3;	B[x][j + <span class="number">3</span>] = x4;</span><br><span class="line">	    	    B[x][j + <span class="number">4</span>] = x5;	B[x][j + <span class="number">5</span>] = x6;	B[x][j + <span class="number">6</span>] = x7;	B[x][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">1</span>][j];		x2 = A[x + <span class="number">1</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">1</span>][j + <span class="number">2</span>];	</span><br><span class="line">            	x4 = A[x + <span class="number">1</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">1</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">1</span>][j + <span class="number">5</span>];	</span><br><span class="line">	    	   	x7 = A[x + <span class="number">1</span>][j + <span class="number">6</span>];	x7 = A[x + <span class="number">1</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">1</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (2.1)</span></span><br><span class="line">	    	    B[x + <span class="number">1</span>][j] = B[x][j + <span class="number">1</span>];		B[x][j + <span class="number">1</span>] = x1;	</span><br><span class="line">	    	    </span><br><span class="line">	    	   	B[x + <span class="number">1</span>][j + <span class="number">1</span>] = x2;	B[x + <span class="number">1</span>][j + <span class="number">2</span>] = x3;	B[x + <span class="number">1</span>][j + <span class="number">3</span>] = x4;</span><br><span class="line">	    	    B[x + <span class="number">1</span>][j + <span class="number">4</span>] = x5;	B[x + <span class="number">1</span>][j + <span class="number">5</span>] = x6;	B[x + <span class="number">1</span>][j + <span class="number">6</span>] = x7;	</span><br><span class="line">            	B[x + <span class="number">1</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">2</span>][j];		x2 = A[x + <span class="number">2</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">2</span>][j + <span class="number">2</span>];	</span><br><span class="line">	    	    x4 = A[x + <span class="number">2</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">2</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">2</span>][j + <span class="number">5</span>];	</span><br><span class="line">           		x7 = A[x + <span class="number">2</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">2</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (3.1) (3.2)</span></span><br><span class="line">	    	    B[x + <span class="number">2</span>][j] = B[x][j + <span class="number">2</span>];			B[x][j + <span class="number">2</span>] = x1;;	</span><br><span class="line">	    	    B[x + <span class="number">2</span>][j + <span class="number">1</span>] = B[x + <span class="number">1</span>][j + <span class="number">2</span>];	B[x + <span class="number">1</span>][j + <span class="number">2</span>] = x2;	</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[x + <span class="number">2</span>][j + <span class="number">2</span>] = x3;	B[x + <span class="number">2</span>][j + <span class="number">3</span>] = x4;</span><br><span class="line">	    	    B[x + <span class="number">2</span>][j + <span class="number">4</span>] = x5;	B[x + <span class="number">2</span>][j + <span class="number">5</span>] = x6;	</span><br><span class="line">	    	    B[x + <span class="number">2</span>][j + <span class="number">6</span>] = x7;	B[x + <span class="number">2</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">3</span>][j];		x2 = A[x + <span class="number">3</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">3</span>][j + <span class="number">2</span>];	</span><br><span class="line">	    	    x4 = A[x + <span class="number">3</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">3</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">3</span>][j + <span class="number">5</span>];	</span><br><span class="line">            	x7 = A[x + <span class="number">3</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">3</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (4.1) (4.2) (4.3)</span></span><br><span class="line">	    	    B[x + <span class="number">3</span>][j] = B[x][j + <span class="number">3</span>]; 			B[x][j + <span class="number">3</span>] = x1;	</span><br><span class="line">	    	    B[x + <span class="number">3</span>][j + <span class="number">1</span>] = B[x + <span class="number">1</span>][j + <span class="number">3</span>];	B[x + <span class="number">1</span>][j + <span class="number">3</span>] = x2;	</span><br><span class="line">	    	    B[x + <span class="number">3</span>][j + <span class="number">2</span>] = B[x + <span class="number">2</span>][j + <span class="number">3</span>];	B[x + <span class="number">2</span>][j + <span class="number">3</span>] = x3;</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[x + <span class="number">3</span>][j + <span class="number">3</span>] = x4;	B[x + <span class="number">3</span>][j + <span class="number">4</span>] = x5;	B[x + <span class="number">3</span>][j + <span class="number">5</span>] = x6;	</span><br><span class="line">            	B[x + <span class="number">3</span>][j + <span class="number">6</span>] = x7;	B[x + <span class="number">3</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">4</span>][j];		x2 = A[x + <span class="number">4</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">4</span>][j + <span class="number">2</span>];	</span><br><span class="line">            	x4 = A[x + <span class="number">4</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">4</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">4</span>][j + <span class="number">5</span>];</span><br><span class="line">	    	    x7 = A[x + <span class="number">4</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">4</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (5.1) (5.2) (5.3) (5.4)</span></span><br><span class="line">	    	    B[x + <span class="number">4</span>][j] = B[x][j + <span class="number">4</span>];			B[x][j + <span class="number">4</span>] = x1;	</span><br><span class="line">	    	    B[x + <span class="number">4</span>][j + <span class="number">1</span>] = B[x + <span class="number">1</span>][j + <span class="number">4</span>];	B[x + <span class="number">1</span>][j + <span class="number">4</span>] = x2;	</span><br><span class="line">	    	    B[x + <span class="number">4</span>][j + <span class="number">2</span>] = B[x + <span class="number">2</span>][j + <span class="number">4</span>];	B[x + <span class="number">2</span>][j + <span class="number">4</span>] = x3;	</span><br><span class="line">	    	    B[x + <span class="number">4</span>][j + <span class="number">3</span>] = B[x + <span class="number">3</span>][j + <span class="number">4</span>];	B[x + <span class="number">3</span>][j + <span class="number">4</span>] = x4;</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[x + <span class="number">4</span>][j + <span class="number">4</span>] = x5;	B[x + <span class="number">4</span>][j + <span class="number">5</span>] = x6;	B[x + <span class="number">4</span>][j + <span class="number">6</span>] = x7;	</span><br><span class="line">            	B[x + <span class="number">4</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">5</span>][j];		x2 = A[x + <span class="number">5</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">5</span>][j + <span class="number">2</span>];	</span><br><span class="line">            	x4 = A[x + <span class="number">5</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">5</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">5</span>][j + <span class="number">5</span>];</span><br><span class="line">	    	    x7 = A[x + <span class="number">5</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">5</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (6.1) (6.2) (6.3) (6.4) (6.5)</span></span><br><span class="line">	    	    B[x + <span class="number">5</span>][j] = B[x][j + <span class="number">5</span>];			B[x][j + <span class="number">5</span>] = x1;  </span><br><span class="line">	    	    B[x + <span class="number">5</span>][j + <span class="number">1</span>] = B[x + <span class="number">1</span>][j + <span class="number">5</span>];	B[x + <span class="number">1</span>][j + <span class="number">5</span>] = x2;	</span><br><span class="line">	    	    B[x + <span class="number">5</span>][j + <span class="number">2</span>] = B[x + <span class="number">2</span>][j + <span class="number">5</span>];	B[x + <span class="number">2</span>][j + <span class="number">5</span>] = x3;	</span><br><span class="line">	    	    B[x + <span class="number">5</span>][j + <span class="number">3</span>] = B[x + <span class="number">3</span>][j + <span class="number">5</span>];	B[x + <span class="number">3</span>][j + <span class="number">5</span>] = x4;</span><br><span class="line">	    	    B[x + <span class="number">5</span>][j + <span class="number">4</span>] = B[x + <span class="number">4</span>][j + <span class="number">5</span>];	B[x + <span class="number">4</span>][j + <span class="number">5</span>] = x5;</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[x + <span class="number">5</span>][j + <span class="number">5</span>] = x6;	B[x + <span class="number">5</span>][j + <span class="number">6</span>] = x7;	B[x + <span class="number">5</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">6</span>][j];		x2 = A[x + <span class="number">6</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">6</span>][j + <span class="number">2</span>];	</span><br><span class="line">            	x4 = A[x + <span class="number">6</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">6</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">6</span>][j + <span class="number">5</span>];</span><br><span class="line">	    	    x7 = A[x + <span class="number">6</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">6</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (7.1) (7.2) (7.3) (7.4) (7.5) (7.6)</span></span><br><span class="line">	    	    B[x + <span class="number">6</span>][j] = B[x][j + <span class="number">6</span>];			B[x][j + <span class="number">6</span>] = x1; </span><br><span class="line">	    	    B[x + <span class="number">6</span>][j + <span class="number">1</span>] = B[x + <span class="number">1</span>][j + <span class="number">6</span>];	B[x + <span class="number">1</span>][j + <span class="number">6</span>] = x2;	</span><br><span class="line">	    	    B[x + <span class="number">6</span>][j + <span class="number">2</span>] = B[x + <span class="number">2</span>][j + <span class="number">6</span>];	B[x + <span class="number">2</span>][j + <span class="number">6</span>] = x3;	</span><br><span class="line">	    	    B[x + <span class="number">6</span>][j + <span class="number">3</span>] = B[x + <span class="number">3</span>][j + <span class="number">6</span>];	B[x + <span class="number">3</span>][j + <span class="number">6</span>] = x4;</span><br><span class="line">	    	    B[x + <span class="number">6</span>][j + <span class="number">4</span>] = B[x + <span class="number">4</span>][j + <span class="number">6</span>];	B[x + <span class="number">4</span>][j + <span class="number">6</span>] = x5;	</span><br><span class="line">	    	    B[x + <span class="number">6</span>][j + <span class="number">5</span>] = B[x + <span class="number">5</span>][j + <span class="number">6</span>];	B[x + <span class="number">5</span>][j + <span class="number">6</span>] = x6;</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[x + <span class="number">6</span>][j + <span class="number">6</span>] = x7;	B[x + <span class="number">6</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	    </span><br><span class="line">	    	    x1 = A[x + <span class="number">7</span>][j];		x2 = A[x + <span class="number">7</span>][j + <span class="number">1</span>];	x3 = A[x + <span class="number">7</span>][j + <span class="number">2</span>];	</span><br><span class="line">            	x4 = A[x + <span class="number">7</span>][j + <span class="number">3</span>];	x5 = A[x + <span class="number">7</span>][j + <span class="number">4</span>];	x6 = A[x + <span class="number">7</span>][j + <span class="number">5</span>];	</span><br><span class="line">            	x7 = A[x + <span class="number">7</span>][j + <span class="number">6</span>];	x8 = A[x + <span class="number">7</span>][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">            	<span class="comment">// (8.1) (8.2) (8.3) (8.4) (8.5) (8.6) (8.7)</span></span><br><span class="line">	    	    B[x + <span class="number">7</span>][j] = B[x][j + <span class="number">7</span>];			B[x][j + <span class="number">7</span>] = x1;	</span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">1</span>] = B[x + <span class="number">1</span>][j + <span class="number">7</span>];	B[x + <span class="number">1</span>][j + <span class="number">7</span>] = x2;	</span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">2</span>] = B[x + <span class="number">2</span>][j + <span class="number">7</span>];	B[x + <span class="number">2</span>][j + <span class="number">7</span>] = x3;	</span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">3</span>] = B[x + <span class="number">3</span>][j + <span class="number">7</span>];	B[x + <span class="number">3</span>][j + <span class="number">7</span>] = x4;</span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">4</span>] = B[x + <span class="number">4</span>][j + <span class="number">7</span>];	B[x + <span class="number">4</span>][j + <span class="number">7</span>] = x5;	</span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">5</span>] = B[x + <span class="number">5</span>][j + <span class="number">7</span>];	B[x + <span class="number">5</span>][j + <span class="number">7</span>] = x6;</span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">6</span>] = B[x + <span class="number">6</span>][j + <span class="number">7</span>];	B[x + <span class="number">6</span>][j + <span class="number">7</span>] = x7;</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[x + <span class="number">7</span>][j + <span class="number">7</span>] = x8;</span><br><span class="line">	    	</span><br><span class="line">	    	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	    		<span class="keyword">for</span> (<span class="type">int</span> k = <span class="number">0</span>; k &lt; <span class="number">8</span>; k++) &#123;</span><br><span class="line">		    	    x1 = A[k + i][j];</span><br><span class="line">		    	    x2 = A[k + i][j + <span class="number">1</span>];</span><br><span class="line">		    	    x3 = A[k + i][j + <span class="number">2</span>];</span><br><span class="line">		    	    x4 = A[k + i][j + <span class="number">3</span>];</span><br><span class="line">		    	    x5 = A[k + i][j + <span class="number">4</span>];</span><br><span class="line">		    	    x6 = A[k + i][j + <span class="number">5</span>];</span><br><span class="line">		    	    x7 = A[k + i][j + <span class="number">6</span>];</span><br><span class="line">		    	    x8 = A[k + i][j + <span class="number">7</span>];</span><br><span class="line">		    	    </span><br><span class="line">		    	    B[j][k + i] = x1;</span><br><span class="line">		    	    B[j + <span class="number">1</span>][k + i] = x2;</span><br><span class="line">		    	    B[j + <span class="number">2</span>][k + i] = x3;</span><br><span class="line">		    	    B[j + <span class="number">3</span>][k + i] = x4;</span><br><span class="line">		    	    B[j + <span class="number">4</span>][k + i] = x5;</span><br><span class="line">		    	    B[j + <span class="number">5</span>][k + i] = x6;</span><br><span class="line">		    	    B[j + <span class="number">6</span>][k + i] = x7;</span><br><span class="line">		    	    B[j + <span class="number">7</span>][k + i] = x8;</span><br><span class="line">    	   	 &#125;</span><br><span class="line">	    	&#125;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>因为 B 也达到了最优情况，所以结果是满分中的满分！</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326140925130.png" class="" title="image-20240326140925130">
+
+<h2 id="64-64"><a href="#64-64" class="headerlink" title="64 * 64"></a>64 * 64</h2><ul>
+<li>我们先不加思考的对它使用 8 * 8 分块优化，通过 <strong>.&#x2F;test-trans -M 64 -N 64</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326143513458.png" class="" title="image-20240326143513458">
+
+<ul>
+<li><p>缓存不命中次数来到了惊人的 4611 次！我们来分析一下到底发生了什么</p>
+</li>
+<li><p>cache 有 32 个组，每组一行，每块 8 个 int，由于是 64 * 64 矩阵，所以 4 行就可以填满整个 cache，当我们使用 8 * 8 分块时，就不难理解为什么会这样了</p>
+</li>
+<li><p>每次读入 A 中一行 8 个 元素到局部变量时，都会造成一次缓存不命中（不可避免的），当我们将这 8 个局部变量写入到 B 的一列时，由于这里是 8 * 8 分块，所以一列是 8 个元素，也就是 8 行，然而对于 64 * 64 矩阵来说，4 行就可以填满整个 cache，因此当我们写入 B 的一列时，后 4 行会覆盖刚刚读入的前 4 行，这就导致了 B 中的每个元素都会造成一次冲突不命中和缓存不命中！</p>
+</li>
+<li><p>理所当然的，由于 4 行就可以填满整个 cache，我们想到了 4 * 4 分块，具体实现如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">    <span class="type">int</span> x1, x2, x3, x4;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">4</span>) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">4</span>) &#123;</span><br><span class="line">    		<span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; i + <span class="number">4</span>; k++) &#123;</span><br><span class="line">    			x1 = A[k][j];</span><br><span class="line">    			x2 = A[k][j + <span class="number">1</span>];</span><br><span class="line">    			x3 = A[k][j + <span class="number">2</span>];</span><br><span class="line">    			x4 = A[k][j + <span class="number">3</span>];</span><br><span class="line">    			</span><br><span class="line">    			B[j][k] = x1;</span><br><span class="line">    			B[j + <span class="number">1</span>][k] = x2;</span><br><span class="line">    			B[j + <span class="number">2</span>][k] = x3;</span><br><span class="line">    			B[j + <span class="number">3</span>][k] = x4;</span><br><span class="line">    		&#125;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-trans -M 64 -N 64</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326144644822.png" class="" title="image-20240326144644822">
+
+<ul>
+<li><p>缓存不命中次数来到了 1699，通过了！但没有取得满分</p>
+</li>
+<li><p>我们来分析一下 4 * 4 分块不足，为什么没有取得很好的效果：由于 cache 的一行（块）是 8 个 int，而对于 4 * 4 分块，写入 B 的一列时，我们仅仅利用了已经存入的一行的 4 个 元素，对于后 4 个元素并没有利用。因此，没有充分利用缓存是 4 * 4 分块没有取得理想效果的主要原因</p>
+</li>
+<li><p>我们发现：cache 一行可以存放 8 个 int，要想充分利用缓存，8 * 8 分块才是理想的优化方向。然而对于 64 * 64 的矩阵，每 4 行就可以填满整个 cache，如果我们还想对它使用 8 * 8 分块的化，就需要另辟蹊径了</p>
+</li>
+<li><p>按照这个思路，我们的优化目标还是 8 * 8 分块，而对于 64 * 64 矩阵，4 * 4 分块才能合理的取得不错的效果，那如果我们可以在 8 * 8 分块的基础上对它使用 4 * 4 分块，是不是就既可以充分利用缓存，又可以合理的在 64 * 64 矩阵上运行了呢，答案是：Yes！</p>
+</li>
+<li><p>因此我们采用的方案还是使用 8 * 8 分块，再在这个 8 * 8 矩阵上再使用 4 * 4 分块</p>
+</li>
+<li><p>两个 8 * 8 矩阵 A、B 的初始情况如下 （左 B 右 A），将其分为 4 个 4 * 4 矩阵处理，具体步骤如下</p>
+</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326152558868.png" class="" title="image-20240326152558868">
+
+<ul>
+<li><p>第一步：读取 A 的左上行和右上行，将 A 的左上行存入 B 的左上列，为了充分利用缓存，将 A 的右上行存入 B 的右上列</p>
+<blockquote>
+<p>由于 cache 一行 8 个 int，读取 A 的左上块和右上块充分利用了缓存，对比于普通的 4 * 4 分块，减少了缓存不命中</p>
+<p>第一步完成了 B 的左上块的转置，但此时 B 的右上块存入的是错误的元素，接下来还会对它进行处理</p>
+</blockquote>
+</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326152805960.png" class="" title="image-20240326152805960">
+
+<ul>
+<li><p>第二步：读取 A 的左下列，读取 B 的右上行，此时 B 的右上行还在缓存中，将 A 的左下列存入 B 的右上行，将 B 的原右上行存入 B 的左下行</p>
+<blockquote>
+<p>在第二步中，我们仅仅通过读取 A 的左下块，就完成了 B 中右上块和左下块的转置，通过特定的读取和写入顺序也减少了缓存不命中</p>
+</blockquote>
+</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326154309061.png" class="" title="image-20240326154309061">
+
+<ul>
+<li>第三步：读取 A 的右下行，写入到 B 的右下列</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326154418669.png" class="" title="image-20240326154418669">
+
+<ul>
+<li>代码的实现过程中还是有很多细节的，需要我们仔细分析，具体实现如下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">	<span class="type">int</span> x1, x2, x3, x4, x5, x6, x7, x8;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">8</span>) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">8</span>) &#123;</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; i + <span class="number">4</span>; k++) &#123;</span><br><span class="line">					</span><br><span class="line">					<span class="comment">// 读取 A 的左上行</span></span><br><span class="line">					x1 = A[k][j];				</span><br><span class="line">					x2 = A[k][j + <span class="number">1</span>];			</span><br><span class="line">					x3 = A[k][j + <span class="number">2</span>];</span><br><span class="line">					x4 = A[k][j + <span class="number">3</span>];</span><br><span class="line">					</span><br><span class="line">                	<span class="comment">// 读取 A 的右上行</span></span><br><span class="line">					x5 = A[k][j + <span class="number">4</span>];</span><br><span class="line">					x6 = A[k][j + <span class="number">5</span>];</span><br><span class="line">					x7 = A[k][j + <span class="number">6</span>];</span><br><span class="line">					x8 = A[k][j + <span class="number">7</span>];</span><br><span class="line">					</span><br><span class="line">					<span class="comment">// 将 A 的左上行存到 B 的左上列</span></span><br><span class="line">					B[j][k] = x1;</span><br><span class="line">					B[j + <span class="number">1</span>][k] = x2;</span><br><span class="line">					B[j + <span class="number">2</span>][k] = x3;</span><br><span class="line">					B[j + <span class="number">3</span>][k] = x4;</span><br><span class="line">					</span><br><span class="line">                	<span class="comment">// 将 A 的右上行存到 B 的右上列 </span></span><br><span class="line">					B[j][k + <span class="number">4</span>] = x5;</span><br><span class="line">					B[j + <span class="number">1</span>][k + <span class="number">4</span>] = x6;</span><br><span class="line">					B[j + <span class="number">2</span>][k + <span class="number">4</span>] = x7;</span><br><span class="line">					B[j + <span class="number">3</span>][k + <span class="number">4</span>] = x8;</span><br><span class="line">				</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">            <span class="comment">// 这里需要 k = j，因为要读取 B 的右上行和左下行，他们的横坐标由 j 控制</span></span><br><span class="line">			<span class="keyword">for</span> (<span class="type">int</span> k = j; k &lt; j + <span class="number">4</span>; k++) &#123;	</span><br><span class="line">					</span><br><span class="line">                	<span class="comment">// 读取 A 的左下列</span></span><br><span class="line">					x1 = A[i + <span class="number">4</span>][k];</span><br><span class="line">					x2 = A[i + <span class="number">5</span>][k];</span><br><span class="line">					x3 = A[i + <span class="number">6</span>][k];</span><br><span class="line">					x4 = A[i + <span class="number">7</span>][k];</span><br><span class="line">					</span><br><span class="line">					<span class="comment">// 读取 B 的右上行</span></span><br><span class="line">					x5 = B[k][i + <span class="number">4</span>];</span><br><span class="line">					x6 = B[k][i  +<span class="number">5</span>];</span><br><span class="line">					x7 = B[k][i + <span class="number">6</span>];</span><br><span class="line">					x8 = B[k][i + <span class="number">7</span>];</span><br><span class="line">					</span><br><span class="line">					<span class="comment">// 将 A 的左下列存到 B 的右上行</span></span><br><span class="line">					B[k][i + <span class="number">4</span>] = x1;</span><br><span class="line">					B[k][i + <span class="number">5</span>] = x2;</span><br><span class="line">					B[k][i + <span class="number">6</span>] = x3;</span><br><span class="line">					B[k][i + <span class="number">7</span>] = x4;</span><br><span class="line">					</span><br><span class="line">					<span class="comment">// 将 B 的原右上行存到 B 的左下行</span></span><br><span class="line">					B[k + <span class="number">4</span>][i] = x5;</span><br><span class="line">					B[k + <span class="number">4</span>][i + <span class="number">1</span>] = x6;</span><br><span class="line">					B[k + <span class="number">4</span>][i + <span class="number">2</span>] = x7;</span><br><span class="line">					B[k + <span class="number">4</span>][i + <span class="number">3</span>] = x8;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 处理 A 和 B 的右下块</span></span><br><span class="line">			<span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; i + <span class="number">4</span>; k++) &#123;</span><br><span class="line">				</span><br><span class="line">                <span class="comment">// 读取 A 的右下行</span></span><br><span class="line">				x1 = A[k + <span class="number">4</span>][j + <span class="number">4</span>];</span><br><span class="line">				x2 = A[k + <span class="number">4</span>][j + <span class="number">5</span>];</span><br><span class="line">				x3 = A[k + <span class="number">4</span>][j + <span class="number">6</span>];</span><br><span class="line">				x4 = A[k + <span class="number">4</span>][j + <span class="number">7</span>];</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 将 A 的右下行存放到 B 的右下列</span></span><br><span class="line">				B[j + <span class="number">4</span>][k + <span class="number">4</span>] = x1;</span><br><span class="line">				B[j + <span class="number">5</span>][k + <span class="number">4</span>] = x2;</span><br><span class="line">				B[j + <span class="number">6</span>][k + <span class="number">4</span>] = x3;</span><br><span class="line">				B[j + <span class="number">7</span>][k + <span class="number">4</span>] = x4;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-trans -M 64 -N 64</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326155210874.png" class="" title="image-20240326155210874">
+
+<ul>
+<li>缓存未命中次数来到了 1179，满分！！！</li>
+</ul>
+<h2 id="61-67"><a href="#61-67" class="headerlink" title="61 * 67"></a>61 * 67</h2><ul>
+<li>61 * 67 矩阵是一个不规则矩阵，很难找到什么特别的优化方法 ……</li>
+<li>我们先使用 “ 万能的 ”  8 * 8 分块，再对它的边边角角进行一些处理，具体实现如下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">    <span class="type">int</span> x1, x2, x3, x4, x5, x6, x7, x8;</span><br><span class="line">    <span class="type">int</span> n = N / <span class="number">8</span> * <span class="number">8</span>;</span><br><span class="line">    <span class="type">int</span> m = M / <span class="number">8</span> * <span class="number">8</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i += <span class="number">8</span>) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; m; j += <span class="number">8</span>) &#123;</span><br><span class="line">    	    <span class="keyword">for</span> (<span class="type">int</span> k = <span class="number">0</span>; k &lt; <span class="number">8</span>; k++) &#123;</span><br><span class="line">	    	    x1 = A[k + i][j];</span><br><span class="line">	    	    x2 = A[k + i][j + <span class="number">1</span>];</span><br><span class="line">	    	    x3 = A[k + i][j + <span class="number">2</span>];</span><br><span class="line">	    	    x4 = A[k + i][j + <span class="number">3</span>];</span><br><span class="line">	    	    x5 = A[k + i][j + <span class="number">4</span>];</span><br><span class="line">	    	    x6 = A[k + i][j + <span class="number">5</span>];</span><br><span class="line">	    	    x7 = A[k + i][j + <span class="number">6</span>];</span><br><span class="line">	    	    x8 = A[k + i][j + <span class="number">7</span>];</span><br><span class="line">	    	    </span><br><span class="line">	    	    B[j][k + i] = x1;</span><br><span class="line">	    	    B[j + <span class="number">1</span>][k + i] = x2;</span><br><span class="line">	    	    B[j + <span class="number">2</span>][k + i] = x3;</span><br><span class="line">	    	    B[j + <span class="number">3</span>][k + i] = x4;</span><br><span class="line">	    	    B[j + <span class="number">4</span>][k + i] = x5;</span><br><span class="line">	    	    B[j + <span class="number">5</span>][k + i] = x6;</span><br><span class="line">	    	    B[j + <span class="number">6</span>][k + i] = x7;</span><br><span class="line">	    	    B[j + <span class="number">7</span>][k + i] = x8;</span><br><span class="line">    	    &#125;</span><br><span class="line">    	&#125; </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i++) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = m; j &lt; M; j++) &#123;</span><br><span class="line">    		B[j][i] = A[i][j];</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = n; i &lt; N; i++) &#123;</span><br><span class="line">    	<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; m; j++) &#123;</span><br><span class="line">    		B[j][i] = A[i][j];</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-trans -M 61 -N 67</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326155825011.png" class="" title="image-20240326155825011">
+
+<ul>
+<li><p>缓存未命中次数来到了 2079，差一点满分，这我忍得了吗！</p>
+</li>
+<li><p>接下来我尝试了多种分块方法，最终在 16 * 16 分块的情况下得到了满分！</p>
+</li>
+<li><p>具体实现如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> ex 16</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += ex) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += ex) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; N &amp;&amp; k &lt; i + ex; k++) &#123;</span><br><span class="line">				<span class="keyword">for</span> (<span class="type">int</span> s = j; s &lt; M &amp;&amp; s &lt; j + ex; s++) &#123;</span><br><span class="line">					B[s][k] = A[k][s];</span><br><span class="line">				&#125;</span><br><span class="line">			&#125; </span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 <strong>.&#x2F;test-trans -M 61 -N 67</strong>，运行结果如下</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326160516439.png" class="" title="image-20240326160516439">
+
+<ul>
+<li>擦线通过！太不容易了</li>
+</ul>
+<h2 id="Result-1"><a href="#Result-1" class="headerlink" title="Result"></a>Result</h2><ul>
+<li>整理过后，Part B 的实现代码如下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">transpose_submit</span><span class="params">(<span class="type">int</span> M, <span class="type">int</span> N, <span class="type">int</span> A[N][M], <span class="type">int</span> B[M][N])</span> &#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">define</span> ex 16</span></span><br><span class="line">	<span class="type">int</span> x1, x2, x3, x4, x5, x6, x7, x8;</span><br><span class="line">	<span class="keyword">if</span> (M == <span class="number">32</span>) &#123;</span><br><span class="line">		</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">8</span>) &#123;</span><br><span class="line">    			<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">8</span>) &#123;</span><br><span class="line">    	    			<span class="keyword">for</span> (<span class="type">int</span> k = <span class="number">0</span>; k &lt; <span class="number">8</span>; k++) &#123;</span><br><span class="line">			    	    x1 = A[k + i][j];</span><br><span class="line">			    	    x2 = A[k + i][j + <span class="number">1</span>];</span><br><span class="line">			    	    x3 = A[k + i][j + <span class="number">2</span>];</span><br><span class="line">			    	    x4 = A[k + i][j + <span class="number">3</span>];</span><br><span class="line">			    	    x5 = A[k + i][j + <span class="number">4</span>];</span><br><span class="line">			    	    x6 = A[k + i][j + <span class="number">5</span>];</span><br><span class="line">			    	    x7 = A[k + i][j + <span class="number">6</span>];</span><br><span class="line">			    	    x8 = A[k + i][j + <span class="number">7</span>];</span><br><span class="line">			    	    </span><br><span class="line">			    	    B[j][k + i] = x1;</span><br><span class="line">			    	    B[j + <span class="number">1</span>][k + i] = x2;</span><br><span class="line">			    	    B[j + <span class="number">2</span>][k + i] = x3;</span><br><span class="line">			    	    B[j + <span class="number">3</span>][k + i] = x4;</span><br><span class="line">			    	    B[j + <span class="number">4</span>][k + i] = x5;</span><br><span class="line">			    	    B[j + <span class="number">5</span>][k + i] = x6;</span><br><span class="line">			    	    B[j + <span class="number">6</span>][k + i] = x7;</span><br><span class="line">			    	    B[j + <span class="number">7</span>][k + i] = x8;</span><br><span class="line">    	    			&#125;</span><br><span class="line">    			&#125; </span><br><span class="line">    		&#125;</span><br><span class="line">	</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (M == <span class="number">64</span>) &#123;</span><br><span class="line">		</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += <span class="number">8</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += <span class="number">8</span>) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; i + <span class="number">4</span>; k++) &#123;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 读取 A 的左上行</span></span><br><span class="line">                        x1 = A[k][j];				</span><br><span class="line">                        x2 = A[k][j + <span class="number">1</span>];			</span><br><span class="line">                        x3 = A[k][j + <span class="number">2</span>];</span><br><span class="line">                        x4 = A[k][j + <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 读取 A 的右上行</span></span><br><span class="line">                        x5 = A[k][j + <span class="number">4</span>];</span><br><span class="line">                        x6 = A[k][j + <span class="number">5</span>];</span><br><span class="line">                        x7 = A[k][j + <span class="number">6</span>];</span><br><span class="line">                        x8 = A[k][j + <span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 将 A 的左上行存到 B 的左上列</span></span><br><span class="line">                        B[j][k] = x1;</span><br><span class="line">                        B[j + <span class="number">1</span>][k] = x2;</span><br><span class="line">                        B[j + <span class="number">2</span>][k] = x3;</span><br><span class="line">                        B[j + <span class="number">3</span>][k] = x4;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 将 A 的右上行存到 B 的右上列 </span></span><br><span class="line">                        B[j][k + <span class="number">4</span>] = x5;</span><br><span class="line">                        B[j + <span class="number">1</span>][k + <span class="number">4</span>] = x6;</span><br><span class="line">                        B[j + <span class="number">2</span>][k + <span class="number">4</span>] = x7;</span><br><span class="line">                        B[j + <span class="number">3</span>][k + <span class="number">4</span>] = x8;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 这里需要 k = j，因为要读取 B 的右上行和左下行，他们的横坐标由 j 控制</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> k = j; k &lt; j + <span class="number">4</span>; k++) &#123;	</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 读取 A 的左下列</span></span><br><span class="line">                        x1 = A[i + <span class="number">4</span>][k];</span><br><span class="line">                        x2 = A[i + <span class="number">5</span>][k];</span><br><span class="line">                        x3 = A[i + <span class="number">6</span>][k];</span><br><span class="line">                        x4 = A[i + <span class="number">7</span>][k];</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 读取 B 的右上行</span></span><br><span class="line">                        x5 = B[k][i + <span class="number">4</span>];</span><br><span class="line">                        x6 = B[k][i  +<span class="number">5</span>];</span><br><span class="line">                        x7 = B[k][i + <span class="number">6</span>];</span><br><span class="line">                        x8 = B[k][i + <span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 将 A 的左下列存到 B 的右上行</span></span><br><span class="line">                        B[k][i + <span class="number">4</span>] = x1;</span><br><span class="line">                        B[k][i + <span class="number">5</span>] = x2;</span><br><span class="line">                        B[k][i + <span class="number">6</span>] = x3;</span><br><span class="line">                        B[k][i + <span class="number">7</span>] = x4;</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// 将 B 的原右上行存到 B 的左下行</span></span><br><span class="line">                        B[k + <span class="number">4</span>][i] = x5;</span><br><span class="line">                        B[k + <span class="number">4</span>][i + <span class="number">1</span>] = x6;</span><br><span class="line">                        B[k + <span class="number">4</span>][i + <span class="number">2</span>] = x7;</span><br><span class="line">                        B[k + <span class="number">4</span>][i + <span class="number">3</span>] = x8;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 处理 A 和 B 的右下块</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; i + <span class="number">4</span>; k++) &#123;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 读取 A 的右下行</span></span><br><span class="line">                    x1 = A[k + <span class="number">4</span>][j + <span class="number">4</span>];</span><br><span class="line">                    x2 = A[k + <span class="number">4</span>][j + <span class="number">5</span>];</span><br><span class="line">                    x3 = A[k + <span class="number">4</span>][j + <span class="number">6</span>];</span><br><span class="line">                    x4 = A[k + <span class="number">4</span>][j + <span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 将 A 的右下行存放到 B 的右下列</span></span><br><span class="line">                    B[j + <span class="number">4</span>][k + <span class="number">4</span>] = x1;</span><br><span class="line">                    B[j + <span class="number">5</span>][k + <span class="number">4</span>] = x2;</span><br><span class="line">                    B[j + <span class="number">6</span>][k + <span class="number">4</span>] = x3;</span><br><span class="line">                    B[j + <span class="number">7</span>][k + <span class="number">4</span>] = x4;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">	</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; i += ex) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; M; j += ex) &#123;</span><br><span class="line">				<span class="keyword">for</span> (<span class="type">int</span> k = i; k &lt; N &amp;&amp; k &lt; i + ex; k++) &#123;</span><br><span class="line">					<span class="keyword">for</span> (<span class="type">int</span> s = j; s &lt; M &amp;&amp; s &lt; j + ex; s++) &#123;</span><br><span class="line">						B[s][k] = A[k][s];</span><br><span class="line">					&#125;</span><br><span class="line">				&#125; </span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li>当我们第一次通过 <strong>.&#x2F;test-trans -M 32 -N 32</strong> 运行程序时，可能发生 <strong>valgrind: not found</strong>，这说明我们没有安装 valgrind</li>
+<li>通过 <strong>sudo apt-get update   sudo apt-get install valgrind</strong> 进行安装（Ubuntu）</li>
+<li>讲义中提到我们可以通过 <strong>.&#x2F;driver.py</strong> 对我们的代码进行整体评估，但运行后会发生错误</li>
+</ul>
+<img src="/2024/03/22/CSAPP-Lab5/image-20240326161646360.png" class="" title="image-20240326161646360">
+
+<ul>
+<li>这是由于 driver.py 这个程序是用 pytho2 写的，而在 python3 中，print 函数的语法发生了变化，在 python3 环境下运行它造成语法错误</li>
+</ul>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/484657229">CSAPP | Lab5-Cache Lab 深入解析 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/79058089">CSAPP实验之cache lab - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/456858668">CSAPP: Cachelab全注释+思路和建议 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28585726">CS:APP配套实验4：Cache Lab笔记 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xbb224007/article/details/81103995">深入理解计算机系统-cachelab_.&#x2F;csim -v -s 4 -e 1 -b 4 -t traces&#x2F;yi.trace-CSDN博客</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CSAPP/" rel="tag"># CSAPP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/03/16/CSAPP-Lab4/" rel="prev" title="CSAPP ArchLab">
+      <i class="fa fa-chevron-left"></i> CSAPP ArchLab
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part-A"><span class="nav-number">2.</span> <span class="nav-text">Part A</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">2.2.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B7%9F%E8%B8%AA%E6%96%87%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">跟踪文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0"><span class="nav-number">2.4.</span> <span class="nav-text">更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A4%E6%96%AD"><span class="nav-number">2.5.</span> <span class="nav-text">判断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#main"><span class="nav-number">2.6.</span> <span class="nav-text">main</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Result"><span class="nav-number">2.7.</span> <span class="nav-text">Result</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part-B"><span class="nav-number">3.</span> <span class="nav-text">Part B</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#32-32"><span class="nav-number">3.1.</span> <span class="nav-text">32 * 32</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#64-64"><span class="nav-number">3.2.</span> <span class="nav-text">64 * 64</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#61-67"><span class="nav-number">3.3.</span> <span class="nav-text">61 * 67</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Result-1"><span class="nav-number">3.4.</span> <span class="nav-text">Result</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">3.5.</span> <span class="nav-text">Reference</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
