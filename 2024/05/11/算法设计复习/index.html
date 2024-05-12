@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="算法的概念 什么是算法：算法是由若干条指令组成的有穷序列  算法具有哪些特征：  输入（0 个或多个） 输出（一个或多个） 确定性（组成算法的每条指令必须有确定含义，无歧义） 有限性（算法中的指令的条数有限，每条指令的执行次数有限，执行每条指令的时间有限） 可行性（有待实现的运算都是基本运算）   什么是算法的复杂性：算法的复杂性指运行所需要的计算机资源量  如何衡量算法的复杂性：用算法运行所需要">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法设计与分析复习">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="算法的概念 什么是算法：算法是由若干条指令组成的有穷序列  算法具有哪些特征：  输入（0 个或多个） 输出（一个或多个） 确定性（组成算法的每条指令必须有确定含义，无歧义） 有限性（算法中的指令的条数有限，每条指令的执行次数有限，执行每条指令的时间有限） 可行性（有待实现的运算都是基本运算）   什么是算法的复杂性：算法的复杂性指运行所需要的计算机资源量  如何衡量算法的复杂性：用算法运行所需要">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/b3dfe4f80c758cf17fab5ba32a659984.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/6f2a742cf432389d4996650905ce7402.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/c7f45596273ee692c80e9ed5b0ccfdfa.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/cf9a9fc703f5c7dc1a74bc37db46983a.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/d21d4614799775b3e5fb3c034fd17f01.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/a9a9e90d2acc75c7f9936b39f414f264.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/dce9ae0daba371a20b1329701a453dfb.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/00309eebce67d0b8269c011e53dc30f5.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/ecacc48cc2780a67de1bf5a074b4f92b.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/c691e25d3af8ae45bab678a19a08e371.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/84b6f519dc4176d074e239a883e13cbb.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/d07160810c0c4bce9769e195b7f2863f.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/9ccc62b3bfdd142687b23e8ba91ead3e.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/786e2a92c1695ead1a6b852563f45346.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/700466b5efe108a2774d8594a7531743.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/28c4128ff54b201f901b17477f2fd552.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/0e0a864b988b7fb477bebfb9fb1b228b.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/8f430532951518f222caf2d7f7dc2ebd.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/6745c41e9c2a473a9d4494af314b9cb9.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/ca27278ce499a04ae4b0a13ab8f0ecb6.jpg">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512211853820.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512211954178.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212119179.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212033993.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212200992.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212244626.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212449328.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212506627.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212600843.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212625852.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212821060.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212840553.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213147783.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213239005.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512194033369.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213806651.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213620162.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213634721.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213838992.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512214132757.png">
+<meta property="article:published_time" content="2024-05-11T08:26:03.000Z">
+<meta property="article:modified_time" content="2024-05-12T13:44:01.942Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="算法设计与分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/b3dfe4f80c758cf17fab5ba32a659984.jpg">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>算法设计与分析复习 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          算法设计与分析复习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-11 16:26:03" itemprop="dateCreated datePublished" datetime="2024-05-11T16:26:03+08:00">2024-05-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-05-12 21:44:01" itemprop="dateModified" datetime="2024-05-12T21:44:01+08:00">2024-05-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="算法的概念"><a href="#算法的概念" class="headerlink" title="算法的概念"></a>算法的概念</h1><ul>
+<li><p>什么是算法：算法是由若干条指令组成的有穷序列</p>
+</li>
+<li><p>算法具有哪些特征：</p>
+<ul>
+<li>输入（0 个或多个）</li>
+<li>输出（一个或多个）</li>
+<li>确定性（组成算法的每条指令必须有确定含义，无歧义）</li>
+<li>有限性（算法中的指令的条数有限，每条指令的执行次数有限，执行每条指令的时间有限）</li>
+<li>可行性（有待实现的运算都是基本运算）</li>
+</ul>
+</li>
+<li><p>什么是算法的复杂性：算法的复杂性指运行所需要的计算机资源量</p>
+</li>
+<li><p>如何衡量算法的复杂性：用算法运行所需要的计算机资源的量的多少来衡量算法的复杂性</p>
+</li>
+<li><p>算法不能直接在计算机上执行，程序能直接在计算机上执行</p>
+</li>
+<li><p>算法的复杂性是指算法在计算机上运行时所消耗的计算机资源的量。最重要的计算机资源是 <strong>时间资源</strong> 和 <strong>空间资源</strong></p>
+</li>
+<li><p>算法与程序的主要区别在于算法具有 <strong>有限性</strong></p>
+</li>
+</ul>
+<h1 id="证明题"><a href="#证明题" class="headerlink" title="证明题"></a>证明题</h1><ul>
+<li>存在常数 C 和自然数 N0，使得 N &gt;&#x3D; N0 时有 f(N) &lt;&#x3D; Cg(N)，记为 f(N) &#x3D; O(g(N))。证明：O(f(N)) + O(g(N)) &#x3D; O(f(N) + g(N))。</li>
+</ul>
+<style>.gwayoobmqfhf{zoom: 33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/b3dfe4f80c758cf17fab5ba32a659984.jpg" class="gwayoobmqfhf" alt="img">
+
+<ul>
+<li>存在常数 C 和自然数 N0，使得 N &gt;&#x3D; N0 时有 f(N) &lt;&#x3D; Cg(N)，记为 f(N) &#x3D; O(g(N))。证明：O(f(N)) * O(g(N)) &#x3D; O(f(N) * g(N))。</li>
+</ul>
+<style>.eyysxoedljqt{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/6f2a742cf432389d4996650905ce7402.jpg" class="eyysxoedljqt" alt="img">
+
+<ul>
+<li>存在常数 C 和自然数 N0，使得 N &gt;&#x3D; N0 时有 f(N) &lt;&#x3D; Cg(N)，记为 f(N) &#x3D; O(g(N))。证明：O(f(N)) + O(g(N)) &#x3D; O(max{f(N), g(N)})。</li>
+</ul>
+<style>.vkfyoyqwwklf{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/c7f45596273ee692c80e9ed5b0ccfdfa.jpg" class="vkfyoyqwwklf" alt="img">
+
+<h1 id="递归法"><a href="#递归法" class="headerlink" title="递归法"></a>递归法</h1><ul>
+<li>T(n) &#x3D; 2T(n - 1) + O(1)，T(1) &#x3D; 1，则 T(n) &#x3D; __</li>
+</ul>
+<style>.phletnfnrbnr{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/cf9a9fc703f5c7dc1a74bc37db46983a.jpg" class="phletnfnrbnr" alt="img">
+
+<h1 id="分治法"><a href="#分治法" class="headerlink" title="分治法"></a>分治法</h1><ul>
+<li><p>简述分治法的特征：</p>
+<ul>
+<li>问题规模足够小时容易解决</li>
+<li>将规模大的问题分成规模较小的子问题</li>
+<li>子问题相互独立</li>
+<li>子问题的解决方法与原问题相同</li>
+<li>递归解决子问题</li>
+<li>子问题的解能够合并成原问题的解</li>
+</ul>
+</li>
+<li><p>简述分治法的基本思想：</p>
+<ul>
+<li>将规模为 n 的问题分解为 k 个规模较小的子问题，子问题相互独立且与原问题相同</li>
+<li>递归的求解这些子问题</li>
+<li>然后将子问题的解合并得到原问题的解</li>
+</ul>
+</li>
+</ul>
+<h2 id="二分搜索"><a href="#二分搜索" class="headerlink" title="二分搜索"></a>二分搜索</h2><ul>
+<li>二分搜索算法在最坏情况下的时间复杂度是 <strong>O(logn)</strong></li>
+<li>用二分搜索算法在一个有序序列中查找某指定元素是否存在，当前查找范围是 a[low:high]，分治策略中的分解操作是 <strong>(low+high)&#x2F;2</strong></li>
+<li>对一个有序序列，以比较为基础的搜索算法的最坏时间复杂度为 <strong>O(logn)</strong></li>
+</ul>
+<h2 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h2><ul>
+<li><p>简述快速排序算法的思想：</p>
+<ul>
+<li>选取待排序列的第一个元素为基准元素</li>
+<li>通过一趟扫描将待排序列的元素分割成独立的两个序列，第一个序列中元素不大于基准元素，第二个序列中元素不小于基准元素</li>
+<li>对两个序列分别递归排序，最终整个序列变成有序序列</li>
+</ul>
+</li>
+<li><p>快速排序算法中，选取基准元素的方法是：随机选取序列中的一个元素作为基准元素（选择题）</p>
+</li>
+<li><p>快速排序代码实现</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">quick_sort</span><span class="params">(<span class="type">int</span>[] a, <span class="type">int</span> start, <span class="type">int</span> end)</span> &#123;</span><br><span class="line">    <span class="type">int</span> base = a[left];</span><br><span class="line">    <span class="type">int</span> left = start;</span><br><span class="line">    <span class="type">int</span> right = end;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="keyword">while</span> (left &lt; right &amp;&amp; a[right] &gt;= base) &#123;</span><br><span class="line">            right--;</span><br><span class="line">        &#125;</span><br><span class="line">        a[left] = a[right];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span> (left &lt; right &amp;&amp; a[left] &lt; base) &#123;</span><br><span class="line">            left++;</span><br><span class="line">        &#125;</span><br><span class="line">        a[right] = a[left];</span><br><span class="line">    &#125;</span><br><span class="line">    a[left] = base;</span><br><span class="line">    </span><br><span class="line">    quick_sort(a, start, left - <span class="number">1</span>);</span><br><span class="line">    quick_sort(a, left + <span class="number">1</span>, end);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>采用快速排序升序 (5, 3, 8, 2, 1, 9, 23, 12, 16)，要求：写出首次分解得到两个子问题的过程、递归结果、子问题的解合并成原问题的解的过程</p>
+<ul>
+<li>选取基准元素 5 并保存，划分过程如下：<ul>
+<li>设置指针 i 指向元素 5，指针 j 指向元素 16</li>
+<li>j 向左寻找小于 5 的元素，j 找到 1，将 j 指向的 1 覆盖到 i 指向的 5</li>
+<li>i 向右寻找大于等于 5 的元素，i 找到 8，将 i 指向的 8 覆盖到 j 指向的 1</li>
+<li>j 继续向左寻找小于 5 的元素，j 找到 2，将 j 指向的 2 覆盖到 i 指向的 8</li>
+<li>i 继续向右寻找大于等于 5 的元素，i &#x3D;&#x3D; j 指向了 2</li>
+<li>将基准元素覆盖到 i、j 指向的 2</li>
+<li>此时两个子问题为 {1, 3, 2}、{8, 9, 23, 12, 16}</li>
+</ul>
+</li>
+<li>递归的结果为 {1, 2, 3}、{8, 9, 12, 16, 23}</li>
+<li>此时整个序列有序，为 {1, 2, 3, 5, 8, 9, 12, 16, 23}</li>
+</ul>
+</li>
+<li><p>请使用快速排序升序排序 (10, 18, 10, 9, 15, 6, 3, 2, 24, 4)，给出第一趟划分结果及后续操作</p>
+</li>
+</ul>
+<style>.vntpuqhctyho{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/d21d4614799775b3e5fb3c034fd17f01.jpg" class="vntpuqhctyho" alt="img">
+
+<ul>
+<li>请使用快速排序升序排序 (5, 1, 4, 3, 9, 6, 3, 2, 8, 10, 7)，给出第一趟划分结果及后续操作</li>
+</ul>
+<style>.mydjuvayhgfh{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/a9a9e90d2acc75c7f9936b39f414f264.jpg" class="mydjuvayhgfh" alt="img">
+
+<h2 id="合并排序"><a href="#合并排序" class="headerlink" title="合并排序"></a>合并排序</h2><ul>
+<li>使用分治法设计合并排序算法</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">merge_sort</span><span class="params">(<span class="type">int</span>[] a, <span class="type">int</span> left, <span class="type">int</span> right)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = (left + right) / <span class="number">2</span>;</span><br><span class="line">        merge_sort(a, left, mid);</span><br><span class="line">        merge_sort(a, mid + <span class="number">1</span>, right);</span><br><span class="line">        merge(a, left, right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>采用合并排序的思想将给定序列 T[1:9] &#x3D; {5, 3, 8, 2, 1, 9, 23, 12, 6} 升序，要求：写出首次分解得到两个子问题的过程、递归结果、子问题的解合并成原问题的解的过程</p>
+<ul>
+<li><p>(1 + 9) &#x2F; 2 &#x3D; 5</p>
+</li>
+<li><p>两个子问题是：T[1:5]、T[6:9]</p>
+</li>
+<li><p>递归的结果：T[1:5] &#x3D; {1, 2, 3, 5, 8}，T[6:9] &#x3D; {6, 9, 12, 23}</p>
+</li>
+<li><p>两个子问题合并得到原问题的解，合并过程如下：</p>
+<ul>
+<li>将 1, 2, 3, 5 放入辅助数组</li>
+<li>将 6 放入辅助数组</li>
+<li>将 8 放入辅助数组</li>
+<li>将 9, 12, 23 放入辅助数组，得到一个有序序列</li>
+</ul>
+</li>
+<li><p>将辅助数组中的元素复制到数组 T，得到 T[1:9] &#x3D; {1, 2, 3, 5, 6, 8, 9, 12, 23}</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="棋盘覆盖问题"><a href="#棋盘覆盖问题" class="headerlink" title="棋盘覆盖问题"></a>棋盘覆盖问题</h2><ul>
+<li>对于如下 2^3^ * 2^3^ 的特殊棋盘，共需要多少 L 型骨牌；并在棋盘上填写 L 型骨牌的覆盖情况。</li>
+</ul>
+<style>.aczurgxwilfr{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/dce9ae0daba371a20b1329701a453dfb.jpg" class="aczurgxwilfr" alt="img">
+
+<style>.jgjvdbrcmgnh{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/00309eebce67d0b8269c011e53dc30f5.jpg" class="jgjvdbrcmgnh" alt="img">
+
+<h2 id="循环赛日程表"><a href="#循环赛日程表" class="headerlink" title="循环赛日程表"></a>循环赛日程表</h2><ul>
+<li>有 n &#x3D; 2^k^ 个运动员要进行循环赛，设计一个赛程表：1. 每个选手必须和其他 n - 1 个选手各比赛一次；2. 每个选手一天至多比赛一次；3. 循环赛要在最短时间内完成；（1）如果 n &#x3D; 2^k^，循环赛最少需要进行几天（2）当 n &#x3D; 2^3^ &#x3D; 8 时，画出循环赛日程表</li>
+</ul>
+<style>.qlnznwgttyms{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/ecacc48cc2780a67de1bf5a074b4f92b.jpg" class="qlnznwgttyms" alt="img">
+
+<h1 id="动态规划法"><a href="#动态规划法" class="headerlink" title="动态规划法"></a>动态规划法</h1><ul>
+<li><p>简述动态规划求解优化问题的步骤：</p>
+<ul>
+<li>最优子结构性质分析</li>
+<li>递归定义最优值</li>
+<li>以自底向上的方式计算出最优值</li>
+<li>根据计算最优值时得到的信息，构造最优解</li>
+</ul>
+</li>
+<li><p>动态规划算法的主要步骤：</p>
+<ul>
+<li><p>问题具有最优子结构性质</p>
+</li>
+<li><p>构造最优值的递归关系表达式</p>
+</li>
+<li><p>最优值的算法描述</p>
+</li>
+<li><p>构造最优值</p>
+</li>
+</ul>
+</li>
+<li><p>动态规划算法的基本要素：最优子结构性质、重叠子问题、自底向上的求解方法</p>
+</li>
+</ul>
+<h2 id="0-1-背包问题"><a href="#0-1-背包问题" class="headerlink" title="0-1 背包问题"></a>0-1 背包问题</h2><ul>
+<li><p>描述 0-1 背包问题：已知一个背包容量为 c，有 n 件物品，物品 i 的重量为 Wi，价值为 Vi，应如何选择装入背包中的物品，使得总价值最大</p>
+</li>
+<li><p>0-1 背包问题代码实现</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">knapSack</span><span class="params">(<span class="type">int</span> c, <span class="type">int</span> n, <span class="type">int</span>[] w, <span class="type">int</span>[] v, <span class="type">int</span>[][] dp)</span> &#123;</span><br><span class="line">    <span class="type">int</span> dp[n + <span class="number">1</span>][c + <span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= n; i++) dp[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= c; i++) dp[<span class="number">0</span>][i] = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">1</span>; j &lt;= c; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (j &lt; w[i]) &#123;</span><br><span class="line">                dp[i][j] = dp[i - <span class="number">1</span>][j];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                dp[i][j] = max(dp[i - <span class="number">1</span>][j], dp[i - <span class="number">1</span>][j - w[i]] + v[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[n + <span class="number">1</span>][c + <span class="number">1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>用贪心算法解决背包问题时所用的贪心策略是：单位重量的价值大的物品优先装入背包</p>
+</li>
+<li><p>0-1 背包问题用动态规划算法的时间复杂度为 <strong>O(nc)</strong></p>
+</li>
+<li><p>有 0-1 背包问题如下：n &#x3D; 4，c &#x3D; 13，P &#x3D; (18, 15, 8, 12)，W &#x3D; (10, 2, 3, 4)。试用动态规划求出问题的最优解和最优值</p>
+</li>
+</ul>
+<style>.sluledmynkfe{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/c691e25d3af8ae45bab678a19a08e371.jpg" class="sluledmynkfe" alt="img">
+
+<style>.hhjwdcekybjh{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/84b6f519dc4176d074e239a883e13cbb.jpg" class="hhjwdcekybjh" alt="img">
+
+<h2 id="最长公共子序列问题"><a href="#最长公共子序列问题" class="headerlink" title="最长公共子序列问题"></a>最长公共子序列问题</h2><ul>
+<li>最长公共子序列问题代码实现</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">(<span class="type">int</span> m, <span class="type">int</span> n, <span class="type">char</span>[] x, <span class="type">char</span>[] y, <span class="type">int</span>[][] c, <span class="type">int</span>[][] b)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= m; i++) c[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt;= n; j++) c[<span class="number">0</span>][j] = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= m; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x[i] == y[j]) &#123;</span><br><span class="line">                c[i][j] = c[i - <span class="number">1</span>][j - <span class="number">1</span>] + <span class="number">1</span>;</span><br><span class="line">                b[i][j] = <span class="number">1</span>; <span class="comment">// 1:LU</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                c[i][j] = max(c[i - <span class="number">1</span>][j], c[i][j - <span class="number">1</span>]);</span><br><span class="line">                b[i][j] = c[i][j] == c[i - <span class="number">1</span>][j] ? <span class="number">2</span> : <span class="number">3</span>; <span class="comment">// 2:U 3:L</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>给定两个序列的长度分别为 m、n，求这两个序列的最长公共子序列耗时 <strong>O(mn)</strong></li>
+</ul>
+<style>.ocpfofmtsxrl{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/d07160810c0c4bce9769e195b7f2863f.jpg" class="ocpfofmtsxrl" alt="img">
+
+<h2 id="矩阵连乘问题"><a href="#矩阵连乘问题" class="headerlink" title="矩阵连乘问题"></a>矩阵连乘问题</h2><ul>
+<li><p>用 A[1:n] 表示 A1…An 连乘，给定 A[1:10]，用动态规划算法求解时，用来存储各子问题最优值的二维数组共有 <strong>100</strong> 个存储单元</p>
+</li>
+<li><p>用 A[1:n] 表示 A1…An 连乘，用动态规划求解 A[1:n] 时，计算各子问题最优值的复杂度是 <strong>O(n^3^)</strong></p>
+</li>
+<li><p>M1(5 * 10)，M2(10 * 4)，M3(4 * 6)。矩阵连乘 M1 * M2 * M3 需要最少乘法次数为 <strong>320</strong>（5 * 4 * 10 + 5 * 6 * 4 &#x3D; 320）</p>
+</li>
+</ul>
+<h1 id="贪心法"><a href="#贪心法" class="headerlink" title="贪心法"></a>贪心法</h1><ul>
+<li>贪心法的两个基本要素：贪心选择性质、最优子结构性质</li>
+<li>贪心策略设计算法的关键是：选好贪心策略</li>
+</ul>
+<h2 id="Difkstra-算法"><a href="#Difkstra-算法" class="headerlink" title="Difkstra 算法"></a>Difkstra 算法</h2><ul>
+<li>简述求单源最短路径问题的 Dijkstra 算法思想：<ul>
+<li>初始时令 S &#x3D; {源点}，Dist 数组记录最短特殊路径长度，重复如下操作</li>
+<li>选择一条特殊最短路径，将其连接的 V-S 中的点加入 S，更新特殊最短路径</li>
+<li>直到 S &#x3D; V 为止，根据前驱数组的记录，构建最优解</li>
+</ul>
+</li>
+<li>用贪心算法求 s 到 t 的最短路</li>
+</ul>
+<style>.cjynnvemfcyb{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/9ccc62b3bfdd142687b23e8ba91ead3e.jpg" class="cjynnvemfcyb" alt="img">
+
+<style>.wcpdwefpfhrw{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/786e2a92c1695ead1a6b852563f45346.jpg" class="wcpdwefpfhrw" alt="img">
+
+<h2 id="Prim-算法"><a href="#Prim-算法" class="headerlink" title="Prim 算法"></a>Prim 算法</h2><ul>
+<li>Prim 算法构造最小生成树的基本思想：<ul>
+<li>初始时令 U &#x3D; (u0)，u0 ∈ V，TE &#x3D; {}</li>
+<li>选取 i ∈ U，j ∈ V - U，边 (i, j) 是连接 U 和 V - U 所有边中最短的</li>
+<li>然后，将 j 加入集合 U，将边 (i, j) 加入到集合 TE 中</li>
+<li>继续上面的贪心选择直到 U &#x3D; V 为止</li>
+</ul>
+</li>
+<li>Prim 算法生成最小生成树的过程中，贪心策略是：<ul>
+<li>选取 i ∈ U，j ∈ V - U，边 (i, j) 是连接 U 和 V - U 所有边中最短的</li>
+<li>然后，将 j 加入集合 U，将边 (i, j) 加入到最小生成树中</li>
+</ul>
+</li>
+<li>给定 n 个顶点的无向连通图，Prim 算法的时间复杂度为 <strong>O(n^2^)</strong></li>
+<li>使用 Prim 算法求最小生成树</li>
+</ul>
+<style>.lzibojpdsfwx{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/700466b5efe108a2774d8594a7531743.jpg" class="lzibojpdsfwx" alt="img">
+
+<h2 id="Kruskal-算法"><a href="#Kruskal-算法" class="headerlink" title="Kruskal 算法"></a>Kruskal 算法</h2><ul>
+<li><p>Kruskal 算法的时间复杂度为 <strong>eloge</strong>，e 为无向连通图的边数</p>
+</li>
+<li><p>对稀疏图，Kruskal 算法比 Prim 算法有效</p>
+</li>
+<li><p>Kruskal 算法基本思想：</p>
+<ul>
+<li>按照图中边权由大到小的次序依次考虑每条边是否加入最小生成树中</li>
+<li>当考虑到某条边时，如果该边与已经加入到最小生成树中的边不形成回路，则将该边加入进去</li>
+</ul>
+</li>
+</ul>
+<style>.fdccvkysiiwc{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/28c4128ff54b201f901b17477f2fd552.jpg" class="fdccvkysiiwc" alt="img">
+
+<ul>
+<li>使用 Kruskal 算法求最小生成树</li>
+</ul>
+<style>.bzgkjvwjwvkc{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/0e0a864b988b7fb477bebfb9fb1b228b.jpg" class="bzgkjvwjwvkc" alt="img">
+
+<h2 id="哈夫曼编码"><a href="#哈夫曼编码" class="headerlink" title="哈夫曼编码"></a>哈夫曼编码</h2><ul>
+<li>简述哈夫曼编码算法的思想：<ul>
+<li>将 n 个字符看做 n 棵孤立的树，组成一个集合</li>
+<li>从集合中取出两棵出现频率最低的树，让其作为左右子树构成一棵新树，新树的频率为左右子树频率之和，将那个新树插入到集合中</li>
+<li>重复操作，直到只剩下一颗树为止</li>
+</ul>
+</li>
+<li>已知元素出现频率 (a, b, c, d, e, f, g) &#x3D; (0.15, 0.25, 0.12, 0.05, 0.03, 0.1, 0.3)，请建立哈夫曼编码对应的二叉树，并写出相应元素的编码。</li>
+</ul>
+<style>.gjkxrhmxihpp{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/8f430532951518f222caf2d7f7dc2ebd.jpg" class="gjkxrhmxihpp" alt="img">
+
+<h2 id="流水作业调度问题-Johnson-算法"><a href="#流水作业调度问题-Johnson-算法" class="headerlink" title="流水作业调度问题 Johnson 算法"></a>流水作业调度问题 Johnson 算法</h2><ul>
+<li><p>流水线作业调度问题的 Johnson 算法的思想：</p>
+<ul>
+<li>令 N1 &#x3D; {i|ai &lt; bi}，N2 &#x3D; {i|ai &gt;&#x3D; bi}</li>
+<li>将 N1 中作业按 ai 递增排序，将 N2 中作业按 bi 递减排序</li>
+<li>N1 中作业接 N2 中作业得到最优调度</li>
+</ul>
+</li>
+<li><p>M1 上处理 (a1, a2, a3, a4, a5, a6, a7) &#x3D; (2,5, 7, 10, 5, 3, 8)，M2 上处理 (b1, b2, b3, b4, b5, b6, b7) &#x3D; (3, 8, 2, 11, 5, 4, 4)，按照流水线作业调度问题的 Johnson 算法步骤，给出该问题的最优调度方案。</p>
+</li>
+</ul>
+<style>.hyyimkciqjln{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/6745c41e9c2a473a9d4494af314b9cb9.jpg" class="hyyimkciqjln" alt="img">
+
+<style>.frfkrevqgmdv{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/ca27278ce499a04ae4b0a13ab8f0ecb6.jpg" class="frfkrevqgmdv" alt="img">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><style>.hrtsmqnnxpli{zoom: 50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512211853820.png" class="hrtsmqnnxpli" alt="image-20240512211853820"><style>.yjtnkgfspwmf{zoom: 50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512211954178.png" class="yjtnkgfspwmf" alt="image-20240512211954178">
+
+<style>.wysrrdvbgjsn{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212119179.png" class="wysrrdvbgjsn" alt="image-20240512212119179"><style>.hbbjlrlwjipc{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212033993.png" class="hbbjlrlwjipc" alt="image-20240512212033993">
+
+<style>.iqrlmxxmqfxt{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212200992.png" class="iqrlmxxmqfxt" alt="image-20240512212200992"><style>.pizgxagqsjsz{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212244626.png" class="pizgxagqsjsz" alt="image-20240512212244626">
+
+<style>.hsgyswnwvsmd{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212449328.png" class="hsgyswnwvsmd" alt="image-20240512212449328"><style>.plorxqcgatig{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212506627.png" class="plorxqcgatig" alt="image-20240512212506627">
+
+<style>.spristzybtov{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212600843.png" class="spristzybtov" alt="image-20240512212600843"><style>.qrmcygseceal{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212625852.png" class="qrmcygseceal" alt="image-20240512212625852">
+
+
+
+<style>.lttwnzbvwwjf{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212821060.png" class="lttwnzbvwwjf" alt="image-20240512212821060"><style>.qxhwjuufckit{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212840553.png" class="qxhwjuufckit" alt="image-20240512212840553">
+
+<style>.kkiojxcdpngl{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213147783.png" class="kkiojxcdpngl" alt="image-20240512213147783"><style>.ifjwmvzingbs{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213239005.png" class="ifjwmvzingbs" alt="image-20240512213239005">
+
+<style>.kbisrnxvnthm{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512194033369.png" class="kbisrnxvnthm" alt="image-20240512194033369"><style>.eksifzgmeuah{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213806651.png" class="eksifzgmeuah" alt="image-20240512213806651">
+
+<style>.shcngbtuprgp{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213620162.png" class="shcngbtuprgp" alt="image-20240512213620162"><style>.zjzyewdzsgws{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213634721.png" class="zjzyewdzsgws" alt="image-20240512213634721">
+
+<style>.smlkbjtaouph{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213838992.png" class="smlkbjtaouph" alt="image-20240512213838992"><style>.wlunqkjpfsle{zoom: 33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512214132757.png" class="wlunqkjpfsle" alt="image-20240512214132757">
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/" rel="tag"># 算法设计与分析</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/08/xv6-book-for-reading/" rel="prev" title="xv6 book for reading">
+      <i class="fa fa-chevron-left"></i> xv6 book for reading
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">算法的概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%81%E6%98%8E%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">证明题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%92%E5%BD%92%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">递归法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%B2%BB%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">分治法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2"><span class="nav-number">4.1.</span> <span class="nav-text">二分搜索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="nav-number">4.2.</span> <span class="nav-text">快速排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E6%8E%92%E5%BA%8F"><span class="nav-number">4.3.</span> <span class="nav-text">合并排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A3%8B%E7%9B%98%E8%A6%86%E7%9B%96%E9%97%AE%E9%A2%98"><span class="nav-number">4.4.</span> <span class="nav-text">棋盘覆盖问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E8%B5%9B%E6%97%A5%E7%A8%8B%E8%A1%A8"><span class="nav-number">4.5.</span> <span class="nav-text">循环赛日程表</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">动态规划法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-1-%E8%83%8C%E5%8C%85%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.</span> <span class="nav-text">0-1 背包问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E9%95%BF%E5%85%AC%E5%85%B1%E5%AD%90%E5%BA%8F%E5%88%97%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">最长公共子序列问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E8%BF%9E%E4%B9%98%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.</span> <span class="nav-text">矩阵连乘问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%AA%E5%BF%83%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">贪心法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Difkstra-%E7%AE%97%E6%B3%95"><span class="nav-number">6.1.</span> <span class="nav-text">Difkstra 算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prim-%E7%AE%97%E6%B3%95"><span class="nav-number">6.2.</span> <span class="nav-text">Prim 算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kruskal-%E7%AE%97%E6%B3%95"><span class="nav-number">6.3.</span> <span class="nav-text">Kruskal 算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%A4%AB%E6%9B%BC%E7%BC%96%E7%A0%81"><span class="nav-number">6.4.</span> <span class="nav-text">哈夫曼编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E6%B0%B4%E4%BD%9C%E4%B8%9A%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98-Johnson-%E7%AE%97%E6%B3%95"><span class="nav-number">6.5.</span> <span class="nav-text">流水作业调度问题 Johnson 算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">7.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

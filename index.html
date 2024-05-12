@@ -145,6 +145,381 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/" class="post-title-link" itemprop="url">算法设计与分析复习</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-11 16:26:03" itemprop="dateCreated datePublished" datetime="2024-05-11T16:26:03+08:00">2024-05-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-05-12 21:44:01" itemprop="dateModified" datetime="2024-05-12T21:44:01+08:00">2024-05-12</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="算法的概念"><a href="#算法的概念" class="headerlink" title="算法的概念"></a>算法的概念</h1><ul>
+<li><p>什么是算法：算法是由若干条指令组成的有穷序列</p>
+</li>
+<li><p>算法具有哪些特征：</p>
+<ul>
+<li>输入（0 个或多个）</li>
+<li>输出（一个或多个）</li>
+<li>确定性（组成算法的每条指令必须有确定含义，无歧义）</li>
+<li>有限性（算法中的指令的条数有限，每条指令的执行次数有限，执行每条指令的时间有限）</li>
+<li>可行性（有待实现的运算都是基本运算）</li>
+</ul>
+</li>
+<li><p>什么是算法的复杂性：算法的复杂性指运行所需要的计算机资源量</p>
+</li>
+<li><p>如何衡量算法的复杂性：用算法运行所需要的计算机资源的量的多少来衡量算法的复杂性</p>
+</li>
+<li><p>算法不能直接在计算机上执行，程序能直接在计算机上执行</p>
+</li>
+<li><p>算法的复杂性是指算法在计算机上运行时所消耗的计算机资源的量。最重要的计算机资源是 <strong>时间资源</strong> 和 <strong>空间资源</strong></p>
+</li>
+<li><p>算法与程序的主要区别在于算法具有 <strong>有限性</strong></p>
+</li>
+</ul>
+<h1 id="证明题"><a href="#证明题" class="headerlink" title="证明题"></a>证明题</h1><ul>
+<li>存在常数 C 和自然数 N0，使得 N &gt;&#x3D; N0 时有 f(N) &lt;&#x3D; Cg(N)，记为 f(N) &#x3D; O(g(N))。证明：O(f(N)) + O(g(N)) &#x3D; O(f(N) + g(N))。</li>
+</ul>
+<style>.gwayoobmqfhf{zoom: 33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/b3dfe4f80c758cf17fab5ba32a659984.jpg" class="gwayoobmqfhf" alt="img">
+
+<ul>
+<li>存在常数 C 和自然数 N0，使得 N &gt;&#x3D; N0 时有 f(N) &lt;&#x3D; Cg(N)，记为 f(N) &#x3D; O(g(N))。证明：O(f(N)) * O(g(N)) &#x3D; O(f(N) * g(N))。</li>
+</ul>
+<style>.eyysxoedljqt{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/6f2a742cf432389d4996650905ce7402.jpg" class="eyysxoedljqt" alt="img">
+
+<ul>
+<li>存在常数 C 和自然数 N0，使得 N &gt;&#x3D; N0 时有 f(N) &lt;&#x3D; Cg(N)，记为 f(N) &#x3D; O(g(N))。证明：O(f(N)) + O(g(N)) &#x3D; O(max{f(N), g(N)})。</li>
+</ul>
+<style>.vkfyoyqwwklf{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/c7f45596273ee692c80e9ed5b0ccfdfa.jpg" class="vkfyoyqwwklf" alt="img">
+
+<h1 id="递归法"><a href="#递归法" class="headerlink" title="递归法"></a>递归法</h1><ul>
+<li>T(n) &#x3D; 2T(n - 1) + O(1)，T(1) &#x3D; 1，则 T(n) &#x3D; __</li>
+</ul>
+<style>.phletnfnrbnr{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/cf9a9fc703f5c7dc1a74bc37db46983a.jpg" class="phletnfnrbnr" alt="img">
+
+<h1 id="分治法"><a href="#分治法" class="headerlink" title="分治法"></a>分治法</h1><ul>
+<li><p>简述分治法的特征：</p>
+<ul>
+<li>问题规模足够小时容易解决</li>
+<li>将规模大的问题分成规模较小的子问题</li>
+<li>子问题相互独立</li>
+<li>子问题的解决方法与原问题相同</li>
+<li>递归解决子问题</li>
+<li>子问题的解能够合并成原问题的解</li>
+</ul>
+</li>
+<li><p>简述分治法的基本思想：</p>
+<ul>
+<li>将规模为 n 的问题分解为 k 个规模较小的子问题，子问题相互独立且与原问题相同</li>
+<li>递归的求解这些子问题</li>
+<li>然后将子问题的解合并得到原问题的解</li>
+</ul>
+</li>
+</ul>
+<h2 id="二分搜索"><a href="#二分搜索" class="headerlink" title="二分搜索"></a>二分搜索</h2><ul>
+<li>二分搜索算法在最坏情况下的时间复杂度是 <strong>O(logn)</strong></li>
+<li>用二分搜索算法在一个有序序列中查找某指定元素是否存在，当前查找范围是 a[low:high]，分治策略中的分解操作是 <strong>(low+high)&#x2F;2</strong></li>
+<li>对一个有序序列，以比较为基础的搜索算法的最坏时间复杂度为 <strong>O(logn)</strong></li>
+</ul>
+<h2 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h2><ul>
+<li><p>简述快速排序算法的思想：</p>
+<ul>
+<li>选取待排序列的第一个元素为基准元素</li>
+<li>通过一趟扫描将待排序列的元素分割成独立的两个序列，第一个序列中元素不大于基准元素，第二个序列中元素不小于基准元素</li>
+<li>对两个序列分别递归排序，最终整个序列变成有序序列</li>
+</ul>
+</li>
+<li><p>快速排序算法中，选取基准元素的方法是：随机选取序列中的一个元素作为基准元素（选择题）</p>
+</li>
+<li><p>快速排序代码实现</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">quick_sort</span><span class="params">(<span class="type">int</span>[] a, <span class="type">int</span> start, <span class="type">int</span> end)</span> &#123;</span><br><span class="line">    <span class="type">int</span> base = a[left];</span><br><span class="line">    <span class="type">int</span> left = start;</span><br><span class="line">    <span class="type">int</span> right = end;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="keyword">while</span> (left &lt; right &amp;&amp; a[right] &gt;= base) &#123;</span><br><span class="line">            right--;</span><br><span class="line">        &#125;</span><br><span class="line">        a[left] = a[right];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">while</span> (left &lt; right &amp;&amp; a[left] &lt; base) &#123;</span><br><span class="line">            left++;</span><br><span class="line">        &#125;</span><br><span class="line">        a[right] = a[left];</span><br><span class="line">    &#125;</span><br><span class="line">    a[left] = base;</span><br><span class="line">    </span><br><span class="line">    quick_sort(a, start, left - <span class="number">1</span>);</span><br><span class="line">    quick_sort(a, left + <span class="number">1</span>, end);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>采用快速排序升序 (5, 3, 8, 2, 1, 9, 23, 12, 16)，要求：写出首次分解得到两个子问题的过程、递归结果、子问题的解合并成原问题的解的过程</p>
+<ul>
+<li>选取基准元素 5 并保存，划分过程如下：<ul>
+<li>设置指针 i 指向元素 5，指针 j 指向元素 16</li>
+<li>j 向左寻找小于 5 的元素，j 找到 1，将 j 指向的 1 覆盖到 i 指向的 5</li>
+<li>i 向右寻找大于等于 5 的元素，i 找到 8，将 i 指向的 8 覆盖到 j 指向的 1</li>
+<li>j 继续向左寻找小于 5 的元素，j 找到 2，将 j 指向的 2 覆盖到 i 指向的 8</li>
+<li>i 继续向右寻找大于等于 5 的元素，i &#x3D;&#x3D; j 指向了 2</li>
+<li>将基准元素覆盖到 i、j 指向的 2</li>
+<li>此时两个子问题为 {1, 3, 2}、{8, 9, 23, 12, 16}</li>
+</ul>
+</li>
+<li>递归的结果为 {1, 2, 3}、{8, 9, 12, 16, 23}</li>
+<li>此时整个序列有序，为 {1, 2, 3, 5, 8, 9, 12, 16, 23}</li>
+</ul>
+</li>
+<li><p>请使用快速排序升序排序 (10, 18, 10, 9, 15, 6, 3, 2, 24, 4)，给出第一趟划分结果及后续操作</p>
+</li>
+</ul>
+<style>.vntpuqhctyho{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/d21d4614799775b3e5fb3c034fd17f01.jpg" class="vntpuqhctyho" alt="img">
+
+<ul>
+<li>请使用快速排序升序排序 (5, 1, 4, 3, 9, 6, 3, 2, 8, 10, 7)，给出第一趟划分结果及后续操作</li>
+</ul>
+<style>.mydjuvayhgfh{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/a9a9e90d2acc75c7f9936b39f414f264.jpg" class="mydjuvayhgfh" alt="img">
+
+<h2 id="合并排序"><a href="#合并排序" class="headerlink" title="合并排序"></a>合并排序</h2><ul>
+<li>使用分治法设计合并排序算法</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">merge_sort</span><span class="params">(<span class="type">int</span>[] a, <span class="type">int</span> left, <span class="type">int</span> right)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = (left + right) / <span class="number">2</span>;</span><br><span class="line">        merge_sort(a, left, mid);</span><br><span class="line">        merge_sort(a, mid + <span class="number">1</span>, right);</span><br><span class="line">        merge(a, left, right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>采用合并排序的思想将给定序列 T[1:9] &#x3D; {5, 3, 8, 2, 1, 9, 23, 12, 6} 升序，要求：写出首次分解得到两个子问题的过程、递归结果、子问题的解合并成原问题的解的过程</p>
+<ul>
+<li><p>(1 + 9) &#x2F; 2 &#x3D; 5</p>
+</li>
+<li><p>两个子问题是：T[1:5]、T[6:9]</p>
+</li>
+<li><p>递归的结果：T[1:5] &#x3D; {1, 2, 3, 5, 8}，T[6:9] &#x3D; {6, 9, 12, 23}</p>
+</li>
+<li><p>两个子问题合并得到原问题的解，合并过程如下：</p>
+<ul>
+<li>将 1, 2, 3, 5 放入辅助数组</li>
+<li>将 6 放入辅助数组</li>
+<li>将 8 放入辅助数组</li>
+<li>将 9, 12, 23 放入辅助数组，得到一个有序序列</li>
+</ul>
+</li>
+<li><p>将辅助数组中的元素复制到数组 T，得到 T[1:9] &#x3D; {1, 2, 3, 5, 6, 8, 9, 12, 23}</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="棋盘覆盖问题"><a href="#棋盘覆盖问题" class="headerlink" title="棋盘覆盖问题"></a>棋盘覆盖问题</h2><ul>
+<li>对于如下 2^3^ * 2^3^ 的特殊棋盘，共需要多少 L 型骨牌；并在棋盘上填写 L 型骨牌的覆盖情况。</li>
+</ul>
+<style>.aczurgxwilfr{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/dce9ae0daba371a20b1329701a453dfb.jpg" class="aczurgxwilfr" alt="img">
+
+<style>.jgjvdbrcmgnh{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/00309eebce67d0b8269c011e53dc30f5.jpg" class="jgjvdbrcmgnh" alt="img">
+
+<h2 id="循环赛日程表"><a href="#循环赛日程表" class="headerlink" title="循环赛日程表"></a>循环赛日程表</h2><ul>
+<li>有 n &#x3D; 2^k^ 个运动员要进行循环赛，设计一个赛程表：1. 每个选手必须和其他 n - 1 个选手各比赛一次；2. 每个选手一天至多比赛一次；3. 循环赛要在最短时间内完成；（1）如果 n &#x3D; 2^k^，循环赛最少需要进行几天（2）当 n &#x3D; 2^3^ &#x3D; 8 时，画出循环赛日程表</li>
+</ul>
+<style>.qlnznwgttyms{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/ecacc48cc2780a67de1bf5a074b4f92b.jpg" class="qlnznwgttyms" alt="img">
+
+<h1 id="动态规划法"><a href="#动态规划法" class="headerlink" title="动态规划法"></a>动态规划法</h1><ul>
+<li><p>简述动态规划求解优化问题的步骤：</p>
+<ul>
+<li>最优子结构性质分析</li>
+<li>递归定义最优值</li>
+<li>以自底向上的方式计算出最优值</li>
+<li>根据计算最优值时得到的信息，构造最优解</li>
+</ul>
+</li>
+<li><p>动态规划算法的主要步骤：</p>
+<ul>
+<li><p>问题具有最优子结构性质</p>
+</li>
+<li><p>构造最优值的递归关系表达式</p>
+</li>
+<li><p>最优值的算法描述</p>
+</li>
+<li><p>构造最优值</p>
+</li>
+</ul>
+</li>
+<li><p>动态规划算法的基本要素：最优子结构性质、重叠子问题、自底向上的求解方法</p>
+</li>
+</ul>
+<h2 id="0-1-背包问题"><a href="#0-1-背包问题" class="headerlink" title="0-1 背包问题"></a>0-1 背包问题</h2><ul>
+<li><p>描述 0-1 背包问题：已知一个背包容量为 c，有 n 件物品，物品 i 的重量为 Wi，价值为 Vi，应如何选择装入背包中的物品，使得总价值最大</p>
+</li>
+<li><p>0-1 背包问题代码实现</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">knapSack</span><span class="params">(<span class="type">int</span> c, <span class="type">int</span> n, <span class="type">int</span>[] w, <span class="type">int</span>[] v, <span class="type">int</span>[][] dp)</span> &#123;</span><br><span class="line">    <span class="type">int</span> dp[n + <span class="number">1</span>][c + <span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= n; i++) dp[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= c; i++) dp[<span class="number">0</span>][i] = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">1</span>; j &lt;= c; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (j &lt; w[i]) &#123;</span><br><span class="line">                dp[i][j] = dp[i - <span class="number">1</span>][j];</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                dp[i][j] = max(dp[i - <span class="number">1</span>][j], dp[i - <span class="number">1</span>][j - w[i]] + v[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[n + <span class="number">1</span>][c + <span class="number">1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>用贪心算法解决背包问题时所用的贪心策略是：单位重量的价值大的物品优先装入背包</p>
+</li>
+<li><p>0-1 背包问题用动态规划算法的时间复杂度为 <strong>O(nc)</strong></p>
+</li>
+<li><p>有 0-1 背包问题如下：n &#x3D; 4，c &#x3D; 13，P &#x3D; (18, 15, 8, 12)，W &#x3D; (10, 2, 3, 4)。试用动态规划求出问题的最优解和最优值</p>
+</li>
+</ul>
+<style>.sluledmynkfe{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/c691e25d3af8ae45bab678a19a08e371.jpg" class="sluledmynkfe" alt="img">
+
+<style>.hhjwdcekybjh{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/84b6f519dc4176d074e239a883e13cbb.jpg" class="hhjwdcekybjh" alt="img">
+
+<h2 id="最长公共子序列问题"><a href="#最长公共子序列问题" class="headerlink" title="最长公共子序列问题"></a>最长公共子序列问题</h2><ul>
+<li>最长公共子序列问题代码实现</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">(<span class="type">int</span> m, <span class="type">int</span> n, <span class="type">char</span>[] x, <span class="type">char</span>[] y, <span class="type">int</span>[][] c, <span class="type">int</span>[][] b)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= m; i++) c[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt;= n; j++) c[<span class="number">0</span>][j] = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= m; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (x[i] == y[j]) &#123;</span><br><span class="line">                c[i][j] = c[i - <span class="number">1</span>][j - <span class="number">1</span>] + <span class="number">1</span>;</span><br><span class="line">                b[i][j] = <span class="number">1</span>; <span class="comment">// 1:LU</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                c[i][j] = max(c[i - <span class="number">1</span>][j], c[i][j - <span class="number">1</span>]);</span><br><span class="line">                b[i][j] = c[i][j] == c[i - <span class="number">1</span>][j] ? <span class="number">2</span> : <span class="number">3</span>; <span class="comment">// 2:U 3:L</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>给定两个序列的长度分别为 m、n，求这两个序列的最长公共子序列耗时 <strong>O(mn)</strong></li>
+</ul>
+<style>.ocpfofmtsxrl{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/d07160810c0c4bce9769e195b7f2863f.jpg" class="ocpfofmtsxrl" alt="img">
+
+<h2 id="矩阵连乘问题"><a href="#矩阵连乘问题" class="headerlink" title="矩阵连乘问题"></a>矩阵连乘问题</h2><ul>
+<li><p>用 A[1:n] 表示 A1…An 连乘，给定 A[1:10]，用动态规划算法求解时，用来存储各子问题最优值的二维数组共有 <strong>100</strong> 个存储单元</p>
+</li>
+<li><p>用 A[1:n] 表示 A1…An 连乘，用动态规划求解 A[1:n] 时，计算各子问题最优值的复杂度是 <strong>O(n^3^)</strong></p>
+</li>
+<li><p>M1(5 * 10)，M2(10 * 4)，M3(4 * 6)。矩阵连乘 M1 * M2 * M3 需要最少乘法次数为 <strong>320</strong>（5 * 4 * 10 + 5 * 6 * 4 &#x3D; 320）</p>
+</li>
+</ul>
+<h1 id="贪心法"><a href="#贪心法" class="headerlink" title="贪心法"></a>贪心法</h1><ul>
+<li>贪心法的两个基本要素：贪心选择性质、最优子结构性质</li>
+<li>贪心策略设计算法的关键是：选好贪心策略</li>
+</ul>
+<h2 id="Difkstra-算法"><a href="#Difkstra-算法" class="headerlink" title="Difkstra 算法"></a>Difkstra 算法</h2><ul>
+<li>简述求单源最短路径问题的 Dijkstra 算法思想：<ul>
+<li>初始时令 S &#x3D; {源点}，Dist 数组记录最短特殊路径长度，重复如下操作</li>
+<li>选择一条特殊最短路径，将其连接的 V-S 中的点加入 S，更新特殊最短路径</li>
+<li>直到 S &#x3D; V 为止，根据前驱数组的记录，构建最优解</li>
+</ul>
+</li>
+<li>用贪心算法求 s 到 t 的最短路</li>
+</ul>
+<style>.cjynnvemfcyb{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/9ccc62b3bfdd142687b23e8ba91ead3e.jpg" class="cjynnvemfcyb" alt="img">
+
+<style>.wcpdwefpfhrw{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/786e2a92c1695ead1a6b852563f45346.jpg" class="wcpdwefpfhrw" alt="img">
+
+<h2 id="Prim-算法"><a href="#Prim-算法" class="headerlink" title="Prim 算法"></a>Prim 算法</h2><ul>
+<li>Prim 算法构造最小生成树的基本思想：<ul>
+<li>初始时令 U &#x3D; (u0)，u0 ∈ V，TE &#x3D; {}</li>
+<li>选取 i ∈ U，j ∈ V - U，边 (i, j) 是连接 U 和 V - U 所有边中最短的</li>
+<li>然后，将 j 加入集合 U，将边 (i, j) 加入到集合 TE 中</li>
+<li>继续上面的贪心选择直到 U &#x3D; V 为止</li>
+</ul>
+</li>
+<li>Prim 算法生成最小生成树的过程中，贪心策略是：<ul>
+<li>选取 i ∈ U，j ∈ V - U，边 (i, j) 是连接 U 和 V - U 所有边中最短的</li>
+<li>然后，将 j 加入集合 U，将边 (i, j) 加入到最小生成树中</li>
+</ul>
+</li>
+<li>给定 n 个顶点的无向连通图，Prim 算法的时间复杂度为 <strong>O(n^2^)</strong></li>
+<li>使用 Prim 算法求最小生成树</li>
+</ul>
+<style>.lzibojpdsfwx{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/700466b5efe108a2774d8594a7531743.jpg" class="lzibojpdsfwx" alt="img">
+
+<h2 id="Kruskal-算法"><a href="#Kruskal-算法" class="headerlink" title="Kruskal 算法"></a>Kruskal 算法</h2><ul>
+<li><p>Kruskal 算法的时间复杂度为 <strong>eloge</strong>，e 为无向连通图的边数</p>
+</li>
+<li><p>对稀疏图，Kruskal 算法比 Prim 算法有效</p>
+</li>
+<li><p>Kruskal 算法基本思想：</p>
+<ul>
+<li>按照图中边权由大到小的次序依次考虑每条边是否加入最小生成树中</li>
+<li>当考虑到某条边时，如果该边与已经加入到最小生成树中的边不形成回路，则将该边加入进去</li>
+</ul>
+</li>
+</ul>
+<style>.fdccvkysiiwc{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/28c4128ff54b201f901b17477f2fd552.jpg" class="fdccvkysiiwc" alt="img">
+
+<ul>
+<li>使用 Kruskal 算法求最小生成树</li>
+</ul>
+<style>.bzgkjvwjwvkc{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/0e0a864b988b7fb477bebfb9fb1b228b.jpg" class="bzgkjvwjwvkc" alt="img">
+
+<h2 id="哈夫曼编码"><a href="#哈夫曼编码" class="headerlink" title="哈夫曼编码"></a>哈夫曼编码</h2><ul>
+<li>简述哈夫曼编码算法的思想：<ul>
+<li>将 n 个字符看做 n 棵孤立的树，组成一个集合</li>
+<li>从集合中取出两棵出现频率最低的树，让其作为左右子树构成一棵新树，新树的频率为左右子树频率之和，将那个新树插入到集合中</li>
+<li>重复操作，直到只剩下一颗树为止</li>
+</ul>
+</li>
+<li>已知元素出现频率 (a, b, c, d, e, f, g) &#x3D; (0.15, 0.25, 0.12, 0.05, 0.03, 0.1, 0.3)，请建立哈夫曼编码对应的二叉树，并写出相应元素的编码。</li>
+</ul>
+<style>.gjkxrhmxihpp{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/8f430532951518f222caf2d7f7dc2ebd.jpg" class="gjkxrhmxihpp" alt="img">
+
+<h2 id="流水作业调度问题-Johnson-算法"><a href="#流水作业调度问题-Johnson-算法" class="headerlink" title="流水作业调度问题 Johnson 算法"></a>流水作业调度问题 Johnson 算法</h2><ul>
+<li><p>流水线作业调度问题的 Johnson 算法的思想：</p>
+<ul>
+<li>令 N1 &#x3D; {i|ai &lt; bi}，N2 &#x3D; {i|ai &gt;&#x3D; bi}</li>
+<li>将 N1 中作业按 ai 递增排序，将 N2 中作业按 bi 递减排序</li>
+<li>N1 中作业接 N2 中作业得到最优调度</li>
+</ul>
+</li>
+<li><p>M1 上处理 (a1, a2, a3, a4, a5, a6, a7) &#x3D; (2,5, 7, 10, 5, 3, 8)，M2 上处理 (b1, b2, b3, b4, b5, b6, b7) &#x3D; (3, 8, 2, 11, 5, 4, 4)，按照流水线作业调度问题的 Johnson 算法步骤，给出该问题的最优调度方案。</p>
+</li>
+</ul>
+<style>.hyyimkciqjln{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/6745c41e9c2a473a9d4494af314b9cb9.jpg" class="hyyimkciqjln" alt="img">
+
+<style>.frfkrevqgmdv{zoom:33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/ca27278ce499a04ae4b0a13ab8f0ecb6.jpg" class="frfkrevqgmdv" alt="img">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><style>.hrtsmqnnxpli{zoom: 50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512211853820.png" class="hrtsmqnnxpli" alt="image-20240512211853820"><style>.yjtnkgfspwmf{zoom: 50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512211954178.png" class="yjtnkgfspwmf" alt="image-20240512211954178">
+
+<style>.wysrrdvbgjsn{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212119179.png" class="wysrrdvbgjsn" alt="image-20240512212119179"><style>.hbbjlrlwjipc{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212033993.png" class="hbbjlrlwjipc" alt="image-20240512212033993">
+
+<style>.iqrlmxxmqfxt{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212200992.png" class="iqrlmxxmqfxt" alt="image-20240512212200992"><style>.pizgxagqsjsz{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212244626.png" class="pizgxagqsjsz" alt="image-20240512212244626">
+
+<style>.hsgyswnwvsmd{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212449328.png" class="hsgyswnwvsmd" alt="image-20240512212449328"><style>.plorxqcgatig{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212506627.png" class="plorxqcgatig" alt="image-20240512212506627">
+
+<style>.spristzybtov{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212600843.png" class="spristzybtov" alt="image-20240512212600843"><style>.qrmcygseceal{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212625852.png" class="qrmcygseceal" alt="image-20240512212625852">
+
+
+
+<style>.lttwnzbvwwjf{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212821060.png" class="lttwnzbvwwjf" alt="image-20240512212821060"><style>.qxhwjuufckit{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512212840553.png" class="qxhwjuufckit" alt="image-20240512212840553">
+
+<style>.kkiojxcdpngl{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213147783.png" class="kkiojxcdpngl" alt="image-20240512213147783"><style>.ifjwmvzingbs{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213239005.png" class="ifjwmvzingbs" alt="image-20240512213239005">
+
+<style>.kbisrnxvnthm{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512194033369.png" class="kbisrnxvnthm" alt="image-20240512194033369"><style>.eksifzgmeuah{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213806651.png" class="eksifzgmeuah" alt="image-20240512213806651">
+
+<style>.shcngbtuprgp{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213620162.png" class="shcngbtuprgp" alt="image-20240512213620162"><style>.zjzyewdzsgws{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213634721.png" class="zjzyewdzsgws" alt="image-20240512213634721">
+
+<style>.smlkbjtaouph{zoom:50%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512213838992.png" class="smlkbjtaouph" alt="image-20240512213838992"><style>.wlunqkjpfsle{zoom: 33%;}</style><img src="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/image-20240512214132757.png" class="wlunqkjpfsle" alt="image-20240512214132757">
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2641,34 +3016,34 @@
 <li>由于测试用例众多，这里我们就仅测试几个复杂的：trace14.txt、trace15.txt、trace16.txt</li>
 <li><strong>make test14</strong></li>
 </ul>
-<style>.reeqymxsxnuy{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331152705024.png" class="reeqymxsxnuy" alt="image-20240331152705024">			
+<style>.isiniqneqjss{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331152705024.png" class="isiniqneqjss" alt="image-20240331152705024">			
 
 <ul>
 <li><strong>make rtest14</strong></li>
 </ul>
-<style>.vupapyjvyvdn{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331152744491.png" class="vupapyjvyvdn" alt="image-20240331152744491">  
+<style>.mpsodbzlxvuy{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331152744491.png" class="mpsodbzlxvuy" alt="image-20240331152744491">  
 
 <ul>
 <li><strong>make test15</strong></li>
 </ul>
 <p>																										</p>
-<style>.lftqntfbryea{zoom:;}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153014941.png" class="lftqntfbryea" alt="image-20240331153014941">			
+<style>.wwyutcjhudjz{zoom:;}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153014941.png" class="wwyutcjhudjz" alt="image-20240331153014941">			
 
 <ul>
 <li><strong>make rtest15</strong></li>
 </ul>
-<style>.uxgbbltmgbkf{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153044693.png" class="uxgbbltmgbkf" alt="image-20240331153044693">	
+<style>.edlrxnsnkvfh{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153044693.png" class="edlrxnsnkvfh" alt="image-20240331153044693">	
 
 <ul>
 <li><strong>make test16</strong></li>
 </ul>
 <p>																									</p>
-<style>.kltcxdgidzll{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153212772.png" class="kltcxdgidzll" alt="image-20240331153212772">					 
+<style>.drqejjwdktoe{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153212772.png" class="drqejjwdktoe" alt="image-20240331153212772">					 
 
 <ul>
 <li><strong>make rtest16</strong></li>
 </ul>
-<style>.spcxsbcrilnr{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153239153.png" class="spcxsbcrilnr" alt="image-20240331153239153">	
+<style>.piknyiusoikk{}</style><img src="/2024/03/30/CSAPP-Lab6/image-20240331153239153.png" class="piknyiusoikk" alt="image-20240331153239153">	
 
 <h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p>[<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/343064110">已完成+附代码]CS:APP:Lab6-ShellLab - 知乎 (zhihu.com)</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhiyiYo/p/16297819.html">CSAPP 之 ShellLab 详解 - 之一Yo - 博客园 (cnblogs.com)</a></p>
@@ -4954,460 +5329,11 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/01/17/CSAPP-Lab1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="yiweiBoi">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2024/01/17/CSAPP-Lab1/" class="post-title-link" itemprop="url">CSAPP DataLab</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2024-01-17 19:45:22" itemprop="dateCreated datePublished" datetime="2024-01-17T19:45:22+08:00">2024-01-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-03-27 14:33:18" itemprop="dateModified" datetime="2024-03-27T14:33:18+08:00">2024-03-27</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
-<li><strong>bits.c</strong> 文件是我们需要进行修改和编写的文件</li>
-<li><strong>btest.c</strong> 是编译并检测我们代码（<strong>bits.c</strong> 文件）</li>
-<li>每次修改 <strong>bits.c</strong> 文件后，我们都需要保存 <strong>CTRL + S</strong>，然后在命令行终端输入 <strong>make btest</strong> 重新进行编译生成新的可执行文件</li>
-<li>通过 <strong>.&#x2F;btest -f function</strong> 来检测某个函数的正确性（<strong>function</strong> 为函数名）</li>
-<li>通过 <strong>.&#x2F;btest</strong> 测试所有函数的正确性</li>
-<li>通过 <strong>.&#x2F;dlc -e bits.c</strong> 打印每个函数使用的运算符数目</li>
-</ul>
-<h1 id="bitXor"><a href="#bitXor" class="headerlink" title="bitXor"></a>bitXor</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * bitXor - x^y using only ~ and &amp; </span></span><br><span class="line"><span class="comment"> *   Example: bitXor(4, 5) = 1</span></span><br><span class="line"><span class="comment"> *   Legal ops: ~ &amp;</span></span><br><span class="line"><span class="comment"> *   Max ops: 14</span></span><br><span class="line"><span class="comment"> *   Rating: 1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>要求：<strong>^</strong> 表示与非，仅使用 <strong>~ 取反</strong> 和 <strong>&amp; 与</strong> 来实现 <strong>^ 与非</strong></li>
-<li><strong>^</strong> 的特性为：x 和 y 只有一个为 1 时才为 1，否则为 0，即可以表示为 <code>x^y = (~x &amp; y) | (x &amp; ~y)</code></li>
-<li>因为仅可以使用 ~ 和 &amp;，我们通过公式法可以转换为：<ul>
-<li><code>(~x &amp; y) | (x &amp; ~y)</code> &#x3D; <code>~(~(~x &amp; y) &amp; ~(x &amp; ~y))</code></li>
-<li>也可以这样想，<code>(~x &amp; y) | (x &amp; ~y)</code> &#x3D; <code>(~x | ~y) &amp; (x | y)</code> &#x3D; <code>~(x &amp; y) &amp; ~(~x &amp; ~y)</code></li>
-<li>原理：<strong>与非 &#x3D; 非 的 或 | 或非 &#x3D; 非 的 与</strong>（当然，也可以扩展为 <strong>或 &#x3D; 非 的 与非 | 与 &#x3D; 非 的 或非</strong>）</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">bitXor</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> ~(~(x &amp; ~y) &amp; ~(~x &amp; y));</span><br><span class="line">  <span class="comment">// return ~(x &amp; y) &amp; ~(~x &amp; ~y);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="tmin"><a href="#tmin" class="headerlink" title="tmin"></a>tmin</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * tmin - return minimum two&#x27;s complement integer </span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 4</span></span><br><span class="line"><span class="comment"> *   Rating: 1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>要求：返回 <strong>32 位二进制中的最小数</strong>，仅可以使用 <strong>! 逻辑非、~ 取反、&amp; 与、^ 异或、| 或、+ 加法、&lt;&lt; 左移、&gt;&gt; 右移</strong> 来实现</li>
-<li><strong>32 位二进制中的最小数</strong> 的位模式为 <strong>100……00</strong>，即符号位为 1 表示负数，其他位全为 0</li>
-<li>1 的位模式为 <strong>00……01</strong>，我们可以通过将 1 <strong>左移 31</strong> 位来得到最小数 <strong>100……00</strong></li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">tmin</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>&lt;&lt;<span class="number">31</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="isTMax"><a href="#isTMax" class="headerlink" title="isTMax"></a>isTMax</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * isTmax - returns 1 if x is the maximum, two&#x27;s complement number,</span></span><br><span class="line"><span class="comment"> *     and 0 otherwise </span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | +</span></span><br><span class="line"><span class="comment"> *   Max ops: 10</span></span><br><span class="line"><span class="comment"> *   Rating: 1</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：如果 x 是 32 位二进制中最大数，返回 1，否则返回 0，仅可以使用 <strong>!  ~  &amp;  ^  +</strong> 来实现</p>
-</li>
-<li><p>32 位二进制中的最大数的位模式为 <strong>011……11</strong>，我们可以发现它有一些特殊特性：</p>
-<ul>
-<li><strong>011……11</strong> 加 1 得到 <strong>100……00</strong>，我们将这两个数相加又得到 <strong>11……11</strong></li>
-<li>我们将 <strong>11……11</strong> 取反得到 <strong>00……00</strong>，这好像是其他数所没有的！</li>
-</ul>
-</li>
-<li><p>然而，<strong>11……11</strong> 也有这样的特性</p>
-<ul>
-<li><strong>11……11</strong> 加 1 得到 <strong>00……00</strong>，这两个数相加也会得到 <strong>11……11</strong></li>
-</ul>
-</li>
-<li><p>通过分析，我们又发现 <strong>11……11</strong> 有一些真正的且唯一的特殊特性：</p>
-<ul>
-<li>我们将 <strong>11……11</strong> 取反得到 <strong>00……00</strong>，在进行逻辑非 <strong>!</strong> ，就会得到 0，而其他数经过这样的操作都会得到 1</li>
-<li>注：逻辑非 <strong>!</strong> 的作用为 <strong>将不为 0 的数转为 0，将 0 转为 1</strong></li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">isTmax</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="type">int</span> y = x + <span class="number">1</span>; 	<span class="comment">// 得到 10……0 | 00……0 | 其他情况下的非零值</span></span><br><span class="line">  x = ~(x + y); 	<span class="comment">// 得到 00……0 | 其他情况下的非零值</span></span><br><span class="line">  y = !y; 			<span class="comment">// 排除 x = 11……1 的情况，如果是，则此时 y = !0 = 1 ，其他情况下 y = !非零值 = 0</span></span><br><span class="line">  x = x + y; 		<span class="comment">// 排村 x = 11……1 的情况，如果是，则此时 x = 0 + 1 = 1，</span></span><br><span class="line">    				<span class="comment">// 而对于 x = 0……11，此时 x = 0 + 0 = 0，当然其他情况为 x = 非零值 + 0 = 非零值</span></span><br><span class="line">  <span class="keyword">return</span> !x; 		<span class="comment">// 返回，x = 01……1 时，返回 !x = !0 = 1，x = 11……1 时，返回 !x = !1 = 0，</span></span><br><span class="line">    				<span class="comment">// 而其他情况，返回 x = !非零值 = 0</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 另一种写法，好像更容易理解一些</span></span><br><span class="line">  <span class="comment">// !(~(x + x + 1) 筛选得到 x = 01……11 和 x = 11……11 的情况，!!(~x) 排除 x = 11……1 的情况</span></span><br><span class="line">  <span class="comment">// return !(~(x + x + 1)) &amp; !!(~x);</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>第一种方法，真值表：</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>x</th>
-<th>011……11</th>
-<th>11……11</th>
-<th>其他情况</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>y &#x3D; x + 1</td>
-<td>100……00</td>
-<td>00……00</td>
-<td>未知值</td>
-</tr>
-<tr>
-<td>x &#x3D; ~(x + y)</td>
-<td>00……00</td>
-<td>00……00</td>
-<td>非零值</td>
-</tr>
-<tr>
-<td>y &#x3D; ! y</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-</tr>
-<tr>
-<td>x &#x3D; x + y</td>
-<td>0</td>
-<td>1</td>
-<td>非零值</td>
-</tr>
-<tr>
-<td>! x</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-</tr>
-</tbody></table>
-<ul>
-<li>第二种方法，真值表：</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>x</th>
-<th>011……11</th>
-<th>11……11</th>
-<th>其他情况</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>! (~x + x + 1)</td>
-<td>1</td>
-<td>1</td>
-<td>0</td>
-</tr>
-<tr>
-<td>! ! (~x)</td>
-<td>1</td>
-<td>0</td>
-<td>1</td>
-</tr>
-<tr>
-<td>&amp;</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-</tr>
-</tbody></table>
-<h1 id="allOddBits"><a href="#allOddBits" class="headerlink" title="allOddBits"></a>allOddBits</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * allOddBits - return 1 if all odd-numbered bits in word set to 1</span></span><br><span class="line"><span class="comment"> *   where bits are numbered from 0 (least significant) to 31 (most significant)</span></span><br><span class="line"><span class="comment"> *   Examples allOddBits(0xFFFFFFFD) = 0, allOddBits(0xAAAAAAAA) = 1</span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 12</span></span><br><span class="line"><span class="comment"> *   Rating: 2</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：如果 32 位二进制数的奇数位全为 1，返回 1，否则返回 0，仅通过 <strong>! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</strong> 来实现</p>
-</li>
-<li><p>如果一个数的奇数位全为 1，那么如果我们把它的偶数位也全变为 1，那么就得到了 <strong>11……11</strong>，我们再将它取反再取非，就得到了1，这是奇数位全为 1 的数的特殊特性！其他情况下都会得到 0！</p>
-<ul>
-<li>那么我们将它的偶数位全部置为 1 呢？我们可以通过与掩码 <strong>0101……0101（16 进制为 0X55……55）</strong> 进行 <strong>或</strong> 操作来实现</li>
-<li>那么如何得到 <strong>0X55……55</strong> 呢？我们可以先将 0X55 左移 8 位，再加上 0X55 得到 0X5555，再将 0X5555 左移 16 位加上 0X5555 就得到了 0X55555555 了</li>
-</ul>
-</li>
-<li><p>还有一种思路，我们将这个数的偶数位全都置为 0，再检测它的奇数位是否都为 1</p>
-<ul>
-<li>如何将它的偶数位全置为 0 呢？通过与掩码 <strong>1010……1010（16进制为 0XAA……AA）</strong> 进行 <strong>与</strong> 操作来实现<ul>
-<li>0XAAAAAAAA 通过 0X55555555 的类似操作得到</li>
-</ul>
-</li>
-<li>如何检测它是否所有奇数位全为 1 呢？通过与掩码 <strong>0XAA……AA</strong> 进行 <strong>异或</strong> 操作来实现<ul>
-<li>如果奇数位全为 1 的话，异或得到 0，取非得到 1，其他情况下，得到非零值取非得到 0</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">allOddBits</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="comment">// int y = 0x55&lt;&lt;8; </span></span><br><span class="line">  <span class="comment">// y = y + 0x55;</span></span><br><span class="line">  <span class="comment">// y = y &lt;&lt; 16;</span></span><br><span class="line">  <span class="comment">// y = y + 0x5555;</span></span><br><span class="line">  <span class="comment">// x = x | y;</span></span><br><span class="line">  <span class="comment">// return !~x;</span></span><br><span class="line">  </span><br><span class="line">  <span class="type">int</span> y = <span class="number">0xAA</span>&lt;&lt;<span class="number">8</span>;</span><br><span class="line">  y = y + <span class="number">0xAA</span>;</span><br><span class="line">  y = y &lt;&lt; <span class="number">16</span>;</span><br><span class="line">  y = y + <span class="number">0xAAAA</span>;</span><br><span class="line">  x = x &amp; y;</span><br><span class="line">  <span class="keyword">return</span> !(x^y); <span class="comment">// 括号是必须加的...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="negate"><a href="#negate" class="headerlink" title="negate"></a>negate</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * negate - return -x </span></span><br><span class="line"><span class="comment"> *   Example: negate(1) = -1.</span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 5</span></span><br><span class="line"><span class="comment"> *   Rating: 2</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>要求：返回 -x，仅通过 <strong>! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</strong> 来实现</li>
-<li>通过书上的公式 <code>-x = ~x + 1</code> 可以很容易实现</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">negate</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> ~x + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="isAsciiDigit"><a href="#isAsciiDigit" class="headerlink" title="isAsciiDigit"></a>isAsciiDigit</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * isAsciiDigit - return 1 if 0x30 &lt;= x &lt;= 0x39 (ASCII codes for characters &#x27;0&#x27; to &#x27;9&#x27;)</span></span><br><span class="line"><span class="comment"> *   Example: isAsciiDigit(0x35) = 1.</span></span><br><span class="line"><span class="comment"> *            isAsciiDigit(0x3a) = 0.</span></span><br><span class="line"><span class="comment"> *            isAsciiDigit(0x05) = 0.</span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 15</span></span><br><span class="line"><span class="comment"> *   Rating: 3</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：如果 <strong>0x30 &lt;&#x3D; x &lt;&#x3D; 0x39**，返回 1，否则返回 0，仅通过 **! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</strong> 来实现</p>
-</li>
-<li><p>我们可以通过两个特殊的数来判断 x 是否处于这个范围，一个数加上大于 0x39 的数后，由正数变为负数，另一个数加上大于 0x30 的数后，由负数变为正数</p>
-<ul>
-<li>因此我们需要设法得到这两个特殊的数，通过加上 x 来判断他们的符号位，如果都为正数，则 x 位于这个范围，如果至少一个为负数，则 x 不属于这个范围</li>
-<li>对于第一个特殊的数，我们可以先得到 10……00，将它和 0x39 进行 或 操作，再进行取反得到</li>
-<li>对于第二个特殊的数，我们可以通过将 0x30 取反 加 1 得到，也可以直接对 0x2F 取反得到</li>
-</ul>
-</li>
-<li><p>还有一种更简单直观的思路，利用 negate 函数的技巧</p>
-<ul>
-<li>如果 <strong>x - 0X3A 小于 0 且 x - 0x30 大于等于 0</strong>，x 位于这个返回（x - 0X3A 而不是 0x39，是因为要判断是否是负数，即符号位是否为 1，x - 0X39 可能得到 0 使结果混淆）</li>
-<li>-0X3A 和 -0X30 通过 ~x + 1 得到</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">isAsciiDigit</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="type">int</span> y = <span class="number">1</span>&lt;&lt;<span class="number">31</span>;</span><br><span class="line">  <span class="type">int</span> y1 = ~(y | <span class="number">0x39</span>); 	<span class="comment">// 得到第一个特殊的数</span></span><br><span class="line">  <span class="type">int</span> y2 = ~<span class="number">0x30</span> + <span class="number">1</span>; 		<span class="comment">// 得到第二个特殊的数</span></span><br><span class="line">  <span class="type">int</span> sign1 = (y1 + x)&gt;&gt;<span class="number">31</span>; <span class="comment">// 判断 x 是否大于 0x39</span></span><br><span class="line">  <span class="type">int</span> sign2 = (y2 + x)&gt;&gt;<span class="number">31</span>; <span class="comment">// 判断 x 是否小于 0x30</span></span><br><span class="line">  <span class="keyword">return</span> !(sign1 | sign2);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// return (x + ~0x3A+1)&gt;&gt;31 &amp; !(x + ~0x30+1)&gt;&gt;31;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="conditional"><a href="#conditional" class="headerlink" title="conditional"></a>conditional</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * conditional - same as x ? y : z </span></span><br><span class="line"><span class="comment"> *   Example: conditional(2,4,5) = 4</span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 16</span></span><br><span class="line"><span class="comment"> *   Rating: 3</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：实现 <strong>x ? y : z</strong>，即如果 x !&#x3D; 0，返回 y，x &#x3D;&#x3D; 0，返回 z，仅通过 <strong>! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</strong> 来实现</p>
-</li>
-<li><p>首先我们应该想一个方法将 x &#x3D; 0 和 x &#x3D; 非零值 这两种情况分开，然后我们需要想办法如何根据 x 的值区分 y 和 z</p>
-</li>
-<li><p>我们可以通过 <strong>! 运算 将 x &#x3D; 0 和 x !&#x3D; 0 两种情况分开</strong>，<strong>如果 x &#x3D; 0，x &#x3D; ! x &#x3D; 1，如果 x !&#x3D; 0，x &#x3D; ! x &#x3D; 0</strong></p>
-</li>
-<li><p>我们如何通过此时的 x 值区分 y 和 z 呢？我们知道 <strong>t &amp; 11……11 &#x3D; t，t &amp; 00……00 &#x3D; 0</strong>，我们是否可以根据当前的 x 值来得到 11……11 和 00……00呢？</p>
-<ul>
-<li>通过 <code>x = ~x + 1</code> 就可以实现，x &#x3D; 0 时，x &#x3D; 00……00，x &#x3D; 1 时，x &#x3D; 11……11</li>
-</ul>
-</li>
-<li><p>这样我们就可以区分 y 和 z 了，通过 <strong>(y &amp; ~x) + (z &amp; x)</strong> 来实现</p>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">conditional</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> z)</span> &#123;</span><br><span class="line">  x = !x;  </span><br><span class="line">  x = ~x + <span class="number">1</span>; </span><br><span class="line">  <span class="keyword">return</span> (y &amp; ~x) + (z &amp; x); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="isLessOrEqual"><a href="#isLessOrEqual" class="headerlink" title="isLessOrEqual"></a>isLessOrEqual</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * isLessOrEqual - if x &lt;= y  then return 1, else return 0 </span></span><br><span class="line"><span class="comment"> *   Example: isLessOrEqual(4,5) = 1.</span></span><br><span class="line"><span class="comment"> *   Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 24</span></span><br><span class="line"><span class="comment"> *   Rating: 3</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：如果 x &lt;&#x3D; y，返回 1，否则返回 0，仅通过 <strong>! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</strong> 来实现</p>
-</li>
-<li><p>注意：不要轻易对范围不确定的 int 使用 + ，两个正数相加很容易溢出得到一个负数</p>
-<blockquote>
-<p>之前还想着用 y + ~x + 1 ，再判断符号位得到结果……</p>
-</blockquote>
-</li>
-<li><p>我们需要记住一个原则：符号位不同，正数为大，符号位相同，作差判断符号位</p>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">isLessOrEqual</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line">  <span class="type">int</span> signX = x&gt;&gt;<span class="number">31</span>; <span class="comment">// 得到 x 的符号位</span></span><br><span class="line">  <span class="type">int</span> signY = y&gt;&gt;<span class="number">31</span>; <span class="comment">// 得到 y 的符号位</span></span><br><span class="line">  <span class="type">int</span> sign = signX^signY; <span class="comment">// 判断 x 和 y 是否有相同的符号</span></span><br><span class="line">  <span class="comment">// !sign &amp; !((y+~x+1)&gt;&gt;31) 符号相同，作差判断符号，!!sign &amp; !signY 符号位不同，检查 y 的符号位</span></span><br><span class="line">  <span class="keyword">return</span> (!sign &amp; !((y+~x+<span class="number">1</span>)&gt;&gt;<span class="number">31</span>)) | (!!sign &amp; !signY);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p><strong>! sign &amp; ! ((y ~x + 1)&gt;&gt;31))</strong> 检查符号位相同的情况，此时 sign 为 00……00，取非得到 00……01，如果 y - x 为正，则 <strong>((y ~x + 1)&gt;&gt;31))</strong> 得到 11……11 ，取非同样得到 00……01</p>
-</li>
-<li><p><strong>! ! sign &amp; ! signY</strong> 检查符号位不同的情况，此时 ! ! sigh 为 00……01，**! signY** 判断 y 的符号位，如果 y 为正，则 ! sighY 为 00……01</p>
-<blockquote>
-<p>记住，千万别 x &#x3D; x&gt;&gt;31，y &#x3D; y&gt;&gt;31，这样会改变 x、y 的值，后边还要作差呢……</p>
-</blockquote>
-</li>
-</ul>
-<h1 id="logicalNeg"><a href="#logicalNeg" class="headerlink" title="logicalNeg"></a>logicalNeg</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * logicalNeg - implement the ! operator, using all of </span></span><br><span class="line"><span class="comment"> *              the legal operators except !</span></span><br><span class="line"><span class="comment"> *   Examples: logicalNeg(3) = 0, logicalNeg(0) = 1</span></span><br><span class="line"><span class="comment"> *   Legal ops: ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *   Max ops: 12</span></span><br><span class="line"><span class="comment"> *   Rating: 4 </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>要求：实现 <strong>逻辑非 !</strong> 运算符，仅通过 <strong>~ &amp; ^ | + &lt;&lt; &gt;&gt;</strong> 来实现</li>
-<li>我们需要想一个方法将 0 和其他非零情况分开进行处理，我们可以利用补码的非这个特性来实现<ul>
-<li>0 的非还是 0，特殊的 TMin 的非也还是 TMin，其他数的非为 -x</li>
-<li>然而，我们发现除了 0，其他数（包括 TMin）和它的非的 <strong>或</strong> 的值的符号位总为 1，而只有 0 和它的非的 或 的值的符号位为 0</li>
-<li>我们可以利用这个特点分开处理 0 和其他情况</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">logicalNeg</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="comment">// x = 0 时，00……00 + 1 = 1，x = 其他情况时，11……11 + 1 = 0</span></span><br><span class="line">  <span class="keyword">return</span> ((x | (~x+<span class="number">1</span>))&gt;&gt;<span class="number">31</span>) + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>如果我们不确定不同运算符的优先级，加上括号让他符合你的逻辑总是没错的</p>
-</blockquote>
-<h1 id="howManyBits"><a href="#howManyBits" class="headerlink" title="howManyBits"></a>howManyBits</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* howManyBits - return the minimum number of bits required to represent x in</span></span><br><span class="line"><span class="comment"> *             two&#x27;s complement</span></span><br><span class="line"><span class="comment"> *  Examples: howManyBits(12) = 5</span></span><br><span class="line"><span class="comment"> *            howManyBits(298) = 10</span></span><br><span class="line"><span class="comment"> *            howManyBits(-5) = 4</span></span><br><span class="line"><span class="comment"> *            howManyBits(0)  = 1</span></span><br><span class="line"><span class="comment"> *            howManyBits(-1) = 1</span></span><br><span class="line"><span class="comment"> *            howManyBits(0x80000000) = 32</span></span><br><span class="line"><span class="comment"> *  Legal ops: ! ~ &amp; ^ | + &lt;&lt; &gt;&gt;</span></span><br><span class="line"><span class="comment"> *  Max ops: 90</span></span><br><span class="line"><span class="comment"> *  Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：返回表示 x 的二进制补码所需要的最小位数，即x的二进制补码至少需要几位表示</p>
-</li>
-<li><p>思路：</p>
-<ul>
-<li><p>对于正数来说，我们需要找到它最大位为 1 的位数，那么他所需要的最小位数为 n（最大位为1的数） + 1（符号位）</p>
-</li>
-<li><p>如果是负数的话，我们需要找到他最大位为 0 的位数，则此时他所需要的最小位数为 n（最大位为 0 的位数）+ 1</p>
-<ul>
-<li>比如 1101 表示 -3，而 101 也表示 -3，那么所需要的最小位数为：最大位为 0 的位数 n &#x3D; 2，n + 1 &#x3D; 3</li>
-<li>而对于 1001，其最大位为 0 的位数 n &#x3D; 3，n + 1 &#x3D; 4</li>
-</ul>
-</li>
-<li><p>因此，我们需要将负数和正数的情况统一起来，对于负数，我们可以将其取反，这样的话，无论是正数还是负数，我们都寻找 最大位 为 1 的 位数，再 + 1 得到答案所需要的最小位数</p>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">howManyBits</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line">  <span class="type">int</span> sign = x&gt;&gt;<span class="number">31</span>; <span class="comment">// 得到符号位</span></span><br><span class="line">  x = (sign &amp; ~x) | (~sign &amp; x); <span class="comment">// 如果 x 为负数，则取反，如果 x 为正数，则不变</span></span><br><span class="line">  </span><br><span class="line">  <span class="type">int</span> b16, b8, b4, b2, b1, b0; <span class="comment">// 分别表示是否至少需要相应的位数</span></span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 由于进行了上述处理，此时 x 的符号位已经全部为 0 </span></span><br><span class="line">  </span><br><span class="line">  b16 = !!(x&gt;&gt;<span class="number">16</span>)&lt;&lt;<span class="number">4</span>; 	<span class="comment">// 目的：检查其高 16 位中是否有 1</span></span><br><span class="line">    					<span class="comment">// 先 &gt;&gt;16 是为了去除低 16 位的影响，!! 用来检查是否有 1，</span></span><br><span class="line">    					<span class="comment">// &lt;&lt;4 是为后续步骤做铺垫，如果有 1，则 b16 = 16，如果没有 1，则 b16 = 0</span></span><br><span class="line">    					<span class="comment">// b16 不仅用于后续的右移操作，还表示此时至少需要 16 位 或 0 位</span></span><br><span class="line">  x = x&gt;&gt;b16; 			<span class="comment">// 如果高 16 位有 1 的话，则至少需要 16 位，将 x 右移 16 位，去除低 16 位的影响</span></span><br><span class="line">    					<span class="comment">// 便于后续检查高 16 位的情况</span></span><br><span class="line">    					<span class="comment">// 如果高 16 位没有 1 的话，右移 0 位，则后续检查低 16 位的情况</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 逐渐缩小检查范围</span></span><br><span class="line">  </span><br><span class="line">  b8 = !!(x&gt;&gt;<span class="number">8</span>)&lt;&lt;<span class="number">3</span>; <span class="comment">// 和上述思路一样，检查高 8 位是否有 1</span></span><br><span class="line">    				<span class="comment">// 这里隐含了上边操作的影响，如果高 16 位有 1 的话，则此时检查的是 高 16 位中的高 8 位</span></span><br><span class="line">    				<span class="comment">// 如果高 16 位中没有 1 的话，则此时检查的是低 16 位中的高 8 位</span></span><br><span class="line">  x = x&gt;&gt;b8; 		<span class="comment">// 同样的思路，缩小范围，</span></span><br><span class="line">  </span><br><span class="line">  b4 = !!(x&gt;&gt;<span class="number">4</span>)&lt;&lt;<span class="number">2</span>; </span><br><span class="line">  x = x&gt;&gt;b4;</span><br><span class="line">  </span><br><span class="line">  b2 = !!(x&gt;&gt;<span class="number">2</span>)&lt;&lt;<span class="number">1</span>;</span><br><span class="line">  x = x&gt;&gt;b2;</span><br><span class="line">  </span><br><span class="line">  b1 = !!(x&gt;&gt;<span class="number">1</span>);</span><br><span class="line">  x = x&gt;&gt;b1;</span><br><span class="line">  </span><br><span class="line">  b0 = x;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> b16 + b8 + b4 + b2 + b1 + b0 + <span class="number">1</span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>上述的查找最大位为 1 的位数的操作，很像一个 <strong>二分查找</strong>，通过检查高 n 位中是否含有 1 来代替通常的比较操作，通过 x 右移 bn 位的操作来缩小查找（比较）的范围</li>
-</ul>
-<h1 id="floatScale2"><a href="#floatScale2" class="headerlink" title="floatScale2"></a>floatScale2</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//float</span></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatScale2 - Return bit-level equivalent of expression 2*f for</span></span><br><span class="line"><span class="comment"> *   floating point argument f.</span></span><br><span class="line"><span class="comment"> *   Both the argument and result are passed as unsigned int&#x27;s, but</span></span><br><span class="line"><span class="comment"> *   they are to be interpreted as the bit-level representation of</span></span><br><span class="line"><span class="comment"> *   single-precision floating point values.</span></span><br><span class="line"><span class="comment"> *   When argument is NaN, return argument</span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. also if, while</span></span><br><span class="line"><span class="comment"> *   Max ops: 30</span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：使用无符号整数模拟单精度浮点数 float，返回 2 * f 的结果，可以使用任何整数或无符号数的运算，包括 ||、&amp;&amp;、if、while，对于 NaN（Not a Number），直接返回参数即可</p>
-</li>
-<li><p>首先我们需要了解浮点数的组成，<strong>V &#x3D; （-1）^s^ * M * 2^E^</strong></p>
-<ul>
-<li><p>其中，s 表示符号位，M 表示尾数，由二进制小数位进行编码，E 表示阶码，由二进制整数位进行编码</p>
-</li>
-<li><p>而浮点数又根据阶码的不同，分为了三种情况：</p>
-</li>
-<li><p>如果编码阶码 E 的二进制整数位有 0 有 1，则称为 <strong>规格化的值</strong>，因为 V &#x3D; …… * 2^E^ 的原因，因此对于规格化的值，仅仅让编码阶码部分的二进制整数部分加 <strong>+ 1</strong> 即可实现 2 * f 的效果</p>
-</li>
-<li><p>如果编码阶码 E 的二进制整数部分全为 0，则称为 <strong>无规格化的值</strong>，此时仅有小数位，因为 V &#x3D; ……* M 的原因， 仅仅让二进制小数位 <strong>左移一位</strong>，即可达到 2 * f 的效果</p>
-</li>
-<li><p>如果编码阶码 E 的二进制整数部分全为 1，则称为 <strong>特殊值</strong>，比如 NaN，此时直接返回参数即可</p>
-</li>
-<li><p>除了上述分类外，我们还需要了解对于单精度浮点数 float 来说，一共 32 位，1 位表示符号位，阶码E （整数部分）的有效位数为 8 位，小数位数为 23 位</p>
-</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">floatScale2</span><span class="params">(<span class="type">unsigned</span> uf)</span> &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> ((uf &amp; <span class="number">0x7f800000</span>) == <span class="number">0</span>) &#123; <span class="comment">// 通过和 0 111 1111 1 000 0……0 &amp; 检查是否阶码部分全为 0</span></span><br><span class="line">  	uf = (uf &lt;&lt; <span class="number">1</span>) | (uf &amp; <span class="number">0x80000000</span>); <span class="comment">// 将二进制小数部分左移 1 位实现 2 * f</span></span><br><span class="line">      									<span class="comment">// | (uf &amp; 0x80000000) 的目的是保留符号位不变 </span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((uf &amp; <span class="number">0x7f800000</span>) != <span class="number">0x7f800000</span>) &#123; <span class="comment">// 通过和 0x7f800000 &amp; 检查是否阶码部分不全为 1</span></span><br><span class="line">  	uf += <span class="number">0x00800000</span>; 	<span class="comment">// 如果不全为 1，则此时有 1 有 0，通过将阶码部分 + 1，实现 2 * f</span></span><br><span class="line">      				  	<span class="comment">// + 1 即 + 0 000 0000 1 000 0……0</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> uf;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="floatFloat2Int"><a href="#floatFloat2Int" class="headerlink" title="floatFloat2Int"></a>floatFloat2Int</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatFloat2Int - Return bit-level equivalent of expression (int) f</span></span><br><span class="line"><span class="comment"> *   for floating point argument f.</span></span><br><span class="line"><span class="comment"> *   Argument is passed as unsigned int, but</span></span><br><span class="line"><span class="comment"> *   it is to be interpreted as the bit-level representation of a</span></span><br><span class="line"><span class="comment"> *   single-precision floating point value.</span></span><br><span class="line"><span class="comment"> *   Anything out of range (including NaN and infinity) should return</span></span><br><span class="line"><span class="comment"> *   0x80000000u.</span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. also if, while</span></span><br><span class="line"><span class="comment"> *   Max ops: 30</span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：返回等效于表达式 （int）f 的位级，参数作为无符号整数传递，但被解释为单精度浮点数 float，任何超出返回的内容，都应返回 0x80000000，可以使用任何整数或无符号运算，包括 ||、&amp;&amp;、if、while</p>
-</li>
-<li><p>首先，我们还是需要明白二进制浮点数的解释方式：<strong>V &#x3D; (-1)^s^ * M * 2^E^</strong>，根据浮点数的解释方式寻求解决方法</p>
-<ul>
-<li>我们可以发现：因为 *M 的原因，所以如果将二进制浮点数解释为 int 的话， M 尾数部分是可以不动的</li>
-<li>由于 * 2^E^ 的原因，因此 解释为 int 的话，相当于右移阶码 E 位</li>
-<li>因此，我们可以通过将浮点数的各个部分得到，根据阶码 E 的取值情况，来以不同的方式处理 M 尾数部分，最后再根据符号位的情况来处理符号位</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">floatFloat2Int</span><span class="params">(<span class="type">unsigned</span> uf)</span> &#123;</span><br><span class="line">    </span><br><span class="line">  <span class="type">int</span> sign = uf&gt;&gt;<span class="number">31</span>; 					<span class="comment">// 得到符号位</span></span><br><span class="line">  <span class="type">int</span> E = ((uf &amp; <span class="number">0x7f800000</span>)&gt;&gt;<span class="number">23</span>) - <span class="number">127</span>; <span class="comment">// 得到阶码部分，阶码部分有 8 位</span></span><br><span class="line">    									<span class="comment">// 阶码部分解释为 E = e - Basic，Basic 为偏置值，对于 float 来说为 127</span></span><br><span class="line">  <span class="type">int</span> M = (uf &amp; <span class="number">0x00700000</span>) | <span class="number">0x00800000</span>; 	<span class="comment">// 得到尾数部分，尾数部分有 23 位</span></span><br><span class="line">    										<span class="comment">// 在规格化的值的情况下时，M = 1 + f ，所以需要 | 0x00800000</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!(uf &amp; <span class="number">0x7fffffff</span>)) <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 如果浮点数原来就是 0，则直接返回 0</span></span><br><span class="line">  <span class="keyword">if</span> (E &gt;= <span class="number">31</span>) <span class="keyword">return</span> <span class="number">0x80000000</span>;  	<span class="comment">// 如果阶码部分大于等于 31，即超出解释为 int 后的取值范围，则返 0x80000000</span></span><br><span class="line">  <span class="keyword">if</span> (E &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>; 				<span class="comment">// 如果阶码部分小于 0，则仅有小数部分，因此解释为 int 时，小数被省略，返回 0</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (E &gt; <span class="number">23</span>) M = M &lt;&lt; (E - <span class="number">23</span>); 	<span class="comment">// 如果阶码 E 大于 23 小于 31，因为解释为浮点数时，M 尾数部分被解释为小数，</span></span><br><span class="line">    								<span class="comment">// 且有 23 位，因此当 * 2^E^ 时，在解释为 int 时，仅需要左移 E -23 位即可</span></span><br><span class="line">  <span class="keyword">else</span> M = M &gt;&gt; (<span class="number">23</span> - E); 			<span class="comment">// 如果阶码 E 小于 23 大于 0 的时，此时解释 为 int 时，</span></span><br><span class="line">    								<span class="comment">// 因为 M 尾数部分有 23 位，因此需要缩小 （舍弃）E - 23 位 （小数部分）</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (!(M &gt;&gt; <span class="number">31</span>) ^ sign) <span class="keyword">return</span> M; 	<span class="comment">// 如果 M 尾数部分的符号位与解释为浮点数时的符号位相同，直接返回 M，</span></span><br><span class="line">    								<span class="comment">// 且这里提供了一个技巧，在使用位运算比较两个数是否相等时，</span></span><br><span class="line">    								<span class="comment">// 可以通过 ! 配合 ^ 异或进行比较</span></span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">return</span> ~M + <span class="number">1</span>;   			<span class="comment">// 如果相反，则返回 -M ，即 ~M + 1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="floatPower2"><a href="#floatPower2" class="headerlink" title="floatPower2"></a>floatPower2</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * floatPower2 - Return bit-level equivalent of the expression 2.0^x</span></span><br><span class="line"><span class="comment"> *   (2.0 raised to the power x) for any 32-bit integer x.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *   The unsigned value that is returned should have the identical bit</span></span><br><span class="line"><span class="comment"> *   representation as the single-precision floating-point number 2.0^x.</span></span><br><span class="line"><span class="comment"> *   If the result is too small to be represented as a denorm, return</span></span><br><span class="line"><span class="comment"> *   0. If too large, return +INF.</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> *   Legal ops: Any integer/unsigned operations incl. ||, &amp;&amp;. Also if, while </span></span><br><span class="line"><span class="comment"> *   Max ops: 30 </span></span><br><span class="line"><span class="comment"> *   Rating: 4</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="comment">/*</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>要求：返回表达式 <strong>2.0^x^</strong> 的等效位级表示，通过无符号值返回，且应具有相同的位表示单精度浮点数 2.0^x^ ，如果结果太小而无法表示，返回 0，如果结果太大而无法表示，返回 +INF，任何整数或无符号运算都可以使用，包括 ||、&amp;&amp;、if、while</p>
-</li>
-<li><p>首先，我们知道二进制浮点数的解释为 V &#x3D; (-1)^s^ * M * 2^E^， 且又分为 规格化的值，非规格化的值，特殊值</p>
-<ul>
-<li><p>对于非规格化的值来说：</p>
-<ul>
-<li><p><strong>V 的最小精度为 -149</strong>，为什么呢？因为此时对于 M 尾数来说，<strong>M 被解释为 M &#x3D; f</strong>，因此小数部分只有最后一位为1 ，其余位全为 0，因为小数部分有 23 位，则 M &#x3D; 2^-23^ ，对于阶码 E 来说，非规格化的值的解释为 <strong>E &#x3D; 1 - Basic</strong> &#x3D; -126，因此，此时 V 的最小精度 min &#x3D; 2^-23-126^ &#x3D;      2^-149^，即 -149</p>
-</li>
-<li><p>而非规格化的值的最大精度，因为 IEEE 浮点数的设计，非规格化的值的最大精度可以与规格化的值的最小精度无缝衔接，因此，我们可以通过规格化的值的最小精度得到，即 <strong>-127</strong></p>
-<blockquote>
-<p>当然我们也可以估算，此时小数部分全为 1，M &#x3D; 0.??? &#x3D; 2^-0.???^，那么此时最大精度为 2^-126.???^ ，精确到整数为 -127）</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>对于规格化的值来说：</p>
-<ul>
-<li><p><strong>V 的最小精度为 -126</strong>，因为对于非规格化的值来说，<strong>M 被解释为 M &#x3D; 1 + f</strong>，即此时 M 尾数的小数部分的所有位全都为0，M &#x3D; 1， 而阶码 E 整数部分仅有第一个位为 1，<strong>E 被解释为 E &#x3D; exp - Basic</strong>，因此 E &#x3D; 1 - Basic &#x3D; -126，则此时规格化的值的最小精度为 min &#x3D; 2^-126^</p>
-</li>
-<li><p><strong>最大精度为 127</strong> ，为什么呢？最大精度可以根据特殊值的情况得到的，特殊值的无穷大时，阶码 E 全为 1，小数部分全为 0，则此时阶码 E 至少为 128（1111 1111 - 127 &#x3D; 128），因此对于规格化的值来说，最大精度为 127</p>
-</li>
-</ul>
-<blockquote>
-<p>当然我们也可以再次估算，此时阶码 E 的最低位为 0，其余位全为 1，即 E &#x3D; 1111 1110 - 127 &#x3D; 127，M 尾数部分全为 1，即 M &#x3D; 1 + 0.??? &#x3D; 1.??? &#x3D; 2^0.???^，那么此时最大精度 max &#x3D; 2^127.???^ ，精确到整数为 127）</p>
-</blockquote>
-</li>
-</ul>
-<blockquote>
-<p>在求精度时，对于规格化的值来说，因为小数很小，完全可以忽略小数部分的影响，此时精度完全由阶码 E 决定</p>
-</blockquote>
-<ul>
-<li>因此， 如果 <strong>x 属于 [-149, -126) 时</strong>，为非规格化的值，此时仅有小数部分，则我们可以仅仅将 <strong>1 左移 x + 149 位</strong> ，即左移 [0，23）位，即可得到 2.0^x^ 的二进制浮点数解释</li>
-<li>如果 **x 属于 [-126, 127]**，为规格化的值，需要求出整数部分 exp ，因为 E &#x3D; exp - Basic，所以 exp &#x3D; E + Basic，而此时阶码 E 即为 x，可以很简单的得到 exp，我们在将 <strong>exp 左移 23 位</strong> ,即可得到得到 2.0^x^ 的二进制浮点数解释（此时小数部分影响太小）</li>
-<li>如果 <strong>x  &gt;&#x3D; 128</strong>，即 exp 大于等于 255，此时为特殊值 ，因为太大而无法表示，<strong>返回 +INF，即 0x7f800000</strong></li>
-<li>如果 <strong>x &lt; -149</strong> ，因为太小而无法表示，<strong>返回 0</strong></li>
-</ul>
-</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">unsigned</span> <span class="title function_">floatPower2</span><span class="params">(<span class="type">int</span> x)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (x &lt; <span class="number">-149</span>) <span class="keyword">return</span> <span class="number">0</span>; <span class="comment">// 太小而无法表示 </span></span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">128</span>) <span class="keyword">return</span> <span class="number">0x7f800000</span>; <span class="comment">// 太大而无法表示</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (x &gt;= <span class="number">-149</span> &amp;&amp; x &lt; <span class="number">-126</span>) <span class="keyword">return</span> <span class="number">1</span> &lt;&lt; (x + <span class="number">149</span>); <span class="comment">// 非规格化的值</span></span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> <span class="built_in">exp</span> = x + <span class="number">127</span>; </span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">exp</span> &lt;&lt; <span class="number">23</span>;  <span class="comment">// 规格化的值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h1><img src="/2024/01/17/CSAPP-Lab1/image-20240201225023110.png" class="" title="image-20240201225023110">
-
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
-<li>虚拟机下载相关</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45912291/article/details/108901106">虚拟机VMware安装ubuntu教程（ubuntu-20.04.1-desktop-amd64.iso）</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45912291/article/details/108894737">虚拟机VMware下载与安装教程（详细）</a></p>
-<ul>
-<li>换源相关</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Bryan_QAQ/article/details/89951443">ubuntu 更改浏览器搜索引擎</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b11Drlzij">ubuntu镜像_阿里巴巴开源镜像站 (aliyun.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/">清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45912291/article/details/108900602">Ubuntu系统下载（清华大学开源软件镜像站）（ubuntu-20.04.1-desktop-amd64.iso）</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39514906/article/details/119703781">ubuntu sudo password 无法输入解决方法-CSDN博客</a></p>
-<ul>
-<li>中文设置相关</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gymaisyl/article/details/100981982">ubuntu 设置中文环境</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45965432/article/details/115446648">Ubuntu设置中文界面_ubuntu怎么设置中文</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43431593/article/details/106444769">Ubuntu设置中文输入法</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/meyungle/article/details/98808528">Ubuntu中文语言包下载失败解决方法</a></p>
-<ul>
-<li>实验相关</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45703010/article/details/120897185">【CSAPP】lab0 环境的配置_虚拟机安.&#x2F;dlc是什么意思-CSDN博客</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698833/article/details/118689278">CSAPP实验记录（一）：环境配置&amp;datalab_unix make btest-CSDN博客</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45677541/article/details/123955438">CSAPP Lab1：Data Lab （虚拟机安装+Lab环境配置+函数实现）-CSDN博客</a></p>
-<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7199280265914023997">CSAPP: Data Lab - 掘金 (juejin.cn)</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/59534845">CSAPP 之 DataLab详解，没有比这更详细的了 - 知乎 (zhihu.com)</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Yuan_Cl/article/details/83960550">CS:APP Data Lab_cs:app data lab 中文翻译-CSDN博客</a></p>
-<ul>
-<li>About me</li>
-</ul>
-<p><strong>虚拟机全名</strong>：YiweiBoi</p>
-<p><strong>用户名</strong>：yiweiboi</p>
-<p><strong>密码</strong>：woainimen1314</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -5472,12 +5398,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
