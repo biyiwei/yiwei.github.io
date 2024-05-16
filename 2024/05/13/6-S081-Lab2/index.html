@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="注意事项 实验讲义：Lab: System calls (mit.edu)  在这个实验中，你将向 xv6 添加一些新的系统调用，这将帮助你了解它们的工作原理，并将你暴漏在 xv6 内核的一些内部！  在开始之前，请阅读 xv6 book 的第 2 章，第 4 章的 4.3 和 4.4 节，以及相关源文件：  系统调用的用户空间代码：user&#x2F;user.h 和 user&#x2F;usys.pl 内核空间代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lab System calls">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/05/13/6-S081-Lab2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="注意事项 实验讲义：Lab: System calls (mit.edu)  在这个实验中，你将向 xv6 添加一些新的系统调用，这将帮助你了解它们的工作原理，并将你暴漏在 xv6 内核的一些内部！  在开始之前，请阅读 xv6 book 的第 2 章，第 4 章的 4.3 和 4.4 节，以及相关源文件：  系统调用的用户空间代码：user&#x2F;user.h 和 user&#x2F;usys.pl 内核空间代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/13/6-S081-Lab2/image-20240516154717084.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/13/6-S081-Lab2/image-20240516154204624.png">
+<meta property="article:published_time" content="2024-05-13T11:41:01.000Z">
+<meta property="article:modified_time" content="2024-05-16T08:02:01.688Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/05/13/6-S081-Lab2/image-20240516154717084.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/05/13/6-S081-Lab2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Lab System calls | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/13/6-S081-Lab2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Lab System calls
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-13 19:41:01" itemprop="dateCreated datePublished" datetime="2024-05-13T19:41:01+08:00">2024-05-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-05-16 16:02:01" itemprop="dateModified" datetime="2024-05-16T16:02:01+08:00">2024-05-16</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>实验讲义：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2021/labs/syscall.html">Lab: System calls (mit.edu)</a></p>
+</li>
+<li><p>在这个实验中，你将向 xv6 添加一些新的系统调用，这将帮助你了解它们的工作原理，并将你暴漏在 xv6 内核的一些内部！</p>
+</li>
+<li><p>在开始之前，请阅读 xv6 book 的第 2 章，第 4 章的 4.3 和 4.4 节，以及相关源文件：</p>
+<ul>
+<li>系统调用的用户空间代码：<code>user/user.h</code> 和 <code>user/usys.pl</code></li>
+<li>内核空间代码：<code>kernel/syscall.h</code> 和 <code>kernel/syscall.c</code></li>
+<li>与进程相关的代码：<code>kernel/proc.h</code> 和 <code>kernel/proc.c</code></li>
+</ul>
+</li>
+<li><p>请输入命令：<code>git fetch</code>、<code>git checkout syscall</code> 和 <code>make clean</code>，这将会帮助你构建实验相关的文件</p>
+<blockquote>
+<p>这是必要的！别问我为什么知道）</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="System-call-tracing"><a href="#System-call-tracing" class="headerlink" title="System call tracing"></a>System call tracing</h1><ul>
+<li><p>在此任务中，你将添加一个系统调用跟踪功能。它接受一个参数，一个整数 ”掩码“，其位指定哪些系统调用进行跟踪。</p>
+<ul>
+<li>如果在掩码中设置了系统调用的编号（比如 <code>SYS_fork</code>），那么每当这个系统调用返回时，你必须修改 xv6 内核以打印一行。</li>
+<li>该行包含进程 ID、系统调用名称、返回值（比如 <code>3: syscall read -&gt; 1024</code>）</li>
+<li>trace 系统调用应该能够跟踪调用它的进程及其子进程，并不影响其他进程</li>
+</ul>
+</li>
+<li><p>官方已经提供了 trace 的用户级程序，查看 <code>user/trace.c</code>，</p>
+<blockquote>
+<p>这就是之前输入的命令构建的，当然，别问我为什么要强调）</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/param.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/types.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;kernel/stat.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;user/user.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="type">char</span> *nargv[MAXARG];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(argc &lt; <span class="number">3</span> || (argv[<span class="number">1</span>][<span class="number">0</span>] &lt; <span class="string">&#x27;0&#x27;</span> || argv[<span class="number">1</span>][<span class="number">0</span>] &gt; <span class="string">&#x27;9&#x27;</span>))&#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;Usage: %s mask command\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (trace(atoi(argv[<span class="number">1</span>])) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;%s: trace failed\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">2</span>; i &lt; argc &amp;&amp; i &lt; MAXARG; i++)&#123;</span><br><span class="line">    nargv[i<span class="number">-2</span>] = argv[i];</span><br><span class="line">  &#125;</span><br><span class="line">  exec(nargv[<span class="number">0</span>], nargv);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>一些提示</p>
+<ul>
+<li>在 Makefile 中将 <code>$U/trace</code> 添加到 <code>UPROGS</code></li>
+<li>将系统调用原型添加到 <code>user/user.h</code>，将存根添加到 <code>user/usys.pl</code>，将 syscall 号码添加到 <code>kernel/syscall.h</code></li>
+<li>在 <code>kernel/sysproc.c</code> 中添加一个 <code>sys_trace()</code> 函数，该函数通过 proc 结构中的新变量记住其参数（<code>kernel/proc.h</code>）</li>
+<li>修改 fork 函数（<code>kernel/proc.c</code>）将跟踪掩码从父进程复制到子进程</li>
+<li>修改 syscall 函数（<code>kernel/syscall.c</code>）以打印跟踪输出，你需要添加要索引的 syscall 的名称的数组</li>
+</ul>
+</li>
+<li><p>根据 xv6 book 的 4.3、4.4 节及上述提示，我们可以大致了解到系统调用的具体流程</p>
+</li>
+<li><p>首先，我们在 <code>user/user.h</code> 中添加系统调用原型</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">getpid</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">char</span>* <span class="title function_">sbrk</span><span class="params">(<span class="type">int</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">sleep</span><span class="params">(<span class="type">int</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">uptime</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">trace</span><span class="params">(<span class="type">int</span>)</span>; <span class="comment">// my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将存根添加到 <code>user/usys.pl</code></li>
+</ul>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ...</span></span><br><span class="line">entry(<span class="string">&quot;getpid&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;sbrk&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;sleep&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;uptime&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;trace&quot;</span>); <span class="comment"># my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>根据官方提示我们了解到：Makefile 将调用 <code>user/usys.pl</code> 这个 perl 脚本生成 <code>user/usys.S</code>，即实际的系统调用存根</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trace:</span><br><span class="line"> li a7, SYS_trace</span><br><span class="line"> ecall</span><br><span class="line"> ret</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>如果我们在编译后马后炮一下回头来看 <code>user/usys.S</code>，发现它会比以前多一项 trace 系统调用的存根，它将 <code>SYS_trace</code>（系统调用编号，与 <code>kernel/syscall.c</code> 中的 syscalls 数组中的项匹配）放入 <code>a7</code> 寄存器并调用 <code>ecall</code> 进入内核</p>
+</li>
+<li><p>我们到 <code>kernel/syscall.c</code> 中来看看 syscalls 数组是何方神圣</p>
+<blockquote>
+<p>当然它已经被我添加了一个新项</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// An array mapping syscall numbers from syscall.h</span></span><br><span class="line"><span class="comment">// to the function that handles the system call.</span></span><br><span class="line"><span class="type">static</span> <span class="title function_">uint64</span> <span class="params">(*syscalls[])</span><span class="params">(<span class="type">void</span>)</span> = &#123;</span><br><span class="line">[SYS_fork]    sys_fork,</span><br><span class="line">[SYS_exit]    sys_exit,</span><br><span class="line">[SYS_wait]    sys_wait,</span><br><span class="line">[SYS_pipe]    sys_pipe,</span><br><span class="line">[SYS_read]    sys_read,</span><br><span class="line">[SYS_kill]    sys_kill,</span><br><span class="line">[SYS_exec]    sys_exec,</span><br><span class="line">[SYS_fstat]   sys_fstat,</span><br><span class="line">[SYS_chdir]   sys_chdir,</span><br><span class="line">[SYS_dup]     sys_dup,</span><br><span class="line">[SYS_getpid]  sys_getpid,</span><br><span class="line">[SYS_sbrk]    sys_sbrk,</span><br><span class="line">[SYS_sleep]   sys_sleep,</span><br><span class="line">[SYS_uptime]  sys_uptime,</span><br><span class="line">[SYS_open]    sys_open,</span><br><span class="line">[SYS_write]   sys_write,</span><br><span class="line">[SYS_mknod]   sys_mknod,</span><br><span class="line">[SYS_unlink]  sys_unlink,</span><br><span class="line">[SYS_link]    sys_link,</span><br><span class="line">[SYS_mkdir]   sys_mkdir,</span><br><span class="line">[SYS_close]   sys_close,</span><br><span class="line">[SYS_trace]   sys_trace,  <span class="comment">// my change</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>syscalls 数组是一个函数指针数组，这些函数指针的类型是 <code>uint64 (*func_ptr)(void)</code>，不接受参数且返回 uint64 类型的值</li>
+<li>其中的一项比如 <code>[SYS_fork] sys_fork</code>，<code>SYS_fork</code> 可能是一个枚举值或宏，指定数组中特定位置的元素为 <code>sys_fork</code> 函数指针</li>
+<li>为了与 syscalls 数组中添加的新项匹配，我们需要在 <code>kernel/syscall.h</code> 中添加 <code>sys_trace</code> 对应的系统调用编号</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_link   19</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_mkdir  20</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_close  21</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_trace  22   <span class="comment">// my change</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>当然别忘了在 <code>kernel/syscall.c</code> 中声明一下 <code>sys_trace</code> 的函数原型</p>
+<blockquote>
+<p>别问我怎么知道的）</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_link</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_mkdir</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_close</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_trace</span><span class="params">(<span class="type">void</span>)</span>;  <span class="comment">// my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>现在 syscalls 数组中的系统调用编号就准备好了，我们需要具体实现 <code>sys_trace()</code> 这个实际的函数</li>
+<li>根据提示，在 <code>kernel/sysproc.c</code> 中添加 <code>sys_trace()</code> 函数，该函数通过 proc 结构中的新变量记住其参数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my change</span></span><br><span class="line">uint64 </span><br><span class="line"><span class="title function_">sys_trace</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> mask;</span><br><span class="line">  argint(<span class="number">0</span>, &amp;mask);</span><br><span class="line">  <span class="keyword">if</span> (mask &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  myproc()-&gt;mask = mask;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 xv6 book 的 4.3 节中我们了解到：用户代码将用户级 trace 的参数放在 <code>a0</code> 寄存器中，我们通过 <code>arging</code> 函数将 <code>a0</code> 寄存器中的值（掩码）赋值到当前进程的 mask 成员变量中</li>
+<li>当然 proc 结构（<code>kernel/proc.h</code>）中的新变量 mask 也需要我们自己添加</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Per-process state</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">proc</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">spinlock</span> <span class="title">lock</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// p-&gt;lock must be held when using these:</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">procstate</span> <span class="title">state</span>;</span>        <span class="comment">// Process state</span></span><br><span class="line">  <span class="type">void</span> *chan;                  <span class="comment">// If non-zero, sleeping on chan</span></span><br><span class="line">  <span class="type">int</span> killed;                  <span class="comment">// If non-zero, have been killed</span></span><br><span class="line">  <span class="type">int</span> xstate;                  <span class="comment">// Exit status to be returned to parent&#x27;s wait</span></span><br><span class="line">  <span class="type">int</span> pid;                     <span class="comment">// Process ID</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// wait_lock must be held when using this:</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">parent</span>;</span>         <span class="comment">// Parent process</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// these are private to the process, so p-&gt;lock need not be held.</span></span><br><span class="line">  uint64 kstack;               <span class="comment">// Virtual address of kernel stack</span></span><br><span class="line">  uint64 sz;                   <span class="comment">// Size of process memory (bytes)</span></span><br><span class="line">  <span class="type">pagetable_t</span> pagetable;       <span class="comment">// User page table</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">trapframe</span> *<span class="title">trapframe</span>;</span> <span class="comment">// data page for trampoline.S</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">context</span> <span class="title">context</span>;</span>      <span class="comment">// swtch() here to run process</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">ofile</span>[<span class="title">NOFILE</span>];</span>  <span class="comment">// Open files</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">cwd</span>;</span>           <span class="comment">// Current directory</span></span><br><span class="line">  <span class="type">char</span> name[<span class="number">16</span>];               <span class="comment">// Process name (debugging)</span></span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> mask; <span class="comment">// my change</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>这里补充一下 <code>argint</code> 函数的作用，它调用 <code>argraw</code> 函数提取相关寄存器中的值（<code>kernel/syscall.c</code>）</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> uint64</span><br><span class="line"><span class="title function_">argraw</span><span class="params">(<span class="type">int</span> n)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line">  <span class="keyword">switch</span> (n) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">    <span class="keyword">return</span> p-&gt;trapframe-&gt;a0;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">    <span class="keyword">return</span> p-&gt;trapframe-&gt;a1;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">    <span class="keyword">return</span> p-&gt;trapframe-&gt;a2;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">    <span class="keyword">return</span> p-&gt;trapframe-&gt;a3;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">    <span class="keyword">return</span> p-&gt;trapframe-&gt;a4;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">    <span class="keyword">return</span> p-&gt;trapframe-&gt;a5;</span><br><span class="line">  &#125;</span><br><span class="line">  panic(<span class="string">&quot;argraw&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Fetch the nth 32-bit system call argument.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">argint</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> *ip)</span></span><br><span class="line">&#123;</span><br><span class="line">  *ip = argraw(n);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 xv6 book 的 4.3 节中我们还了解到：<code>ecall</code> 指令进入内核，执行 <code>uservec</code>、<code>usertrap</code>，然后执行  <code>syscall</code> </li>
+<li>同样的官方也提示我们需要修改 syscall 函数（<code>kernel/syscall.c</code>）以打印跟踪输出</li>
+<li><code>syscall</code> 会从当前进程的 <code>a7</code> 寄存器中得到系统调用号，并其作为索引在 <code>syscalls</code> 查找相应函数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">syscall</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> num;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line"></span><br><span class="line">  num = p-&gt;trapframe-&gt;a7;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(num &gt; <span class="number">0</span> &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num]) &#123;</span><br><span class="line">    <span class="comment">// Use num to lookup the system call function for num, call it,</span></span><br><span class="line">    <span class="comment">// and store its return value in p-&gt;trapframe-&gt;a0</span></span><br><span class="line">    p-&gt;trapframe-&gt;a0 = syscalls[num]();</span><br><span class="line">    </span><br><span class="line">      <span class="keyword">if</span> ((p-&gt;mask &amp; (<span class="number">1</span>&lt;&lt;num)) != <span class="number">0</span>) &#123; <span class="comment">// my change</span></span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;%d: syscall %s -&gt; %d\n&quot;</span>, p-&gt;pid, syscallnames[num], p-&gt;trapframe-&gt;a0);  </span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d %s: unknown sys call %d\n&quot;</span>,</span><br><span class="line">            p-&gt;pid, p-&gt;name, num);</span><br><span class="line">    p-&gt;trapframe-&gt;a0 = <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>我们要做的就是通过调用 <code>sys_trace()</code> 后设置的 mask 掩码与当前正在进行的系统调用的号码比较（<code>&amp;</code> 操作），如果符合（<code>!= 0</code>）就打印相关信息 </p>
+</li>
+<li><p>在打印相关信息时，我们需要用到系统调用的名称，这需要我们自己提供</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my change</span></span><br><span class="line"><span class="type">static</span> <span class="type">char</span> *syscallnames[] = &#123;</span><br><span class="line">[SYS_fork]    <span class="string">&quot;fork&quot;</span>,</span><br><span class="line">[SYS_exit]    <span class="string">&quot;exit&quot;</span>,</span><br><span class="line">[SYS_wait]    <span class="string">&quot;wait&quot;</span>,</span><br><span class="line">[SYS_pipe]    <span class="string">&quot;pipe&quot;</span>,</span><br><span class="line">[SYS_read]    <span class="string">&quot;read&quot;</span>,</span><br><span class="line">[SYS_kill]    <span class="string">&quot;kill&quot;</span>,</span><br><span class="line">[SYS_exec]    <span class="string">&quot;exec&quot;</span>,</span><br><span class="line">[SYS_fstat]   <span class="string">&quot;fstat&quot;</span>,</span><br><span class="line">[SYS_chdir]   <span class="string">&quot;chdir&quot;</span>,</span><br><span class="line">[SYS_dup]     <span class="string">&quot;dup&quot;</span>,</span><br><span class="line">[SYS_getpid]  <span class="string">&quot;getpid&quot;</span>,</span><br><span class="line">[SYS_sbrk]    <span class="string">&quot;sbrk&quot;</span>,</span><br><span class="line">[SYS_sleep]   <span class="string">&quot;sleep&quot;</span>,</span><br><span class="line">[SYS_uptime]  <span class="string">&quot;uptime&quot;</span>,</span><br><span class="line">[SYS_open]    <span class="string">&quot;open&quot;</span>,</span><br><span class="line">[SYS_write]   <span class="string">&quot;write&quot;</span>,</span><br><span class="line">[SYS_mknod]   <span class="string">&quot;mknod&quot;</span>,</span><br><span class="line">[SYS_unlink]  <span class="string">&quot;unlink&quot;</span>,</span><br><span class="line">[SYS_link]    <span class="string">&quot;link&quot;</span>,</span><br><span class="line">[SYS_mkdir]   <span class="string">&quot;mkdir&quot;</span>,</span><br><span class="line">[SYS_close]   <span class="string">&quot;close&quot;</span>,</span><br><span class="line">[SYS_trace]   <span class="string">&quot;trace&quot;</span>,  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>我们在 <code>kernel/syscall.c</code> 中添加这样的一个 syscall 的名称的数组，当然官方也提示我们这样做了</p>
+</li>
+<li><p>最后不要忘记修改 fork 函数（<code>kernel/proc.c</code>），将父进程的 mask 掩码变量复制到子进程</p>
+<blockquote>
+<p>这很重要！当然这也是官方提示的）</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create a new process, copying the parent.</span></span><br><span class="line"><span class="comment">// Sets up child kernel stack to return as if from fork() system call.</span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">fork</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// Cause fork to return 0 in the child.</span></span><br><span class="line">  np-&gt;trapframe-&gt;a0 = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// my change</span></span><br><span class="line">  np-&gt;mask = p-&gt;mask;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">return</span> pid;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>好吧，最后的最后在 Makefile 中将 <code>$U/trace</code> 添加到 <code>UPROGS</code></li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">UPROGS=\</span><br><span class="line">	<span class="comment"># ...</span></span><br><span class="line">	$U/_xargs\</span><br><span class="line">	$U/_trace</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>大功告成！<strong>make qemu &amp;&amp; trace 2 primes</strong>，让我们来通过 primes 程序测试一下 trace</li>
+</ul>
+<img src="/2024/05/13/6-S081-Lab2/image-20240516154717084.png" class="" title="image-20240516154717084">
+
+<ul>
+<li>符合预期！</li>
+</ul>
+<h1 id="Sysinfo"><a href="#Sysinfo" class="headerlink" title="Sysinfo"></a>Sysinfo</h1><ul>
+<li><p>在此任务中，你将添加一个系统调用 sysinfo，收集有关运行系统的信息</p>
+<ul>
+<li>sysinfo 系统调用接受一个参数：指向结构 sysinfo 的指针（<code>kernel/sysinfo.h</code>）</li>
+<li>内核应填写此结构的字段：<code>freemem</code> 字段应设置为可用内存字节数，<code>nproc</code> 字段应设置为不是 <code>UNUSED</code> 状态的进程数</li>
+<li>我们提供了一个测试程序 sysinfotest，如果它打印 “sysinfotest: OK”，你将通过此作业</li>
+</ul>
+</li>
+<li><p>一些建议</p>
+<ul>
+<li><p>在 Makefile 中将 <code>&amp;U/_sysinfotest</code> 添加到 <code>UPROGS</code></p>
+</li>
+<li><p>添加系统调用 sysinfo，和添加上一个系统调用的步骤相同。</p>
+</li>
+<li><p>在 <code>user/user.h</code> 中声明 sysinfo 的原型，你需要先声明 struct sysinfo 的存在：</p>
+<p><code>struct sysinfo; int sysinfo(struct sysinfo *);</code></p>
+</li>
+<li><p>sysinfo 需要将结构 sysinfo 复制会用户空间，有关如何使用 <code>copyout()</code> 执行此操作的示例，请参阅 <code>sys_fstat()</code>（<code>kernel/sysfile.c</code>）和 <code>filestat()</code>（<code>kernel/file.c</code>）</p>
+</li>
+<li><p>要收集可用内存量，请向 <code>kernel/kalloc.c</code> 中添加一个函数</p>
+</li>
+<li><p>要收集进程数量，请向 <code>kernel/proc.c</code> 中添加一个函数</p>
+</li>
+</ul>
+</li>
+<li><p>首先，我们依照上一个任务的相关提示，将 sysinfo 系统调用的相关信息添加到对应文件</p>
+</li>
+<li><p>在 <code>user/user.h</code> 中声明 struct sysinfo 和 sysinfo 的原型</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span>;</span> <span class="comment">// my change</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="type">char</span>* <span class="title function_">sbrk</span><span class="params">(<span class="type">int</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">sleep</span><span class="params">(<span class="type">int</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">uptime</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">trace</span><span class="params">(<span class="type">int</span>)</span>; <span class="comment">// my change</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">sysinfo</span><span class="params">(<span class="keyword">struct</span> sysinfo *)</span>;  <span class="comment">// my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在<code>user/usys.pl</code> 中添加存根</li>
+</ul>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ...</span></span><br><span class="line">entry(<span class="string">&quot;getpid&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;sbrk&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;sleep&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;uptime&quot;</span>);</span><br><span class="line">entry(<span class="string">&quot;trace&quot;</span>); <span class="comment"># my change</span></span><br><span class="line">entry(<span class="string">&quot;sysinfo&quot;</span>);   <span class="comment"># my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>kernel/syscall.h</code> 中添加系统调用编号</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_link    19</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_mkdir   20</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_close   21</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_trace   22   <span class="comment">// my change</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_sysinfo 23   <span class="comment">// my change</span></span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>kernel/syscall.c</code> 中添加相关信息到 syscalls、syscallnames 数组</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  syscalls ...</span></span><br><span class="line">[SYS_mkdir]   sys_mkdir,</span><br><span class="line">[SYS_close]   sys_close,</span><br><span class="line">[SYS_trace]   sys_trace,  <span class="comment">// my change</span></span><br><span class="line">[SYS_sysinfo] sys_sysinfo,  <span class="comment">// my change</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// syscallnames ...</span></span><br><span class="line">[SYS_mkdir]   <span class="string">&quot;mkdir&quot;</span>,</span><br><span class="line">[SYS_close]   <span class="string">&quot;close&quot;</span>,</span><br><span class="line">[SYS_trace]   <span class="string">&quot;trace&quot;</span>,  </span><br><span class="line">[SYS_sysinfo] <span class="string">&quot;sys_sysinfo&quot;</span>,  <span class="comment">// my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>同时不要忘了在 <code>kernel/syscall.c</code> 中声明一下 <code>sys_sysinfo()</code> 的原型</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_mkdir</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_close</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_trace</span><span class="params">(<span class="type">void</span>)</span>;  <span class="comment">// my change</span></span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_sysinfo</span><span class="params">(<span class="type">void</span>)</span>;  <span class="comment">// my change</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>kernel/sysproc.c</code> 中添加一个 <code>sys_sysinfo()</code> 函数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my change</span></span><br><span class="line">uint64</span><br><span class="line"><span class="title function_">sys_sysinfo</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>sys_sysinfo()</code> 具体该怎么实现呢？sysinfo 接收一个指向 sysinfo 结构的指针，如果我们想要将 sysinfo 结构复制回用户空间，需要使用 <code>copyout()</code> 函数</li>
+<li>根据提示信息，我们查看一下  <code>sys_fstat()</code>（<code>kernel/sysfile.c</code>）和 <code>filestat()</code>（<code>kernel/file.c</code>）</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">uint64</span><br><span class="line"><span class="title function_">sys_fstat</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">f</span>;</span></span><br><span class="line">  uint64 st; <span class="comment">// user pointer to struct stat</span></span><br><span class="line"></span><br><span class="line">  argaddr(<span class="number">1</span>, &amp;st);</span><br><span class="line">  <span class="keyword">if</span>(argfd(<span class="number">0</span>, <span class="number">0</span>, &amp;f) &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">return</span> filestat(f, st);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Get metadata about file f.</span></span><br><span class="line"><span class="comment">// addr is a user virtual address, pointing to a struct stat.</span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">filestat</span><span class="params">(<span class="keyword">struct</span> file *f, uint64 addr)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">st</span>;</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(f-&gt;type == FD_INODE || f-&gt;type == FD_DEVICE)&#123;</span><br><span class="line">    ilock(f-&gt;ip);</span><br><span class="line">    stati(f-&gt;ip, &amp;st);</span><br><span class="line">    iunlock(f-&gt;ip);</span><br><span class="line">    <span class="keyword">if</span>(copyout(p-&gt;pagetable, addr, (<span class="type">char</span> *)&amp;st, <span class="keyword">sizeof</span>(st)) &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>通过观察，我们了解到了 <code>copyout()</code> 的使用方法</p>
+<ul>
+<li>第一个参数需要当前进程的 pagetable，我们可以通过 <code>myproc()</code> 得到 proc 结构，从而得到 <code>p-&gt;pagetable</code></li>
+<li>第二个参数需要用户级函数传递的地址参数，在这里也就是 sysinfo 结构的指针，根据之前的知识，这个指针参数通常在相关寄存器中，我们可以通过 <code>argaddr()</code> 得到</li>
+<li>第三个参数就是我们实际要复制回用户空间的 sysinfo 结构了，需要将它强转为 <code>(char*)</code></li>
+<li>第四个参数是复制回用户空间的结构的大小，使用 <code>sizeof()</code> 轻松解决</li>
+</ul>
+</li>
+<li><p>现在我们已经知道 <code>copyout()</code> 如何使用了，但还不知道 sysinfo 结构的具体情况，查看一下 <code>kernel/sysinfo.h</code></p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span> &#123;</span></span><br><span class="line">  uint64 freemem;   <span class="comment">// amount of free memory (bytes)</span></span><br><span class="line">  uint64 nproc;     <span class="comment">// number of process</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>根据提示信息，<code>freemem</code> 字段应该设置为可用内存字节数，<code>nproc</code> 字段应该设置为不是 <code>UNUSED</code> 状态的进程数</p>
+</li>
+<li><p>要统计可用内存字节数，官方提示我们在 <code>kernel/kalloc.c</code> 中添加一个函数</p>
+</li>
+<li><p>在 <code>kernel/kalloc.c</code> 中我发现了几个关键信息</p>
+<ul>
+<li><p>在开始的注释中提到：这里是物理内存分配器，用于用户进程、内核栈、页表页面，以及管道缓冲区。它分配完整的 <strong>4096</strong> 字节页面。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Physical memory allocator, for user processes,</span></span><br><span class="line"><span class="comment">// kernel stacks, page-table pages,</span></span><br><span class="line"><span class="comment">// and pipe buffers. Allocates whole 4096-byte pages.</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关键信息是一个页面 4096 字节，如果我们可以遍历所有未使用的物理页面，* 4096 就可以得到未使用的内存字节数了</p>
+</li>
+<li><p>定义了两个结构体，需要注意的是：第二个其实是定义了一个全局的结构变量 <code>kmem</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">run</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">spinlock</span> <span class="title">lock</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">freelist</span>;</span></span><br><span class="line">&#125; kmem;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>kmem</code> 中的成员遍历 <code>freelist</code> 值得注意，它应该和空闲物理页面有关，应该是一个链表！</p>
+</li>
+<li><p><code>kfree()</code>：释放由指针 <code>pa</code> 指向的物理内存页面</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Free the page of physical memory pointed at by pa,</span></span><br><span class="line"><span class="comment">// which normally should have been returned by a</span></span><br><span class="line"><span class="comment">// call to kalloc().  (The exception is when</span></span><br><span class="line"><span class="comment">// initializing the allocator; see kinit above.)</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">kfree</span><span class="params">(<span class="type">void</span> *pa)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">r</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(((uint64)pa % PGSIZE) != <span class="number">0</span> || (<span class="type">char</span>*)pa &lt; end || (uint64)pa &gt;= PHYSTOP)</span><br><span class="line">    panic(<span class="string">&quot;kfree&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fill with junk to catch dangling refs.</span></span><br><span class="line">  <span class="built_in">memset</span>(pa, <span class="number">1</span>, PGSIZE);</span><br><span class="line"></span><br><span class="line">  r = (<span class="keyword">struct</span> run*)pa;</span><br><span class="line"></span><br><span class="line">  acquire(&amp;kmem.lock);</span><br><span class="line">  r-&gt;next = kmem.freelist;</span><br><span class="line">  kmem.freelist = r;</span><br><span class="line">  release(&amp;kmem.lock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过阅读，<code>kfree()</code> 释放指针 pa 指向的物理内存页面，并使用头插法将释放后的页面插入 <code>kmem</code> 的 <code>freelist</code> 成员变量！</p>
+</li>
+</ul>
+</li>
+<li><p>通过上述分析，我们几乎可以确定 <code>kmem</code> 通过链表维护空闲的物理内存页面！我们可以通过遍历这个链表得到未使用内存字节数</p>
+</li>
+<li><p>在 <code>kernel/kalloc.c</code> 中定义一个 <code>freemem()</code> 函数</p>
+<blockquote>
+<p>如果观察的仔细，宏 PGSIZE 已经给出了 4096）</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my change </span></span><br><span class="line"><span class="type">int</span> <span class="title function_">freemem</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">  <span class="type">int</span> bytes = <span class="number">4096</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">r</span> =</span> kmem.freelist;</span><br><span class="line">  <span class="keyword">while</span> (r) &#123;</span><br><span class="line">    count++;</span><br><span class="line">    r = r-&gt;next;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count * bytes; <span class="comment">// return count * PGSIZE;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>接下来我们需要统计不是 <code>UNUSED</code> 状态的进程数，官方同样提示我们需要在 <code>kernel/proc.c</code> 中定义一个函数</p>
+</li>
+<li><p>在 <code>kernle/proc.c</code> 中我也观察到了一些关键信息</p>
+<ul>
+<li><p>定义了一个全局的 proc 结构数组</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">proc</span> <span class="title">proc</span>[<span class="title">NPROC</span>];</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>遍历 proc 数组说不定就可以统计到不是 <code>UNUSED</code> 状态的进程数</p>
+</li>
+<li><p><code>allocproc()</code>：在进程表中查找一个处于 <code>UNUSED</code> 状态的进程 …… 它的一个遍历 proc 数组的代码片段对我们很有用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Look in the process table for an UNUSED proc.</span></span><br><span class="line"><span class="comment">// If found, initialize state required to run in the kernel,</span></span><br><span class="line"><span class="comment">// and return with p-&gt;lock held.</span></span><br><span class="line"><span class="comment">// If there are no free procs, or a memory allocation fails, return 0.</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> proc*</span><br><span class="line"><span class="title function_">allocproc</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(p = proc; p &lt; &amp;proc[NPROC]; p++) &#123;</span><br><span class="line">    acquire(&amp;p-&gt;lock);</span><br><span class="line">    <span class="keyword">if</span>(p-&gt;state == UNUSED) &#123;</span><br><span class="line">      <span class="keyword">goto</span> found;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      release(&amp;p-&gt;lock);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>通过上述分析，我们可以很容易的在 <code>kernel/proc.c</code> 中定义一个函数 <code>nproc()</code> 来统计不是 <code>UNUSED</code> 状态的进程数</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my change</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">nproc</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  <span class="type">int</span> count = <span class="number">0</span>;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span>;</span></span><br><span class="line">  <span class="keyword">for</span> (p = proc; p &lt; &amp;proc[NPROC]; p++) &#123;</span><br><span class="line">    acquire(&amp;p-&gt;lock);</span><br><span class="line">    <span class="keyword">if</span> (p-&gt;state != UNUSED) &#123;</span><br><span class="line">      count++;</span><br><span class="line">    &#125;</span><br><span class="line">    release(&amp;p-&gt;lock); </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>好了，现在我们可以给出 <code>sys_sysinfo()</code> 的完整实现了</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// my change</span></span><br><span class="line">uint64</span><br><span class="line"><span class="title function_">sys_sysinfo</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  uint64 addr;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span> <span class="title">info</span>;</span></span><br><span class="line">  </span><br><span class="line">  argaddr(<span class="number">0</span>, &amp;addr);</span><br><span class="line">  <span class="keyword">if</span> (addr &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  info.freemem = freemem();</span><br><span class="line">  info.nproc = nproc();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (copyout(p-&gt;pagetable, addr, (<span class="type">char</span>*)&amp;info, <span class="keyword">sizeof</span>(info)) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>哦，很重要的一点是：如果我们想要在 <code>kernel/sysproc.c</code> 中使用刚刚定义的 <code>freemem()</code> 和 <code>nproc()</code>，我们需要在 <code>kernel/sysproc.c</code> 中声明一下</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">int</span> <span class="title function_">freemem</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="keyword">extern</span> <span class="type">int</span> <span class="title function_">nproc</span><span class="params">(<span class="type">void</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最后，在 Makefile中将 <code>&amp;U/_sysinfotest</code> 添加到 <code>UPROGS</code></li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UPROGS=\</span><br><span class="line">	<span class="comment"># ...</span></span><br><span class="line">	$U/_xargs\</span><br><span class="line">	$U/_trace\</span><br><span class="line">	$U/_sysinfotest</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>好的，<strong>make qemu &amp;&amp; sysinfotest</strong> 测试一下</p>
+<blockquote>
+<p>最好在 <code>make qemu</code> 之前先 <code>make clean</code> 一下，别问我为什么要强调）</p>
+</blockquote>
+</li>
+</ul>
+<img src="/2024/05/13/6-S081-Lab2/image-20240516154204624.png" class="" title="image-20240516154204624">
+
+<ul>
+<li>测试通过！</li>
+</ul>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/332243456">MIT 6.S081 2020 Lab2 system calls讲解 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_48283247/article/details/121217307">操作系统实验Lab 2:system calls(MIT 6.S081 FALL 2020)_mit操作系统实验2020-CSDN博客</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/11/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E5%A4%8D%E4%B9%A0/" rel="prev" title="算法设计与分析复习">
+      <i class="fa fa-chevron-left"></i> 算法设计与分析复习
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#System-call-tracing"><span class="nav-number">2.</span> <span class="nav-text">System call tracing</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sysinfo"><span class="nav-number">3.</span> <span class="nav-text">Sysinfo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
