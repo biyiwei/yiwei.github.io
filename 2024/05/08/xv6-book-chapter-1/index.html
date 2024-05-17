@@ -22,23 +22,21 @@
 
   <meta name="description" content="原文：xv6: a simple, Unix-like teaching operating system (mit.edu)  Operating system interfaces 操作系统接口 操作系统的工作是将计算机的资源在多个程序间共享，并且给程序提供一系列比硬件本身支持的更有用的服务。  操作系统管理并抽象底层硬件，因此，举例来说，一个文字处理程序不需要去关心自己使用的是何种硬盘。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="xv6 book for reading">
-<meta property="og:url" content="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/index.html">
+<meta property="og:title" content="xv6 book Chapter 1">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/05/08/xv6-book-chapter-1/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="原文：xv6: a simple, Unix-like teaching operating system (mit.edu)  Operating system interfaces 操作系统接口 操作系统的工作是将计算机的资源在多个程序间共享，并且给程序提供一系列比硬件本身支持的更有用的服务。  操作系统管理并抽象底层硬件，因此，举例来说，一个文字处理程序不需要去关心自己使用的是何种硬盘。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/Figure-1.1.png">
-<meta property="og:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/Figure-2.1.png">
-<meta property="og:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/Figure-2.2.png">
-<meta property="og:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/Figure-2.3.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-chapter-1/Figure-1.1-17159541562291.png">
 <meta property="article:published_time" content="2024-05-08T14:31:39.000Z">
-<meta property="article:modified_time" content="2024-05-10T15:21:02.653Z">
+<meta property="article:modified_time" content="2024-05-17T13:58:27.718Z">
 <meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
 <meta property="article:tag" content="xv6 book">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/Figure-1.1.png">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/05/08/xv6-book-chapter-1/Figure-1.1-17159541562291.png">
 
-<link rel="canonical" href="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/">
+<link rel="canonical" href="http://yiweiboi.github.io/2024/05/08/xv6-book-chapter-1/">
 
 
 <script id="page-configurations">
@@ -51,7 +49,7 @@
   };
 </script>
 
-  <title>xv6 book for reading | Hexo</title>
+  <title>xv6 book Chapter 1 | Hexo</title>
   
 
 
@@ -156,7 +154,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/08/xv6-book-for-reading/">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/08/xv6-book-chapter-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -169,7 +167,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          xv6 book for reading
+          xv6 book Chapter 1
         </h1>
 
         <div class="post-meta">
@@ -186,7 +184,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-05-10 23:21:02" itemprop="dateModified" datetime="2024-05-10T23:21:02+08:00">2024-05-10</time>
+                <time title="修改时间：2024-05-17 21:58:27" itemprop="dateModified" datetime="2024-05-17T21:58:27+08:00">2024-05-17</time>
               </span>
 
           
@@ -232,7 +230,7 @@
 </ul>
 </li>
 </ul>
-<img src="/2024/05/08/xv6-book-for-reading/Figure-1.1.png" class="" title="Figure-1.1">
+<img src="/2024/05/08/xv6-book-chapter-1/Figure-1.1-17159541562291.png" class="" title="Figure-1.1">
 
 <ul>
 <li><p>当一个进程需要调用一个内核服务时，它就会调用 <strong>系统调用</strong>，这是操作系统接口中的一个调用。</p>
@@ -754,329 +752,6 @@
 <ol>
 <li><a name="ftn1"></a> 本文一般用 CPU 中央处理单元的缩写来指代执行计算的硬件单元。其他文本 (如 RISC-V 规范) 也使用processor、core 和 hart 等词代替 CPU。</li>
 </ol>
-<h1 id="Operating-system-organization-操作系统组织"><a href="#Operating-system-organization-操作系统组织" class="headerlink" title="Operating system organization 操作系统组织"></a>Operating system organization 操作系统组织</h1><ul>
-<li><p>操作系统的一个关键要求是同时支持几个活动。</p>
-<ul>
-<li>例如，使用第 1 章中描述的系统调用接口，一个进程可以用 <strong>fork</strong> 创建新进程。</li>
-<li>操作系统必须在这些进程之间分时共享计算机的资源。例如，即使进程的数量多于硬件CPU的数量，操作系统也必须保证所有的进程都有机会执行。</li>
-<li>操作系统还必须安排进程之间的隔离。也就是说，如果一个进程出现了 bug 并发生了故障，其不应该影响不依赖该 bug 进程的进程。</li>
-<li>然而，完全隔离也不可取，因为进程间可能需要进行交互，例如管道。</li>
-<li>因此，一个操作系统必须满足三个要求：多路复用、隔离和交互。</li>
-</ul>
-</li>
-<li><p>本章概述了如何组织操作系统来实现这三个要求。</p>
-<ul>
-<li>现实中有很多方法，但本文主要介绍以宏内核 <a href="#ftn1">[1]</a> 为中心的主流设计，很多 Unix 操作系统都采用这种设计。</li>
-<li>本章还介绍了 xv6 进程的概述，xv6 进程是 xv6 中的隔离单元，还介绍了 xv6 启动时第一个进程的创建。</li>
-</ul>
-</li>
-<li><p>xv6 运行在多核 <a href="#ftn2">[2]</a> RISC-V 微处理器上，它的许多底层功能（例如，它的进程实现）是 RISC-V 所特有的。</p>
-<ul>
-<li>RISC-V 是一个 64 位的 CPU，xv6 是用 “LP64” C 语言编写的，这意味着 C 编程语言中的 long(L) 和指针 (P) 是 64 位的，但 int 是 32 位的。</li>
-<li>本书假定读者在某种架构上做过一点机器级的编程，并会介绍一些 RISC-V 特有的思想。</li>
-<li>RISC-V 有用的参考资料是 “The RISC-V Reader,An Open Architecture Attlas”［12］。</li>
-<li>用户级 ISA [2] 和特权架构 [1] 是官方规范。</li>
-</ul>
-</li>
-<li><p>一台完整的计算机中的 CPU 被支持它的硬件所包围，这些硬件大部分呈 I&#x2F;O 接口的形式。</p>
-<ul>
-<li>编写 xv6 时，支撑它的硬件是通过带 “-machine virt” 选项的 qemu 模拟出来的。</li>
-<li>其中包括 RAM、包含启动代码的 ROM、与用户键盘&#x2F;屏幕的串行连接以及用于存储的磁盘。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Abstracting-physical-resources-抽象化物理资源"><a href="#Abstracting-physical-resources-抽象化物理资源" class="headerlink" title="Abstracting physical resources 抽象化物理资源"></a>Abstracting physical resources 抽象化物理资源</h2><ul>
-<li><p>遇到一个操作系统，人们可能会问的第一个问题是为什么需要它呢？</p>
-<ul>
-<li>答案是，我们可以把图 1.2 中的系统调用作为一个库来实现，应用程序与之连接。</li>
-<li>在这个想法中，每个应用程序可以根据自己的需要定制自己的库。</li>
-<li>应用程序可以直接与硬件资源进行交互，并以最适合应用程序的方式使用这些资源（例如，实现高效、可预测的性能）。</li>
-<li>一些用于嵌入式设备或实时系统的操作系统就是以这种方式组织的。</li>
-</ul>
-</li>
-<li><p>这种系统库方式的缺点是，如果有多个应用程序在运行，这些应用程序必须正确执行。</p>
-<ul>
-<li>例如，每个应用程序必须定期放弃 CPU，以便其他应用程序能够运行。</li>
-<li>如果所有的应用程序都相互信任并且没有 bug，这样的 <strong>cooperative</strong> 分时方案可能是 OK 的。</li>
-<li>更典型的情况是，应用程序之间互不信任，并且有 bug，所以人们通常希望比 <strong>cooperative</strong> 方案提供更强的隔离性。</li>
-</ul>
-</li>
-<li><p>为了实现强隔离，禁止应用程序直接访问敏感的硬件资源，而将资源抽象为服务是很有帮助的。</p>
-<ul>
-<li>例如，Unix 应用程序只通过文件系统的 <code>open</code>、<code>read</code>、<code>write</code> 和 <code>close</code> 系统调用与文件系统进行交互，而不是直接读写磁盘。</li>
-<li>这为应用程序带来了路径名的便利，而且它允许操作系统（作为接口的实现者）管理磁盘。</li>
-<li>即使不考虑隔离问题，那些有意交互的程序（或者只是希望互不干扰）很可能会发现文件系统是一个比直接使用磁盘更方便的抽象。</li>
-</ul>
-</li>
-<li><p>同样，Unix 在进程之间透明地切换硬件 CPU，必要时保存和恢复寄存器状态，这样应用程序就不必意识到时间共享。</p>
-<ul>
-<li>这种透明性允许操作系统共享 CPU，即使一些应用程序处于无限循环中。</li>
-</ul>
-</li>
-<li><p>另一个例子是，Unix 进程使用 <code>exec</code> 来建立它们的内存映像，而不是直接与物理内存交互。</p>
-<ul>
-<li>这使得操作系统可以决定将进程放在内存的什么位置；如果内存紧张，操作系统甚至可能将进程的部分数据存储在磁盘上。</li>
-<li><code>exec</code> 还允许用户将可执行文件储存在文件系统中。</li>
-</ul>
-</li>
-<li><p>Unix 进程之间的许多形式的交互都是通过文件描述符进行的。</p>
-<ul>
-<li>文件描述符不仅可以抽象出许多细节（例如，管道或文件中的数据存储在哪里），而且它们的定义方式也可以简化交互。</li>
-<li>例如，如果管道中的一个应用程序崩溃了，内核就会为管道中的另一个进程产生一个文件结束信号。</li>
-</ul>
-</li>
-<li><p>图 1.2 中的系统调用接口经过精心设计，既为程序员提供了便利，又提供了强隔离的可能。</p>
-<ul>
-<li>Unix接口并不是抽象资源的唯一方式，但事实证明它是一种非常好的方式。</li>
-</ul>
-</li>
-</ul>
-<h2 id="User-mode-supervisor-mode-and-system-calls-用户模式，内核模式，和系统调用"><a href="#User-mode-supervisor-mode-and-system-calls-用户模式，内核模式，和系统调用" class="headerlink" title="User mode, supervisor mode, and system calls 用户模式，内核模式，和系统调用"></a>User mode, supervisor mode, and system calls 用户模式，内核模式，和系统调用</h2><ul>
-<li><p>强隔离要求应用程序和操作系统之间有一个分界线。</p>
-<ul>
-<li>如果应用程序发生错误，我们不希望操作系统崩溃，也不希望其他应用程序崩溃。</li>
-<li>相反，操作系统应该能够清理崩溃的应用程序并继续运行其他应用程序。</li>
-<li>为了实现强隔离，操作系统必须安排应用程序不能修改（甚至不能读取）操作系统的数据结构和指令，应用程序不能访问其他进程的内存。</li>
-</ul>
-</li>
-<li><p>CPU 提供了强隔离的硬件支持。</p>
-<ul>
-<li>例如，RISC-V 有三种模式，CPU 可以执行指令：<strong>机器模式</strong>、<strong>监督者（supervisor）模式</strong> 和 <strong>用户模式</strong>。</li>
-<li>在机器模式下执行的指令具有完全的权限，一个CPU在机器模式下启动。机器模式主要用于配置计算机。</li>
-<li>xv6 会在机器模式下执行几条指令，然后转为监督者模式。</li>
-</ul>
-</li>
-<li><p>在监督者（supervisor）模式下，CPU 被允许执行特权指令：例如，启用和禁用中断，读写保存页表地址的寄存器等。</p>
-<ul>
-<li>如果用户模式下的应用程序试图执行一条特权指令，CPU 不会执行该指令，而是切换到监督者模式，这样监督者模式的代码就可以终止该应用程序，因为它做了不该做的事情。</li>
-<li>第 1 章的图 1.1 说明了这种组织方式。</li>
-<li>一个应用程序只能执行用户模式的指令（如数字相加等），被称为运行在用户空间，而处于监督者模式的软件也可以执行特权指令，被称为运行在内核空间。</li>
-<li>运行在内核空间（或监督者模式）的软件称为内核。</li>
-</ul>
-</li>
-<li><p>一个应用程序如果要调用内核函数（如 xv6 中的 <code>read</code> 系统调用），必须过渡到内核。</p>
-<ul>
-<li>CPU 提供了一个特殊的指令，可以将 CPU 从用户模式切换到监督者模式，并在内核指定的入口处进入内核。( RISC-V 为此提供了 <code>ecall</code> 指令。)</li>
-<li>一旦 CPU 切换到监督者模式，内核就可以验证系统调用的参数，决定是否允许应用程序执行请求的操作，然后拒绝或执行该操作。</li>
-<li>由内核控制监督者模式的入口点是很重要的；如果应用程序可以决定内核的入口点，那么恶意应用程序就能够在跳过参数验证的情况下进入内核。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Kernel-organization-内核组织"><a href="#Kernel-organization-内核组织" class="headerlink" title="Kernel organization 内核组织"></a>Kernel organization 内核组织</h2><ul>
-<li><p>一个关键的设计问题是操作系统的哪一部分应该在监督者模式下运行。</p>
-<ul>
-<li>一种可能是整个操作系统驻留在内核中，这样所有系统调用的实现都在监督者模式下运行。这种组织方式称为 <strong>宏内核</strong>。</li>
-</ul>
-</li>
-<li><p>在这种组织方式中，整个操作系统以全硬件权限运行。</p>
-<ul>
-<li>这种组织方式很方便，因为操作系统设计者不必决定操作系统的哪一部分不需要全硬件权限。</li>
-<li>此外，操作系统的不同部分更容易合作。例如，一个操作系统可能有一个缓冲区，其被缓存文件系统和虚拟内存系统共享。</li>
-</ul>
-</li>
-<li><p>宏内核组织方式的一个缺点是操作系统的不同部分之间的接口通常是复杂的（我们将在本文的其余部分看到），因此操作系统开发者很容易在这上面出错。</p>
-</li>
-<li><p>在宏内核中，一个错误是致命的，因为监督者模式下的错误往往会导致内核崩溃。</p>
-</li>
-<li><p>如果内核崩溃，计算机就会停止工作，因此所有的应用程序也会崩溃。计算机必须重启。</p>
-</li>
-<li><p>为了降低内核出错的风险，操作系统设计者可以尽量减少在监督者模式下运行的操作系统代码量，而在用户模式下执行操作系统的大部分代码。这种内核组织方式称为 <strong>微内核</strong>。</p>
-</li>
-</ul>
-<img src="/2024/05/08/xv6-book-for-reading/Figure-2.1.png" class="" title="Figure-2.1">
-
-<ul>
-<li><p>图 2.1 说明了这种微内核设计。</p>
-<ul>
-<li>在图中，文件系统作为一个用户级进程运行。作为进程运行的 OS 服务称为服务器。</li>
-<li>为了让应用程序与文件服务器进行交互，内核提供了一种进程间通信机制，用于从一个用户模式进程向另一个进程发送消息。</li>
-<li>例如，如果一个像 shell 这样的应用程序想要读写文件，它就会向文件服务器发送一个消息，并等待响应。</li>
-</ul>
-</li>
-<li><p>在微内核中，内核接口由一些低级函数组成，用于启动应用程序、发送消息、访问设备硬件等。</p>
-<ul>
-<li>这种组织方式使得内核相对简单，因为大部分操作系统驻留在用户级服务器中。</li>
-</ul>
-</li>
-<li><p>xv6 和大多数 Unix 操作系统一样，是以宏内核的形式实现的。</p>
-<ul>
-<li>因此，xv6 内核接口与操作系统接口相对应，内核实现了完整的操作系统。</li>
-<li>由于 xv6 不提供很多服务，所以它的内核比一些微内核要小，但从概念上讲 xv6 是宏内核。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Code-xv6-organization-xv6-的组织结构"><a href="#Code-xv6-organization-xv6-的组织结构" class="headerlink" title="Code: xv6 organization xv6 的组织结构"></a>Code: xv6 organization xv6 的组织结构</h2><ul>
-<li>xv6 内核源码在 <code>kernel/</code> 子目录下。<ul>
-<li>按照模块化的概念，源码被分成了多个文件，图 2.2 列出了这些文件。模块间的接口在 <code>kernel/defs.h</code> 中定义。</li>
-</ul>
-</li>
-</ul>
-<img src="/2024/05/08/xv6-book-for-reading/Figure-2.2.png" class="" title="Figure-2.2">
-
-<h2 id="Process-overview-进程概述"><a href="#Process-overview-进程概述" class="headerlink" title="Process overview 进程概述"></a>Process overview 进程概述</h2><ul>
-<li><p>xv6 中的隔离单位（和其他 Unix 操作系统一样）是一个进程。</p>
-<ul>
-<li>进程抽象可以防止一个进程破坏或监视另一个进程的内存、CPU、文件描述符等。</li>
-<li>它还可以防止进程破坏内核，所以进程不能破坏内核的隔离机制。</li>
-<li>内核必须小心翼翼地实现进程抽象，因为一个错误或恶意的应用程序可能会欺骗内核或硬件做一些不好的事情（例如，规避隔离）。</li>
-<li>内核用来实现进程的机制包括：用户&#x2F;监督模式标志、地址空间和线程的时间片轮转。</li>
-</ul>
-</li>
-<li><p>为了帮助实施隔离，进程抽象为程序提供了一种错觉，即它有自己的私有机器。</p>
-<ul>
-<li>一个进程为程序提供了一个看似私有的内存系统，或者说是地址空间，其他进程不能对其进行读写。</li>
-<li>进程还为程序提供了 “私有” 的 CPU，用来执行程序的指令。</li>
-</ul>
-</li>
-<li><p>xv6 使用页表（由硬件实现）给每个进程提供自己的地址空间。</p>
-<ul>
-<li>RISC-V 页表将 <strong>虚拟地址</strong>（RISC-V 指令操作的地址）转换（或 “映射”）为 <strong>物理地址</strong>（CPU芯片发送到主存储器的地址）。</li>
-</ul>
-</li>
-<li><p>xv6 为每个进程维护一个单独的页表，定义该进程的地址空间。</p>
-<ul>
-<li>如图 2.3 所示，进程的用户空间内存的地址空间是从虚拟地址0开始的。</li>
-<li>指令存放在最前面，其次是全局变量，然后是栈，最后是一个堆区（用于 <strong>malloc</strong>），进程可以根据需要扩展。</li>
-<li>有一些因素限制了进程地址空间的最大长度：RISC-V 上的指针是 64 位宽；硬件在页表中查找虚拟地址时只使用低的 39 位；xv6 只使用 39 位中的 38 位。</li>
-<li>因此，最大地址是 $2^{38}-1$ &#x3D; 0x3fffffffff，也就是 <code>MAXVA</code>（kernel&#x2F;riscv.h:348）。</li>
-<li>在地址空间的顶端，xv6 保留了一页，用于 <strong>trampoline</strong> 和映射进程 <strong>trapframe</strong> 的页，以便切换到内核，我们将在第 4 章中解释。</li>
-</ul>
-</li>
-</ul>
-<img src="/2024/05/08/xv6-book-for-reading/Figure-2.3.png" class="" title="Figure-2.3">
-
-<ul>
-<li>xv6 内核为每个进程维护了许多状态，记录在 <code>proc</code> 结构体 (kernel&#x2F;proc.h:86)。<ul>
-<li>一个进程最重要的内核状态是它的页表、内核栈和运行状态。</li>
-<li>我们用 <code>p-&gt;xxx</code> 来表示 <code>proc</code> 结构的元素，例如，<code>p-&gt;pagetable</code> 是指向进程页表的指针。</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>kernel&#x2F;proc.h:86</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Per-process state</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">proc</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">spinlock</span> <span class="title">lock</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// p-&gt;lock must be held when using these:</span></span><br><span class="line">  <span class="class"><span class="keyword">enum</span> <span class="title">procstate</span> <span class="title">state</span>;</span>        <span class="comment">// Process state</span></span><br><span class="line">  <span class="type">void</span> *chan;                  <span class="comment">// If non-zero, sleeping on chan</span></span><br><span class="line">  <span class="type">int</span> killed;                  <span class="comment">// If non-zero, have been killed</span></span><br><span class="line">  <span class="type">int</span> xstate;                  <span class="comment">// Exit status to be returned to parent&#x27;s wait</span></span><br><span class="line">  <span class="type">int</span> pid;                     <span class="comment">// Process ID</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// wait_lock must be held when using this:</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">parent</span>;</span>         <span class="comment">// Parent process</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// these are private to the process, so p-&gt;lock need not be held.</span></span><br><span class="line">  uint64 kstack;               <span class="comment">// Virtual address of kernel stack</span></span><br><span class="line">  uint64 sz;                   <span class="comment">// Size of process memory (bytes)</span></span><br><span class="line">  <span class="type">pagetable_t</span> pagetable;       <span class="comment">// User page table</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">trapframe</span> *<span class="title">trapframe</span>;</span> <span class="comment">// data page for trampoline.S</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">context</span> <span class="title">context</span>;</span>      <span class="comment">// swtch() here to run process</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">ofile</span>[<span class="title">NOFILE</span>];</span>  <span class="comment">// Open files</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">cwd</span>;</span>           <span class="comment">// Current directory</span></span><br><span class="line">  <span class="type">char</span> name[<span class="number">16</span>];               <span class="comment">// Process name (debugging)</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<ul>
-<li><p>每个进程都有一个执行线程（简称线程），执行进程的指令。</p>
-<ul>
-<li>一个线程可以被暂停，然后再恢复。</li>
-<li>为了在进程之间透明地切换，内核会暂停当前运行的线程，并恢复另一个进程的线程。</li>
-<li>线程的大部分状态（局部变量、函数调用返回地址）都存储在线程的栈中。</li>
-<li>每个进程有两个栈：用户栈和内核栈（<code>p-&gt;kstack</code>）。</li>
-<li>当进程在执行用户指令时，只有它的用户栈在被使用，而它的内核栈是空的。</li>
-<li>当进程进入内核时（因为系统调用或中断），内核代码在进程的内核栈上执行；</li>
-<li>当进程在内核中时，它的用户栈仍然包含保存的数据，但不被主动使用。</li>
-<li>进程的线程在用户栈和内核栈中交替执行。</li>
-<li>内核栈是独立的（并且受到保护，不受用户代码的影响），所以即使一个进程用户栈被破坏了，内核也可以执行。</li>
-</ul>
-</li>
-<li><p>一个进程可以通过执行 RISC-V <code>ecall</code> 指令进行系统调用。</p>
-<ul>
-<li>该指令提高硬件权限级别，并将程序计数器改变为内核定义的入口点。</li>
-<li>入口点的代码会切换到内核栈，并执行实现系统调用的内核指令。</li>
-<li>当系统调用完成后，内核切换回用户栈，并通过调用 <code>sret</code> 指令返回用户空间，降低硬件特权级别，恢复执行系统调用前的用户指令。</li>
-<li>进程的线程可以在内核中阻塞等待 I&#x2F;O，当 I&#x2F;O 完成后，再从离开的地方恢复。</li>
-</ul>
-</li>
-<li><p><code>p-&gt;state</code> 表示进程是创建、就绪、运行、等待 I&#x2F;O，还是退出。</p>
-</li>
-<li><p><code>p-&gt;pagetable</code> 以 RISC-V 硬件需要的格式保存进程的页表，当进程在用户空间执行时，xv6 使分页硬件使用进程的 <code>p-&gt;pagetable</code>。</p>
-<ul>
-<li>进程的页表也会记录分配给该进程内存的物理页地址。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Code-starting-xv6-and-the-first-process-启动xv6和第一个进程"><a href="#Code-starting-xv6-and-the-first-process-启动xv6和第一个进程" class="headerlink" title="Code: starting xv6 and the first process 启动xv6和第一个进程"></a>Code: starting xv6 and the first process 启动xv6和第一个进程</h2><ul>
-<li><p>为了使 xv6 更加具体，我们将概述内核如何启动和运行第一个进程。后面的章节将更详细地描述这个概述中出现的机制。</p>
-</li>
-<li><p>当 RISC-V 计算机开机时，它会初始化自己，并运行一个存储在只读存储器中的 <strong>boot loader</strong>。<strong>boot loader</strong> 将 xv6 内核加载到内存中。</p>
-<ul>
-<li>然后，在机器模式下，CPU从 <code>_entry</code>（kernel&#x2F;entry.S:6）开始执行 xv6。</li>
-<li>RISC-V 在禁用分页硬件的情况下启动：虚拟地址直接映射到物理地址。</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>kernel&#x2F;entry.S</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">        # qemu -kernel loads the kernel at 0x80000000</span><br><span class="line">        # and causes each hart (i.e. CPU) to jump there.</span><br><span class="line">        # kernel.ld causes the following code to</span><br><span class="line">        # be placed at 0x80000000.</span><br><span class="line">.section .text</span><br><span class="line">.global _entry</span><br><span class="line">_entry:</span><br><span class="line">        # set up a stack for C.</span><br><span class="line">        # stack0 is declared in start.c,</span><br><span class="line">        # with a 4096-byte stack per CPU.</span><br><span class="line">        # sp = stack0 + (hartid * 4096)</span><br><span class="line">        la sp, stack0</span><br><span class="line">        li a0, 1024*4</span><br><span class="line">        csrr a1, mhartid</span><br><span class="line">        addi a1, a1, 1</span><br><span class="line">        mul a0, a0, a1</span><br><span class="line">        add sp, sp, a0</span><br><span class="line">        # jump to start() in start.c</span><br><span class="line">        call start</span><br><span class="line">spin:</span><br><span class="line">        j spin</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-</blockquote>
-<ul>
-<li><p>loader 将 xv6 内核加载到物理地址 <code>0x80000000</code> 的内存中。</p>
-<ul>
-<li>之所以将内核放在 <code>0x80000000</code> 而不是 <code>0x0</code>，是因为地址范围 <code>0x0:0x80000000</code> 包含 I&#x2F;O 设备。</li>
-</ul>
-</li>
-<li><p><code>_entry</code> 处的指令设置了一个栈，这样 xv6 就可以运行 C 代码。</p>
-<ul>
-<li>xv6 在文件 <code>start.c</code> (kernel&#x2F;start.c:11) 中声明了初始栈的空间，即 <code>stack0</code>。</li>
-<li>在 <code>_entry</code> 处的代码加载栈指针寄存器 <code>sp</code>，地址为 <code>stack0+4096</code>，也就是栈的顶部，因为 RISC-V 的栈是向下扩张的。</li>
-<li>现在内核就拥有了栈，<code>_entry</code> 调用 <code>start</code> (kernel&#x2F;start.c:21)，并执行其 C 代码。</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>kernel&#x2F;start.c:11</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// entry.S needs one stack per CPU.</span></span><br><span class="line">__attribute__ ((aligned (<span class="number">16</span>))) <span class="type">char</span> stack0[<span class="number">4096</span> * NCPU];</span><br></pre></td></tr></table></figure>
-
-<p>kernel&#x2F;start.c:21</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// entry.S jumps here in machine mode on stack0.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">start</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// set M Previous Privilege mode to Supervisor, for mret.</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">long</span> x = r_mstatus();</span><br><span class="line">  x &amp;= ~MSTATUS_MPP_MASK;</span><br><span class="line">  x |= MSTATUS_MPP_S;</span><br><span class="line">  w_mstatus(x);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// set M Exception Program Counter to main, for mret.</span></span><br><span class="line">  <span class="comment">// requires gcc -mcmodel=medany</span></span><br><span class="line">  w_mepc((uint64)main);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// disable paging for now.</span></span><br><span class="line">  w_satp(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// delegate all interrupts and exceptions to supervisor mode.</span></span><br><span class="line">  w_medeleg(<span class="number">0xffff</span>);</span><br><span class="line">  w_mideleg(<span class="number">0xffff</span>);</span><br><span class="line">  w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// configure Physical Memory Protection to give supervisor mode</span></span><br><span class="line">  <span class="comment">// access to all of physical memory.</span></span><br><span class="line">  w_pmpaddr0(<span class="number">0x3fffffffffffff</span>ull);</span><br><span class="line">  w_pmpcfg0(<span class="number">0xf</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ask for clock interrupts.</span></span><br><span class="line">  timerinit();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// keep each CPU&#x27;s hartid in its tp register, for cpuid().</span></span><br><span class="line">  <span class="type">int</span> id = r_mhartid();</span><br><span class="line">  w_tp(id);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// switch to supervisor mode and jump to main().</span></span><br><span class="line">  <span class="keyword">asm</span> <span class="title function_">volatile</span><span class="params">(<span class="string">&quot;mret&quot;</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<ul>
-<li><p>函数 <code>start</code> 执行一些只有在机器模式下才允许的配置，然后切换到监督者模式。</p>
-<ul>
-<li>为了进入监督者模式，RISC-V 提供了指令 <code>mret</code>。这条指令最常用来从上一次的调用中返回，上一次调用从监督者模式到机器模式。</li>
-<li><code>start</code> 并不是从这样的调用中返回，而是把事情设置得像有过这样的调用一样：它在寄存器 <code>mstatus</code> 中把上一次的特权模式设置为特权者模式，它把 <code>main</code> 的地址写入寄存器 <code>mepc</code> 中，把返回地址设置为 <code>main</code> 函数的地址，在特权者模式中把 <code>0</code> 写入页表寄存器 <code>satp</code> 中，禁用虚拟地址转换，并把所有中断和异常委托给特权者模式。</li>
-</ul>
-</li>
-<li><p>在进入特权者模式之前，<code>start</code> 还要执行一项任务：对时钟芯片进行编程以初始化定时器中断。</p>
-<ul>
-<li>在完成了这些基本管理后，<code>start</code> 通过调用 <code>mret</code> “返回” 到监督者模式。</li>
-<li>这将导致程序计数器变为 <code>main</code>（kernel&#x2F;main.c:11）的地址。</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>kernel&#x2F;main.c:11</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// start() jumps here in supervisor mode on all CPUs.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>(cpuid() == <span class="number">0</span>)&#123;</span><br><span class="line">    consoleinit();</span><br><span class="line">    printfinit();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;xv6 kernel is booting\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    kinit();         <span class="comment">// physical page allocator</span></span><br><span class="line">    kvminit();       <span class="comment">// create kernel page table</span></span><br><span class="line">    kvminithart();   <span class="comment">// turn on paging</span></span><br><span class="line">    procinit();      <span class="comment">// process table</span></span><br><span class="line">    trapinit();      <span class="comment">// trap vectors</span></span><br><span class="line">    trapinithart();  <span class="comment">// install kernel trap vector</span></span><br><span class="line">    plicinit();      <span class="comment">// set up interrupt controller</span></span><br><span class="line">    plicinithart();  <span class="comment">// ask PLIC for device interrupts</span></span><br><span class="line">    binit();         <span class="comment">// buffer cache</span></span><br><span class="line">    iinit();         <span class="comment">// inode table</span></span><br><span class="line">    fileinit();      <span class="comment">// file table</span></span><br><span class="line">    virtio_disk_init(); <span class="comment">// emulated hard disk</span></span><br><span class="line">    userinit();      <span class="comment">// first user process</span></span><br><span class="line">    __sync_synchronize();</span><br><span class="line">    started = <span class="number">1</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">while</span>(started == <span class="number">0</span>)</span><br><span class="line">      ;</span><br><span class="line">    __sync_synchronize();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hart %d starting\n&quot;</span>, cpuid());</span><br><span class="line">    kvminithart();    <span class="comment">// turn on paging</span></span><br><span class="line">    trapinithart();   <span class="comment">// install kernel trap vector</span></span><br><span class="line">    plicinithart();   <span class="comment">// ask PLIC for device interrupts</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  scheduler();        </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">* 在 `main` (kernel/main.c:<span class="number">11</span>) 初始化几个设备和子系统后，它通过调用 `userinit` (kernel/proc.c:<span class="number">232</span>) 来创建第一个进程。</span><br><span class="line"> * 第一个进程执行一个用 RISC-V 汇编编写的小程序 `initcode.S`（user/initcode.S:<span class="number">1</span>），它通过调用 `exec` 系统调用重新进入内核。</span><br><span class="line"> * 正如我们在第一章中所看到的，`exec` 用一个新的程序（本例中是 `/init`）替换当前进程的内存和寄存器。</span><br><span class="line"></span><br><span class="line">kernel/proc.c:<span class="number">232</span></span><br><span class="line"></span><br><span class="line">```c</span><br><span class="line"><span class="comment">// Set up first user process.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">userinit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span>;</span></span><br><span class="line"></span><br><span class="line">  p = allocproc();</span><br><span class="line">  initproc = p;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// allocate one user page and copy initcode&#x27;s instructions</span></span><br><span class="line">  <span class="comment">// and data into it.</span></span><br><span class="line">  uvmfirst(p-&gt;pagetable, initcode, <span class="keyword">sizeof</span>(initcode));</span><br><span class="line">  p-&gt;sz = PGSIZE;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// prepare for the very first &quot;return&quot; from kernel to user.</span></span><br><span class="line">  p-&gt;trapframe-&gt;epc = <span class="number">0</span>;      <span class="comment">// user program counter</span></span><br><span class="line">  p-&gt;trapframe-&gt;sp = PGSIZE;  <span class="comment">// user stack pointer</span></span><br><span class="line"></span><br><span class="line">  safestrcpy(p-&gt;name, <span class="string">&quot;initcode&quot;</span>, <span class="keyword">sizeof</span>(p-&gt;name));</span><br><span class="line">  p-&gt;cwd = namei(<span class="string">&quot;/&quot;</span>);</span><br><span class="line"></span><br><span class="line">  p-&gt;state = RUNNABLE;</span><br><span class="line"></span><br><span class="line">  release(&amp;p-&gt;lock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>user&#x2F;initcode.S:1</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"># Initial process that execs /init.</span><br><span class="line"># This code runs in user space.</span><br><span class="line"></span><br><span class="line">#include &quot;syscall.h&quot;</span><br><span class="line"></span><br><span class="line"># exec(init, argv)</span><br><span class="line">.globl start</span><br><span class="line">start:</span><br><span class="line">        la a0, init</span><br><span class="line">        la a1, argv</span><br><span class="line">        li a7, SYS_exec</span><br><span class="line">        ecall</span><br><span class="line"></span><br><span class="line"># for(;;) exit();</span><br><span class="line">exit:</span><br><span class="line">        li a7, SYS_exit</span><br><span class="line">        ecall</span><br><span class="line">        jal exit</span><br><span class="line"></span><br><span class="line"># char init[] = &quot;/init\0&quot;;</span><br><span class="line">init:</span><br><span class="line">  .string &quot;/init\0&quot;</span><br><span class="line"></span><br><span class="line"># char *argv[] = &#123; init, 0 &#125;;</span><br><span class="line">.p2align 2</span><br><span class="line">argv:</span><br><span class="line">  .long init</span><br><span class="line">  .long 0</span><br></pre></td></tr></table></figure>
-</blockquote>
-<ul>
-<li>一旦内核完成 <code>exec</code>，它就会在 <code>/init</code> 进程中返回到用户空间。<ul>
-<li><code>init</code>  (user&#x2F;init.c:15) 在需要时会创建一个新的控制台设备文件，然后以文件描述符0、1和2的形式打开它。</li>
-<li>然后它在控制台上启动一个 shell。这样系统就启动了。</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>user&#x2F;init.c:15</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> pid, wpid;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(open(<span class="string">&quot;console&quot;</span>, O_RDWR) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    mknod(<span class="string">&quot;console&quot;</span>, CONSOLE, <span class="number">0</span>);</span><br><span class="line">    open(<span class="string">&quot;console&quot;</span>, O_RDWR);</span><br><span class="line">  &#125;</span><br><span class="line">  dup(<span class="number">0</span>);  <span class="comment">// stdout</span></span><br><span class="line">  dup(<span class="number">0</span>);  <span class="comment">// stderr</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(;;)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;init: starting sh\n&quot;</span>);</span><br><span class="line">    pid = fork();</span><br><span class="line">    <span class="keyword">if</span>(pid &lt; <span class="number">0</span>)&#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;init: fork failed\n&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">      exec(<span class="string">&quot;sh&quot;</span>, argv);</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;init: exec sh failed\n&quot;</span>);</span><br><span class="line">      <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(;;)&#123;</span><br><span class="line">      <span class="comment">// this call to wait() returns if the shell exits,</span></span><br><span class="line">      <span class="comment">// or if a parentless process exits.</span></span><br><span class="line">      wpid = wait((<span class="type">int</span> *) <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span>(wpid == pid)&#123;</span><br><span class="line">        <span class="comment">// the shell exited; restart it.</span></span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(wpid &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;init: wait returned an error\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// it was a parentless process; do nothing.</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<h2 id="Real-world-现实情况-1"><a href="#Real-world-现实情况-1" class="headerlink" title="Real world 现实情况"></a>Real world 现实情况</h2><ul>
-<li><p>在现实世界中，既可以找到宏内核，也可以找到微内核。</p>
-<ul>
-<li>许多 Unix 内核都是宏内核。例如，Linux 的内核，尽管有些操作系统的功能是作为用户级服务器运行的（如windows系统）。</li>
-<li>L4、Minix 和 QNX 等内核是以服务器的形式组织的微内核，并在嵌入式环境中得到了广泛的部署。</li>
-<li>大多数操作系统都采用了进程概念，大多数进程都与 xv6 的相似。</li>
-</ul>
-</li>
-<li><p>然而，现代操作系统支持进程可以拥有多个线程，以允许一个进程利用多个CPU。</p>
-<ul>
-<li>在一个进程中支持多个线程涉及到不少 xv6 没有的机制，包括潜在的接口变化 (如 Linux 的 <code>clone</code>，<code>fork</code> 的变种)，以控制线程所共享进程的那些部分。</li>
-</ul>
-</li>
-</ul>
-<h2 id="Exercises-练习-1"><a href="#Exercises-练习-1" class="headerlink" title="Exercises 练习"></a>Exercises 练习</h2><ol>
-<li>你可以使用 gdb 来观察 kernel mode 到 user mode 的第一次转换。运行 <code>make qemu-gdb</code>。在同一目录下的另一个窗口中，运行<code>gdb</code>。输入 gdb 命令 <code>break *0x3ffffff10e</code>，这将在内核中跳转到用户空间的 <code>sret</code> 指令处设置一个断点。输入 <code>continue</code>  gdb 命令，gdb 应该在断点处停止，并即将执行 <code>sret</code>。gdb 现在应该显示它正在地址 0x0 处执行，该地址在 <code>initcode.S</code> 的用户空间开始处。</li>
-</ol>
-<hr>
-<ol>
-<li><p><a name="ftn1"></a> 与微内核设计理念相对应的理念，这也是一个源自操作系统级别的概念。对于宏内核来说，整个操作系统就是一个整体，包括了进程管理、内存管理、文件系统等等</p>
-</li>
-<li><p><a name="ftn2"></a> 本文所说的 “多核 “是指多个共享内存但并行执行的 CPU，每个 CPU 都有自己的一套寄存器。本文有时使用多处理器一词作为多核的同义词，但多处理器也可以更具体地指具有多个不同处理器芯片的计算机。</p>
-</li>
-</ol>
 
     </div>
 
@@ -1086,6 +761,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
               <a href="/tags/xv6-book/" rel="tag"># xv6 book</a>
           </div>
 
@@ -1160,7 +836,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Operating-system-interfaces-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">Operating system interfaces 操作系统接口</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Processes-and-memory-%E8%BF%9B%E7%A8%8B%E5%92%8C%E5%86%85%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">Processes and memory 进程和内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O-and-File-descriptors-I-O-%E5%92%8C%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="nav-number">1.2.</span> <span class="nav-text">I&#x2F;O and File descriptors I&#x2F;O 和文件描述符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pipes-%E7%AE%A1%E9%81%93"><span class="nav-number">1.3.</span> <span class="nav-text">Pipes 管道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#File-system-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.4.</span> <span class="nav-text">File system 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Real-world-%E7%8E%B0%E5%AE%9E%E6%83%85%E5%86%B5"><span class="nav-number">1.5.</span> <span class="nav-text">Real world 现实情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercises-%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">Exercises 练习</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Operating-system-organization-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%BB%84%E7%BB%87"><span class="nav-number">2.</span> <span class="nav-text">Operating system organization 操作系统组织</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Abstracting-physical-resources-%E6%8A%BD%E8%B1%A1%E5%8C%96%E7%89%A9%E7%90%86%E8%B5%84%E6%BA%90"><span class="nav-number">2.1.</span> <span class="nav-text">Abstracting physical resources 抽象化物理资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#User-mode-supervisor-mode-and-system-calls-%E7%94%A8%E6%88%B7%E6%A8%A1%E5%BC%8F%EF%BC%8C%E5%86%85%E6%A0%B8%E6%A8%A1%E5%BC%8F%EF%BC%8C%E5%92%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">2.2.</span> <span class="nav-text">User mode, supervisor mode, and system calls 用户模式，内核模式，和系统调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kernel-organization-%E5%86%85%E6%A0%B8%E7%BB%84%E7%BB%87"><span class="nav-number">2.3.</span> <span class="nav-text">Kernel organization 内核组织</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Code-xv6-organization-xv6-%E7%9A%84%E7%BB%84%E7%BB%87%E7%BB%93%E6%9E%84"><span class="nav-number">2.4.</span> <span class="nav-text">Code: xv6 organization xv6 的组织结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Process-overview-%E8%BF%9B%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">2.5.</span> <span class="nav-text">Process overview 进程概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Code-starting-xv6-and-the-first-process-%E5%90%AF%E5%8A%A8xv6%E5%92%8C%E7%AC%AC%E4%B8%80%E4%B8%AA%E8%BF%9B%E7%A8%8B"><span class="nav-number">2.6.</span> <span class="nav-text">Code: starting xv6 and the first process 启动xv6和第一个进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Real-world-%E7%8E%B0%E5%AE%9E%E6%83%85%E5%86%B5-1"><span class="nav-number">2.7.</span> <span class="nav-text">Real world 现实情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercises-%E7%BB%83%E4%B9%A0-1"><span class="nav-number">2.8.</span> <span class="nav-text">Exercises 练习</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Operating-system-interfaces-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">Operating system interfaces 操作系统接口</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Processes-and-memory-%E8%BF%9B%E7%A8%8B%E5%92%8C%E5%86%85%E5%AD%98"><span class="nav-number">1.1.</span> <span class="nav-text">Processes and memory 进程和内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O-and-File-descriptors-I-O-%E5%92%8C%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="nav-number">1.2.</span> <span class="nav-text">I&#x2F;O and File descriptors I&#x2F;O 和文件描述符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pipes-%E7%AE%A1%E9%81%93"><span class="nav-number">1.3.</span> <span class="nav-text">Pipes 管道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#File-system-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.4.</span> <span class="nav-text">File system 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Real-world-%E7%8E%B0%E5%AE%9E%E6%83%85%E5%86%B5"><span class="nav-number">1.5.</span> <span class="nav-text">Real world 现实情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercises-%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">Exercises 练习</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1174,7 +850,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
