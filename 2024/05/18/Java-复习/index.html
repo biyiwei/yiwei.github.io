@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="第一章 Java 源文件可以有多个类，只能有一个 public 类，也可以没有 public 类  Java 应用程序的主类（包含 main）并不是必须是 public 类，其他类也可以包含 main  如果你的主类不是 public 类，不能通过 java filename 直接运行这个文件，但它可以被同一包中的其他类调用 当然，主类不是 public 类的话类名也可以和文件名不同 如果想要直接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 复习">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/05/18/Java-%E5%A4%8D%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="第一章 Java 源文件可以有多个类，只能有一个 public 类，也可以没有 public 类  Java 应用程序的主类（包含 main）并不是必须是 public 类，其他类也可以包含 main  如果你的主类不是 public 类，不能通过 java filename 直接运行这个文件，但它可以被同一包中的其他类调用 当然，主类不是 public 类的话类名也可以和文件名不同 如果想要直接">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-05-18T01:00:15.000Z">
+<meta property="article:modified_time" content="2024-05-19T06:14:35.357Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/05/18/Java-%E5%A4%8D%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java 复习 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/05/18/Java-%E5%A4%8D%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java 复习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-18 09:00:15" itemprop="dateCreated datePublished" datetime="2024-05-18T09:00:15+08:00">2024-05-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-05-19 14:14:35" itemprop="dateModified" datetime="2024-05-19T14:14:35+08:00">2024-05-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="第一章"><a href="#第一章" class="headerlink" title="第一章"></a>第一章</h1><ul>
+<li><p>Java 源文件可以有多个类，只能有一个 public 类，也可以没有 public 类</p>
+</li>
+<li><p>Java 应用程序的主类（包含 main）并不是必须是 public 类，其他类也可以包含 main</p>
+<ul>
+<li>如果你的主类不是 public 类，不能通过 <code>java filename</code> 直接运行这个文件，但它可以被同一包中的其他类调用</li>
+<li>当然，主类不是 public 类的话类名也可以和文件名不同</li>
+<li>如果想要直接通过 <code>java filename</code> 直接运行，这必须需要一个和文件名同名的 public 类，且包含 main 方法作为入口</li>
+<li>所以显而易见的是，如果有一个与文件名同名的 public 类，但没有包含 main 方法作为入口，那也无法运行</li>
+</ul>
+</li>
+<li><p>JDK 提供的编译器是 javac.exe，java.exe 更多是 JVM 的启动器</p>
+</li>
+<li><p>javac 编译一个源文件会生成多个字节码文件（.class），与文件名同名的 public 类的好处是：它有一个唯一可识别的位置，JVM 可以很容易的通过包名、类名找到它并运行它的 main</p>
+<ul>
+<li>如果非 public 类中也包含 main 方法，我们也可以通过 <code>java path</code> 指定完整的路径名运行它</li>
+</ul>
+</li>
+<li><p>补充</p>
+<ul>
+<li>Java 源文件应该以 .Java 为扩展名。源文件的基本组成部分是类（class）。</li>
+<li>Java 程序的执行方法是 main() 方法，它有固定的书写格式 <code>public static void main(String avg[]) &#123;&#125;</code>。</li>
+<li>一个源文件只能有一个 public 类，其他类个数不限。</li>
+<li>如果源文件中包含一个 public 类，则文件命名必须按该类名命名。</li>
+<li>也可以将 main() 方法写在非 public 类中，指定运行非 public 类，这样入口方法就是非 public 类的 main 方法。</li>
+</ul>
+</li>
+</ul>
+<h1 id="第二章"><a href="#第二章" class="headerlink" title="第二章"></a>第二章</h1><ul>
+<li><p><code>int[] a, b[];</code> 声明了一个一维数组 a 和一个二维数组 b</p>
+</li>
+<li><p><code>float a[20]</code> 是不合法的，正确的数组声明是 <code>float[] a = new float[20]; float[] a = &#123;...&#125;; </code> </p>
+</li>
+<li><p><code>System.out.println</code> 中的 System 只是一个类，所以它不是关键字</p>
+</li>
+<li><p>标识符：只能以数字、字母、下划线、美元组成，不能以数字开头</p>
+</li>
+<li><p>char 在 Java 中是 2 个字节，16 bit，所以取值范围是 [0, 2^16^-1]，即 [0, 65535]</p>
+</li>
+<li><p><code>float foo = 1.0;</code> 并不是正确的，浮点数在 Java 中默认是 double，需要加上 f 或 F</p>
+</li>
+<li><p><code>char a = 100; byte b = 100;</code> 是正确的，Java 允许将一个整型常量在有效范围内赋值给 byte、char、short</p>
+<ul>
+<li>但 <code>int i = 100; char a = i; byte b = i;</code> 就是错误的了，不能将 int 型变量赋值给 byte、char、short</li>
+</ul>
+</li>
+<li><p>关于基本数据类型</p>
+<ul>
+<li><p>Java 的整型常量默认为 int 型，声明 long 类型需要在后边加 l 或 L</p>
+</li>
+<li><p>Java 的浮点型常量默认为double型，声明float型常量，需要后面加 f 或 F</p>
+</li>
+<li><p>浮点数使用陷阱，2.7 和 8.1&#x2F;3 比较。通过计算得到的浮点数是一个接近 2.7 的一个小数，但不是 2.7</p>
+</li>
+<li><p>Java 中不能使用 0 或非 0 的整数代替 true 或 false</p>
+</li>
+</ul>
+</li>
+<li><p>关于类型转换</p>
+<ul>
+<li>自动类型转换<ul>
+<li><p>char -&gt; int -&gt; long -&gt; float -&gt; double</p>
+</li>
+<li><p>byte -&gt; short -&gt; int -&gt; long -&gt;float -&gt; double</p>
+</li>
+<li><p>有多种数据类型混合运算时，系统首先自动将所有数据转换成容量最大的数据类型，再进行计算</p>
+</li>
+<li><p>当我们把精度大的数据类型赋给精度小的数据类型时就会报错，反之会进行自动类型转换</p>
+</li>
+<li><p>（byte，short）和 char 之间不会进行自动类型转换</p>
+</li>
+<li><p>byte，short，char，他们三者在计算时，首先自动转换为 int 型</p>
+</li>
+<li><p>boolean不参与类型转换</p>
+</li>
+<li><p>自动提升原则：表达式中结果的类型会自动提升为操作数中最大的数据类型。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="第三章"><a href="#第三章" class="headerlink" title="第三章"></a>第三章</h1><ul>
+<li><p><code>(short)10 + &#39;a&#39;</code> 的结果是 int 型数据，这是因为在整型运算中都会提升到 int</p>
+</li>
+<li><p>Java 中不能再使用 0 代表 true，非 0 代表 false</p>
+</li>
+<li><p><code>char a = ‘a&#39; + 1;</code> 是正确的，<code>int x =  1; char a = &#39;a&#39; + x; </code> 是错误的，所以还是一样的 <code>‘a’ + 1</code> 仍然是整型常量，而 <code>‘a’ + x</code> 会被提升为 int 型数据</p>
+<blockquote>
+<p>解释的有点不严谨，因为 <code>‘a’ + x</code> 的结果其实也是整型常量，但常量 + 常量就不会有问题，而变量 + 常量就会提示为 int 型</p>
+</blockquote>
+</li>
+<li><p>A - Z：[65, 90]，a - z：[97, 122]。中文字符一般都比英文字符大</p>
+</li>
+<li><p>关于赋值运算</p>
+<ul>
+<li><p><code>char a = &#39;a&#39;; int i = 1; a += i; </code> 是正确的，<code>a = a + i;</code> 就是错误的了，这是因为 <code>a += i;</code> 等价于 <code>a = (char)(a + i);</code>，赋值运算符是强大的！</p>
+</li>
+<li><p>三元运算符要看作一个整体。<code>Object obj = true ? new Integer(1) : new Double(2.0); System.out.println(obj);</code>输出 1.0，因为double提高了整体的精度</p>
+</li>
+</ul>
+</li>
+<li><p>关于 switch</p>
+<ul>
+<li>表达式的类型与 case 后的常量类型保持一致，或是可以自动转换成可以比较的类型。比如 char，int。<ul>
+<li>switch（表达式）中，表达式返回的类型必须是（byte，short，int，char，enum（枚举），String）。</li>
+<li>case 子语句中的值必须是常量，不能是变量。</li>
+<li>default 是可以没有的。</li>
+<li>break 语句用来跳出 swtich 结构，但如果没有 break，将继续执行下条语句，直到遇到 break 或运行到 swithc 语句结尾</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>关于数组</p>
+<ul>
+<li><p>一维数组的声明方式有：<code>int[] arr;  int arr[];</code></p>
+</li>
+<li><p>二维数组的声明方式有：<code>int[][] arr;  int[] arr[];  int arr[][];</code></p>
+</li>
+<li><p>数组赋值是值拷贝，引用传递</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="第四章"><a href="#第四章" class="headerlink" title="第四章"></a>第四章</h1><ul>
+<li><p>Java 应用程序由若干个类组成，这些类可以在一个源文件中，也可以在不同源文件中，但必须有其中一个源文件包含主类</p>
+</li>
+<li><p>方法中局部变量的名字不能和方法中参数的名字相同，因为参数也是局部变量</p>
+</li>
+<li><pre><code class="java">class Hello &#123;
+    int Hello() &#123;return 100;&#125;	// 合法的
+&#125;
+</code></pre>
+</li>
+<li><p>类的实例方法也叫做类的成员方法（没有 static），所以很明显的是它不能通过类名来调用</p>
+</li>
+<li><p>构造方法的访问权限可以是 public、private、protected、默认（没有限制）</p>
+</li>
+<li><p>关于可变数组</p>
+<ul>
+<li>可变参数的实参可以是0个或任意多个，可变参数的本质就是数组</li>
+<li>可变参数可以和普通类型的参数一起放在形参列表中，但必须保证可变参数放在最后，一个形参列表中只能出现一个可变参数</li>
+</ul>
+</li>
+<li><p>关于构造器</p>
+<ul>
+<li>一个类可以定义多个不同的构造器，即构造器重载</li>
+<li>构造器名要与类名相同，没有返回值</li>
+<li>构造器是完成对对象的初始化，而不是创建对象，在创建对象时，相同会自动调用该类的构造方法。</li>
+<li>如果程序员没有定义构造器，相同会自动给类生成一个默认无参构造器（也叫默认构造器）。<code>Cat() &#123;&#125;</code></li>
+<li>一旦定义了自己的构造器，默认无参构造器就被覆盖了，就不能再使用默认无参构造器，除非显示的定义一下</li>
+</ul>
+</li>
+<li><p>成员变量初始化步骤：默认初始化、显示初始化、构造器初始化</p>
+</li>
+</ul>
+<h1 id="第五章"><a href="#第五章" class="headerlink" title="第五章"></a>第五章</h1><ul>
+<li><p>子类并不继承父类的构造方法，但子类在构造对象时会隐式或显示（super）的调用父类的构造方法</p>
+</li>
+<li><p>子类继承了父类所有的属性和方法，但私有属性不能在子类中直接访问，要通过父类提供的公共方法去访问</p>
+<ul>
+<li>因此子类继承的方法只能操作子类继承和隐藏的成员变量这句话是对的</li>
+</ul>
+</li>
+<li><p>关于抽象类</p>
+<ul>
+<li><p>抽象类不一定要包含 abstract 方法，也就是说可以没有抽象方法，或者也可以有非抽象方法（实现的方法）</p>
+</li>
+<li><p>一个类一旦包含了 abstract 方法，这个类就必须声明为 abstract</p>
+</li>
+<li><p>abstract 只能修饰类、方法，不能修饰属性和其他</p>
+</li>
+<li><p>抽象类可以有任意成员（抽象类的本质还是类），比如：非抽象方法、构造器、静态属性等等</p>
+</li>
+<li><p>抽象方法不能有主体，即不能实现</p>
+</li>
+<li><p>如果一个类继承了抽象类，则它必须实现抽象类的所有抽象方法，除非他自己也声明为 abstract 类</p>
+</li>
+<li><p>抽象方法不能使用 private、final、static 关键字来修饰，因为这些关键字都和重写相违背</p>
+</li>
+</ul>
+</li>
+<li><p>子类实现抽象类中的抽象方法时，重写方法的访问修饰符必须和抽象方法的访问权限相匹配（可以更宽松，但不能更严格）</p>
+</li>
+<li><p>方法的重写和重载是不一样的，对于重写</p>
+<ul>
+<li>子类方法的形参列表、方法名称，要和父类的形参列表、方法名称完全一致。</li>
+<li>子类方法的返回类型和父类方法的返回类型一样，或者是父类返回类型的子类。如 <code>public Object test() &#123;&#125; 和 public String test() &#123;&#125;</code></li>
+<li>子类方法不能缩小父类方法的访问权限。如<code>void test() &#123;&#125; 和 public void test() &#123;&#125;可以 private void test() &#123;&#125; 不行</code></li>
+<li>static 方法不能被重写，可能它在广义上没有错，但 IDEA 不让通过</li>
+</ul>
+</li>
+<li><p>子类中想使用被子类隐藏的成员变量或成员方法就需要使用关键字 super，这是正确的，避免了直接从子类开始查找</p>
+</li>
+<li><p>你不能使用 <code>final </code>关键字来修饰构造方法，因为构造方法不能被继承也不能被重写，使用 <code>final</code> 修饰构造方法是没有意义的</p>
+</li>
+<li><p>static 方法并不能被重写，如果你在子类中 “重写” 一个父类的 static 方法，实际上你是创建了一个新的 static 方法，并没有重写</p>
+</li>
+<li><p>不能使用 <code>super()</code> 调用父类的静态方法，因为 <code>super()</code>  和 <code>this</code> 类似都是和对象相关的</p>
+</li>
+<li><p>关于包</p>
+<ul>
+<li><p>包的实质就是创建不同的文件夹（目录）来保存类文件</p>
+</li>
+<li><p>import java.util.Scanner，就只引入一个类 Scanner，import java.util.*，引入java.util包下的所有类</p>
+</li>
+<li><p>package 的作用是声明当前类所在的包，需要放在类的最上面，一个类中最多只有一个 package</p>
+</li>
+</ul>
+</li>
+<li><p>关于访问权限</p>
+<ul>
+<li><table>
+<thead>
+<tr>
+<th align="center">访问级别</th>
+<th align="center">访问修饰符</th>
+<th align="center">同类</th>
+<th align="center">同包</th>
+<th align="center">子类</th>
+<th align="center">不同包</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">公开</td>
+<td align="center">public</td>
+<td align="center">可</td>
+<td align="center">可</td>
+<td align="center">可</td>
+<td align="center">可</td>
+</tr>
+<tr>
+<td align="center">受保护</td>
+<td align="center">protected</td>
+<td align="center">可</td>
+<td align="center">可</td>
+<td align="center">可</td>
+<td align="center">不可</td>
+</tr>
+<tr>
+<td align="center">默认</td>
+<td align="center">无</td>
+<td align="center">可</td>
+<td align="center">可</td>
+<td align="center">不可</td>
+<td align="center">不可</td>
+</tr>
+<tr>
+<td align="center">私有</td>
+<td align="center">private</td>
+<td align="center">可</td>
+<td align="center">不可</td>
+<td align="center">不可</td>
+<td align="center">不可</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>关于继承</p>
+<ul>
+<li>继承的本质就是建立查找关系</li>
+<li>子类继承了父类所有的属性和方法，但私有属性不能在子类中直接访问（默认属性在同包下可以访问，不同包不能访问），要通过父类提供的公共方法去访问</li>
+<li>子类创建对象时必须先调用父类的构造器完成对父类的初始化，再调用子类构造器</li>
+<li>当创建对象时，不管使用子类的哪个构造器，默认情况下总会去调用父类的无参构造器（默认会添加一个隐藏的 <code>super()</code> 来调用无参构造器），如果父类没有提供无参构造器，则必须在子类构造器中使用 super 指明使用父类的哪个构造器完成对父类的初始化工作，否则，编译编译不会通过</li>
+<li>super 在使用时，必须放在构造器的第一行</li>
+<li>super( ) 和 this( ) 都只能放在构造器的第一行，因此这两个方法不能共存在一个构造器（super( ) 调用父类的构造器，this( ) 调用自己的构造器）</li>
+</ul>
+</li>
+<li><p>关于多态</p>
+<ul>
+<li><p>多态的本质是父类对象引用指向了子类对象，编译类型决定了是否可以调用方法，运行类型决定了从哪里开始找</p>
+</li>
+<li><p>而属性是由编译类型决定的</p>
+</li>
+<li><p>动态绑定机制又不一样了</p>
+<ul>
+<li>当调用对象方法的时候，该方法会与该对象的内存地址（运行类型）绑定</li>
+<li>当调用该对象的属性时，没有动态绑定机制，哪里声明哪里使用</li>
+</ul>
+</li>
+<li><p><code>instanceof</code> 是 Java 中的一个关键字，判断运行时类型</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>关于重写和重载</p>
+</li>
+<li><table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">发生范围</th>
+<th align="center">方法名</th>
+<th align="center">形参列表</th>
+<th align="center">返回类型</th>
+<th align="center">修饰符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">重载（overload）</td>
+<td align="center">本类</td>
+<td align="center">相同</td>
+<td align="center">类型，个数，顺序至少一个不一样</td>
+<td align="center">无要求</td>
+<td align="center">无要求</td>
+</tr>
+<tr>
+<td align="center">重写（override）</td>
+<td align="center">父子类</td>
+<td align="center">相同</td>
+<td align="center">相同</td>
+<td align="center">子类和父类一样，或是子类返回类型父类的子类</td>
+<td align="center">子类不能缩小父类的访问范围</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h1 id="第六章"><a href="#第六章" class="headerlink" title="第六章"></a>第六章</h1><ul>
+<li><p>关于接口</p>
+<ul>
+<li>接口不能被实例化</li>
+<li>接口中的所有方法都是 public（即所有方法前都隐藏了一个 public），接口中抽象方法，可以不用 abstract 修饰</li>
+<li>一个普通类实现（implements）接口，就要将该接口的所有方法都实现（快捷键 alt + Enter）</li>
+<li>抽象类实现（implements）接口，可以不用实现接口方法</li>
+<li>一个类同时可以实现（implements）多个接口 <code>class A implements B,C &#123; &#125;</code></li>
+<li>接口中的属性，只能是 final，而且是 public static final 修饰符（即前边隐藏了public static final，即使 <code>int a;</code>）</li>
+<li>接口中属性的访问形式：接口名.属性（因为属性是 public static final）</li>
+<li>接口不能继承（extends）其他的类，但可以继承其他多个接口（接口与接口之间的关系是继承）<code>interface A extends B,C &#123;&#125;</code></li>
+<li>接口的修饰符只能是 public 和默认，这点和类的修饰符一样</li>
+</ul>
+</li>
+<li><p>接口中的属性只能是 final，但抽象类不是，接口和抽象类还是有很多不同的，需要区分开来</p>
+</li>
+<li><p>接口中并不能定义变量，只能定义常量（即使在接口中 <code>int a = 100;</code> 也是常量，<code>public static final</code> 是隐藏的）</p>
+<ul>
+<li>这是因为变量需要存储空间，并且可以有变化的值，这与接口的设计目的相违背。</li>
+<li>接口主要是用于定义一组方法的契约，而具体的实现细节（包括变量的存储和变化）则留给实现该接口的类来处理</li>
+</ul>
+</li>
+<li><p>接口中的非抽象方法必须加 <code>default</code> 关键字</p>
+</li>
+<li><p>Java 9 之后接口中可以定义private方法，这一改变允许接口在内部实现一些辅助方法，而不需要将这些方法暴露给实现接口的类</p>
+<ul>
+<li>记住就好</li>
+</ul>
+</li>
+<li><p>通过接口名调用其中实现的 static 方法，这是可以的，因为并不涉及创建实例对象</p>
+</li>
+<li><p>关于静态成员</p>
+<ul>
+<li>静态方法只能访问静态成员，非静态方法既可以访问静态成员，也可以访问非静态成员</li>
+</ul>
+</li>
+<li><p>关于代码块</p>
+<ul>
+<li>代码块又称为初始化块，使用 static 修饰的叫静态代码块，没有 static 修饰的叫普通代码块（代码块只能用 static 修饰）</li>
+<li>代码块的好处：相当于另一种形式的构造器（对构造器的补充机制），当多个构造器中都有重复的语句，可以抽取到初始化块中，提高代码的重用性</li>
+<li>静态代码块只有类加载的时候（new、创建子类对象父类被加载、调用静态成员）才会执行，普通代码块创建实例时才执行</li>
+<li>调用顺序：<ul>
+<li>静态代码块 &amp;&amp; 静态初始化 -&gt; 普通代码块 &amp;&amp; 普通初始化 -&gt; 构造器</li>
+<li>创建子类对象时：父类静态 -&gt; 子类静态 -&gt; 父类普通 -&gt; 父类构造 -&gt; 子类普通 -&gt; 子类构造</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>关于 final</p>
+<ul>
+<li>final 可以修饰类、属性、方法和局部变量</li>
+<li>当不希望类被继承时，可以用 final 关键字修饰</li>
+<li>当不希望父类的某个方法被子类覆盖&#x2F;重写（override）时，可以使用 final 关键字修饰</li>
+<li>当不希望类的某个属性的值被修改，可以使用 final 修饰</li>
+<li>当不希望某个局部变量被修改，可以使用 final 修饰</li>
+</ul>
+</li>
+</ul>
+<h1 id="第七章"><a href="#第七章" class="headerlink" title="第七章"></a>第七章</h1><ul>
+<li><p>匿名内部类的类体中不能声明 static 成员变量和成员方法，这是因为 static 总是和类相关，而匿名内部类总是被用作创建实例对象，并且没有显示的类名，无法引用 static 成员</p>
+</li>
+<li><p>匿名内部类不能是抽象类，因为由于匿名类在声明的同时就被实例化了，所以它必须是一个具体的类，即它必须提供所有抽象方法的实现</p>
+</li>
+<li><p>关于内部类</p>
+<ul>
+<li><p>定义在外部类的局部位置上（比如方法内）:</p>
+<ul>
+<li>局部内部类（有类名）不能添加访问修饰符<ul>
+<li>因为他的地位就是一个局部变量，局部变量是不允许使用访问修饰符的。但可以使用 final 修饰</li>
+<li>它可以随便访问外部类成员，外部类只能在它的局部作用域中通过 new 访问它，其他外部类不能访问它</li>
+</ul>
+</li>
+<li>匿名内部类（没有类名，重点！！！）<ul>
+<li>其实有名字，编译器给的，但它是隐藏的；由于也是局部的，所以不能添加访问修饰符；匿名内部类就相当于一个对象</li>
+<li>可以随便访问外部类成员，外部类通过其作用域中生成的对象访问它，其他外部类不能访问</li>
+</ul>
+</li>
+<li>如果有和外部类同名的成员，都采用就近原则，想访问外部类的同名成员通过<code>outer.this.name</code></li>
+</ul>
+</li>
+<li><p>定义在外部类的成员变量上：</p>
+<ul>
+<li><p>成员内部类（没有static修饰）</p>
+<ul>
+<li>可以添加访问修饰符</li>
+<li>它随便访问外部类成员，外部类成员通过 new 访问它，其他外部类通过 <code>A.B b1 = new A().new B();</code> 访问它</li>
+</ul>
+</li>
+<li><p>静态内部类（使用static修饰）</p>
+<ul>
+<li>可以添加访问修饰符</li>
+<li>随便访问外部类的静态成员，外部类通过 new 访问它，其他外部类通过 <code>Outer.Inner i1 = new Outer.Inner();</code> 访问它</li>
+</ul>
+</li>
+<li><p>同样的就近原则，访问外部类同名成员 <code>outer.this.name</code></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="第八章"><a href="#第八章" class="headerlink" title="第八章"></a>第八章</h1><ul>
+<li><p>String 类是 final 类，不能有子类，在 <code>java.lang</code> 包中</p>
+</li>
+<li><p>String 类中的 <code>==</code> 比较的是是否是同一对象，<code>equal</code> 才比较是否内容相同</p>
+</li>
+<li><p><code>public static void main(String args[])</code> 中的 args，如果命令行中输入的是 <code>java filename 1 2 3 4</code>，那么 args &#x3D; {“1”, “2”, “3”, “4”}</p>
+</li>
+<li><p><code>new Date(1000)</code> 是以毫秒为单位的，它表示从1970年1月1日00:00:00 UTC（也被称为 Unix 时间戳或 epoch 时间）开始的1000 毫秒（即 1 秒）后的时间</p>
+</li>
+<li><p>对于判断一个字符串常量是否合法，观察它的转移字符是否合法</p>
+</li>
+<li><p>Random 对象的 nextInt（int n）方法随机返回 [0，n）之间的一个整数</p>
+</li>
+<li><p><code>“\t\nABC&quot;.length()</code> 的结果为 5，说明转移字符 <code>\t \n</code> 等通常被视为一个字符</p>
+</li>
+<li><p>UTF-8 编码（Unicode 的一种实现方式）：</p>
+<ul>
+<li>字母（包括ASCII字符集）占用 1 个字节</li>
+<li>常用的汉字在 UTF-8 中通常占用 3 个字节</li>
+</ul>
+</li>
+<li><p>StringBuilder 是线程不安全的，StringBuffer 是线程安全的</p>
+</li>
+<li><p>更多常用类：包装类</p>
+</li>
+<li><p>关于 throw 和 throws 的区别</p>
+<ul>
+<li><code>throw</code> 是生成异常对象，<code>throws</code> 是声明方法可能抛出的异常类型</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">意义</th>
+<th align="center">位置</th>
+<th align="center">后面跟的东西</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">throws</td>
+<td align="center">处理异常的一种发生</td>
+<td align="center">方法声明处</td>
+<td align="center">异常类型</td>
+</tr>
+<tr>
+<td align="center">throw</td>
+<td align="center">手动生成异常对象的关键字</td>
+<td align="center">方法体中</td>
+<td align="center">异常对象</td>
+</tr>
+</tbody></table>
+<h1 id="第十章"><a href="#第十章" class="headerlink" title="第十章"></a>第十章</h1><ul>
+<li>创建 <code>File</code> 对象本身在 Java 中通常不会直接抛出异常，因为 <code>File</code> 类只是用于表示文件或目录路径名的抽象表示形式，并不涉及实际的文件 I&#x2F;O 操作。但是，当你尝试使用 <code>File</code> 对象进行实际的文件操作（如读取、写入、删除等）时，就可能会遇到异常</li>
+<li>常见的输入输出流<ul>
+<li>字节流：InputStream、OutputStream - FileInputStream、FileOutputStream - BufferInputStream、BufferOutputStream</li>
+<li>字符流：Reader、Writer - FileReader、FileWriter - BufferReader、BufferWriter</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/17/xv6-book-chapter-3/" rel="prev" title="xv6 book Chapter 3">
+      <i class="fa fa-chevron-left"></i> xv6 book Chapter 3
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/05/23/%E8%AE%A1%E7%BB%84%E5%A4%8D%E4%B9%A0/" rel="next" title="计组复习">
+      计组复习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%AB%A0"><span class="nav-number">1.</span> <span class="nav-text">第一章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">第二章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E7%AB%A0"><span class="nav-number">3.</span> <span class="nav-text">第三章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">第四章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E7%AB%A0"><span class="nav-number">5.</span> <span class="nav-text">第五章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E5%85%AD%E7%AB%A0"><span class="nav-number">6.</span> <span class="nav-text">第六章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%83%E7%AB%A0"><span class="nav-number">7.</span> <span class="nav-text">第七章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E5%85%AB%E7%AB%A0"><span class="nav-number">8.</span> <span class="nav-text">第八章</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E5%8D%81%E7%AB%A0"><span class="nav-number">9.</span> <span class="nav-text">第十章</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
