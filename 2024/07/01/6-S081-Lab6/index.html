@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="注意事项 Lab Guidance：Lab: Multithreading (mit.edu)  这个实验让你熟悉多线程，你将在用户级线程包中实现线程之间的切换，使用多个线程来加快程序速度，并实现 barrier  你应该确保你已经阅读了 xv6 book 的第 7 章：&quot;Scheduling&quot;，并研究了相关代码（kernel&#x2F;proc.c，kernel&#x2F;swtch.S）  在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lab Multithreading">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="注意事项 Lab Guidance：Lab: Multithreading (mit.edu)  这个实验让你熟悉多线程，你将在用户级线程包中实现线程之间的切换，使用多个线程来加快程序速度，并实现 barrier  你应该确保你已经阅读了 xv6 book 的第 7 章：&quot;Scheduling&quot;，并研究了相关代码（kernel&#x2F;proc.c，kernel&#x2F;swtch.S）  在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240701211537718.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240701211829481.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240703152158708.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240703152327038.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240703165743645.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240703170504808.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240703171141481.png">
+<meta property="article:published_time" content="2024-07-01T09:29:10.000Z">
+<meta property="article:modified_time" content="2024-07-03T09:12:06.034Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/image-20240701211537718.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Lab Multithreading | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/07/01/6-S081-Lab6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Lab Multithreading
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-07-01 17:29:10" itemprop="dateCreated datePublished" datetime="2024-07-01T17:29:10+08:00">2024-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-03 17:12:06" itemprop="dateModified" datetime="2024-07-03T17:12:06+08:00">2024-07-03</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>Lab Guidance：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2023/labs/thread.html">Lab: Multithreading (mit.edu)</a></p>
+</li>
+<li><p>这个实验让你熟悉多线程，你将在用户级线程包中实现线程之间的切换，使用多个线程来加快程序速度，并实现 barrier</p>
+</li>
+<li><p>你应该确保你已经阅读了 xv6 book 的第 7 章：<code>&quot;Scheduling&quot;</code>，并研究了相关代码（<code>kernel/proc.c</code>，<code>kernel/swtch.S</code>）</p>
+</li>
+<li><p>在开始前，请键入：<code>git stash &amp;&amp; git fetch &amp;&amp; git checkout thread &amp;&amp; make clean</code></p>
+</li>
+</ul>
+<h1 id="Uthread-switching-between-threads"><a href="#Uthread-switching-between-threads" class="headerlink" title="Uthread: switching between threads"></a>Uthread: switching between threads</h1><ul>
+<li><p>在本次任务中，你将为用户级线程系统设计上下文切换机制，然后实现它</p>
+</li>
+<li><p>你的 xv6 中有两个文件 <code>user/uthread.c</code> 和 <code>user/uthread_switch.S</code>，以及 Makefile 中构建 uthread 程序的规则</p>
+</li>
+<li><p><code>user/uthread.c</code> 中包含大部分用户及线程包和三个简单测试线程的代码，线程包缺少一些创建线程和在线程之间切换的代码</p>
+</li>
+<li><p>你的工作是想出一个方法来创建线程，保存&#x2F;恢复寄存器，以便在线程之间切换。当你完成后，你可以通过 <code>uthread</code> 进行测试</p>
+</li>
+<li><p>一些提示</p>
+<ul>
+<li>你需要将代码添加到 <code>user/uthread.c</code> 中的 <code>thread_create()</code> 和 <code>thread_schedule()</code>，以及 <code>user/thread_switch.S</code> 中的 <code>thread_switch()</code></li>
+<li><code>thread_schedule()</code> 调度一个线程后，这个线程在自己的线程栈上执行传递给 <code>thread_create()</code> 的函数</li>
+<li><code>thread_switch()</code> 的目的是保存&#x2F;恢复寄存器，实现切换线程</li>
+<li>你必须决定保存&#x2F;恢复哪些寄存器（调用者寄存器）；在哪里保存寄存器（修改 <code>struct thread</code> 可能是一个好的方法）</li>
+<li>你可以将需要的任何参数传递给 <code>thread_switch()</code>，以便从线程 t 切换到 nexthread</li>
+</ul>
+</li>
+<li><p>为了保存相关寄存器，模仿 <code>kernel/proc.h</code> 中的 <code>struct context</code>，在 <code>user/uthread.c</code> 中添加一个上下文结构体，并将它添加到 <code>struct thread</code> 中</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Saved registers for kernel context switches.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">context</span> &#123;</span></span><br><span class="line">  uint64 ra;</span><br><span class="line">  uint64 sp;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// callee-saved</span></span><br><span class="line">  uint64 s0;</span><br><span class="line">  uint64 s1;</span><br><span class="line">  uint64 s2;</span><br><span class="line">  uint64 s3;</span><br><span class="line">  uint64 s4;</span><br><span class="line">  uint64 s5;</span><br><span class="line">  uint64 s6;</span><br><span class="line">  uint64 s7;</span><br><span class="line">  uint64 s8;</span><br><span class="line">  uint64 s9;</span><br><span class="line">  uint64 s10;</span><br><span class="line">  uint64 s11;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">thread</span> &#123;</span></span><br><span class="line">  <span class="type">char</span>       <span class="built_in">stack</span>[STACK_SIZE]; <span class="comment">/* the thread&#x27;s stack  线程栈*/</span></span><br><span class="line">  <span class="type">int</span>        state;             <span class="comment">/* FREE, RUNNING, RUNNABLE 线程状态*/</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">context</span> <span class="title">context</span>;</span> <span class="comment">// 线程上下文</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>uthread_create()</code> 中添加代码<ul>
+<li><code>thread_create()</code> 遍历线程组，找到一个 <code>FREE</code> 线程，将设置为 <code>RUNNABLE</code> 线程。我们的任务是在之后调度到这个线程时，在这个线程的线程栈上运行传递的函数 <code>func</code></li>
+<li>为了在这个线程的线程栈上运行传递的函数，令线程上下文中的栈指针 <code>sp</code> 指向线程栈的栈顶，<code>+ STACK_SIZE</code> 是因为栈由上向下增长</li>
+<li>为了在通过 <code>thread_switch()</code> 切换到这个线程后，可以返回到函数 <code>func</code> 被中断的位置继续运行，令线程上下文中的 <code>ra</code> 寄存器存储 <code>func</code> 函数指针的值（函数地址），<code>ra</code> 寄存器存储的是返回的地址</li>
+<li>所以 <code>uthread_create()</code> 只是将传递的函数绑定到一个 <code>FREE</code> 线程上，并将这个线程设为 <code>RUNNABLE</code>，函数并没有真正的运行</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> </span><br><span class="line"><span class="title function_">thread_create</span><span class="params">(<span class="type">void</span> (*func)())</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">thread</span> *<span class="title">t</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (t = all_thread; t &lt; all_thread + MAX_THREAD; t++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (t-&gt;state == FREE) <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  t-&gt;state = RUNNABLE;</span><br><span class="line">  <span class="comment">// YOUR CODE HERE</span></span><br><span class="line">  t-&gt;context.ra = (uint64)func;</span><br><span class="line">  t-&gt;context.sp = (uint64)t-&gt;<span class="built_in">stack</span> + STACK_SIZE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在 <code>user/thread_switch.S</code> 中添加代码</p>
+<ul>
+<li><code>thread_switch()</code> 由于需要保存&#x2F;恢复寄存器，所以需要汇编实现</li>
+<li>它的作用是保存一个线程的上下文，恢复另一个线程的上下文，从而实现切换线程</li>
+<li>它的实现和 <code>kernel/swtch.S</code> 中内核线程的上下文切换一样</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">	.text</span><br><span class="line"></span><br><span class="line">	/*</span><br><span class="line">         * save the old thread&#x27;s registers,</span><br><span class="line">         * restore the new thread&#x27;s registers.</span><br><span class="line">         */</span><br><span class="line"></span><br><span class="line">	.globl thread_switch</span><br><span class="line">thread_switch:</span><br><span class="line">	/* YOUR CODE HERE */</span><br><span class="line">	sd ra, 0(a0)</span><br><span class="line">	sd sp, 8(a0)</span><br><span class="line">	sd s0, 16(a0)</span><br><span class="line">	sd s1, 24(a0)</span><br><span class="line">	sd s2, 32(a0)</span><br><span class="line">	sd s3, 40(a0)</span><br><span class="line">	sd s4, 48(a0)</span><br><span class="line">	sd s5, 56(a0)</span><br><span class="line">	sd s6, 64(a0)</span><br><span class="line">	sd s7, 72(a0)</span><br><span class="line">	sd s8, 80(a0)</span><br><span class="line">	sd s9, 88(a0)</span><br><span class="line">	sd s10, 96(a0)</span><br><span class="line">	sd s11, 104(a0)</span><br><span class="line"></span><br><span class="line">	ld ra, 0(a1)</span><br><span class="line">	ld sp, 8(a1)</span><br><span class="line">	ld s0, 16(a1)</span><br><span class="line">	ld s1, 24(a1)</span><br><span class="line">	ld s2, 32(a1)</span><br><span class="line">	ld s3, 40(a1)</span><br><span class="line">	ld s4, 48(a1)</span><br><span class="line">	ld s5, 56(a1)</span><br><span class="line">	ld s6, 64(a1)</span><br><span class="line">	ld s7, 72(a1)</span><br><span class="line">	ld s8, 80(a1)</span><br><span class="line">	ld s9, 88(a1)</span><br><span class="line">	ld s10, 96(a1)</span><br><span class="line">	ld s11, 104(a1)</span><br><span class="line"></span><br><span class="line">	ret    /* return to ra */</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在 <code>uthread_schedule()</code> 中添加代码</p>
+<ul>
+<li><code>uthread_schedule()</code> 遍历线程组，找到一个 <code>RUNNABLE</code> 线程，进行切换。我们的任务就仅仅是调用 <code>thread_switch()</code> 来进行线程切换</li>
+<li><code>uthread_schedule()</code> 和 <code>kernel/proc.c</code> 中的 <code>scheduler()</code> 的作用很像</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> </span><br><span class="line"><span class="title function_">thread_schedule</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">thread</span> *<span class="title">t</span>, *<span class="title">next_thread</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Find another runnable thread. */</span></span><br><span class="line">  next_thread = <span class="number">0</span>;</span><br><span class="line">  t = current_thread + <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; MAX_THREAD; i++)&#123;</span><br><span class="line">    <span class="keyword">if</span>(t &gt;= all_thread + MAX_THREAD)</span><br><span class="line">      t = all_thread;</span><br><span class="line">    <span class="keyword">if</span>(t-&gt;state == RUNNABLE) &#123;</span><br><span class="line">      next_thread = t;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    t = t + <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (next_thread == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;thread_schedule: no runnable threads\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (current_thread != next_thread) &#123;         <span class="comment">/* switch threads?  */</span></span><br><span class="line">    next_thread-&gt;state = RUNNING;</span><br><span class="line">    t = current_thread;</span><br><span class="line">    current_thread = next_thread;</span><br><span class="line">    <span class="comment">/* YOUR CODE HERE</span></span><br><span class="line"><span class="comment">     * Invoke thread_switch to switch from t to next_thread:</span></span><br><span class="line"><span class="comment">     * thread_switch(??, ??);</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    thread_switch((uint64)&amp;t-&gt;context, (uint64)&amp;current_thread-&gt;context);</span><br><span class="line">  &#125; <span class="keyword">else</span></span><br><span class="line">    next_thread = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在测试之前，让我们来看一下 <code>main()</code> 的实现流程<ul>
+<li>首先调用 <code>thread_init()</code> 初始化线程组中的第一个线程</li>
+<li>之后通过 <code>thread_create()</code> 创建三个分别和测试函数 <code>thread_a/b/c</code> 绑定的 <code>RUNNABLE</code> 线程</li>
+<li>将当前线程，也就是第一个线程设置为 <code>FREE</code>，防止之后被调度</li>
+<li>通过 <code>thread_schedule()</code> 遍历线程组，找到一个 <code>RUNNABLE</code> 线程进行切换<ul>
+<li>通过 <code>thread_schedule()</code> 中的 <code>thread_switch()</code> 切换线程返回后，第一次回返回到 <code>thread_a</code></li>
+<li>在 <code>thread_a</code> 中，输出 <code>start</code>，如果还有没有输出 <code>start</code> 的测试函数线程，通过 <code>thread_yield()</code> 进行调度</li>
+<li>由于 <code>thread_schedule()</code> 总是从当前线程之后开始遍历线程组，所以之后依次调度到 <code>thread_b</code>，<code>thread_c</code>，待它们都输出过 <code>start</code> 后，又调度到了 <code>thread_a</code></li>
+<li><code>thread_a</code> 继续输出累计值，每输出一次就通过 <code>thread_yield()</code> 进行调度，直到输出到 99，其他测试函数线程也是一样</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> </span><br><span class="line"><span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> </span><br><span class="line">&#123;</span><br><span class="line">  a_started = b_started = c_started = <span class="number">0</span>;</span><br><span class="line">  a_n = b_n = c_n = <span class="number">0</span>;</span><br><span class="line">  thread_init();</span><br><span class="line">  thread_create(thread_a);</span><br><span class="line">  thread_create(thread_b);</span><br><span class="line">  thread_create(thread_c);</span><br><span class="line">  current_thread-&gt;state = FREE;</span><br><span class="line">  thread_schedule();</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> </span><br><span class="line"><span class="title function_">thread_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// main() is thread 0, which will make the first invocation to</span></span><br><span class="line">  <span class="comment">// thread_schedule(). It needs a stack so that the first thread_switch() can</span></span><br><span class="line">  <span class="comment">// save thread 0&#x27;s state.</span></span><br><span class="line">  current_thread = &amp;all_thread[<span class="number">0</span>];</span><br><span class="line">  current_thread-&gt;state = RUNNING;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> </span><br><span class="line"><span class="title function_">thread_a</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;thread_a started\n&quot;</span>);</span><br><span class="line">  a_started = <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">while</span>(b_started == <span class="number">0</span> || c_started == <span class="number">0</span>)</span><br><span class="line">    thread_yield();</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;thread_a %d\n&quot;</span>, i);</span><br><span class="line">    a_n += <span class="number">1</span>;</span><br><span class="line">    thread_yield();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;thread_a: exit after %d\n&quot;</span>, a_n);</span><br><span class="line"></span><br><span class="line">  current_thread-&gt;state = FREE;</span><br><span class="line">  thread_schedule();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> </span><br><span class="line"><span class="title function_">thread_yield</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  current_thread-&gt;state = RUNNABLE;</span><br><span class="line">  thread_schedule();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>make clean &amp;&amp; make qemu &amp;&amp; uthread</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240701211537718.png" class="" title="image-20240701211537718">
+
+<ul>
+<li><strong>.&#x2F;grade-lab-thread uthread</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240701211829481.png" class="" title="image-20240701211829481">
+
+<h1 id="Using-threads"><a href="#Using-threads" class="headerlink" title="Using threads"></a>Using threads</h1><ul>
+<li><p>在本次任务中，你将要使用散列表探索线程和锁的并行编程。你应该在具有多个内核的真实 Linux 计算机上执行此任务（不是 xv6 和 qemu）</p>
+</li>
+<li><p>此任务使用 UNIX pthread 线程库，你可以通过 <code>man pthreads</code> 查看相关信息</p>
+</li>
+<li><p>文件 <code>notxv6/ph.c</code> 中包含一个简单的哈希表，如果从单个线程使用，该哈希表是正确的，但从多个线程使用时不正确</p>
+</li>
+<li><p>你可以在主 xv6 目录下键入 <code>make ph &amp;&amp; ./ph 1</code>（1 表示指定在哈希表上执行 put 和 get 操作的线程数），运行一段时间后，它将输出以下结果</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">100000 puts, 3.991 seconds, 25056 puts/second</span><br><span class="line">0: 0 keys missing</span><br><span class="line">100000 gets, 3.981 seconds, 25118 gets/second</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你尝试 <code>./ph 2</code>，虽然输出显示它获得了并行加速，但本应该在哈希表中的 keys 却大量消失</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">100000 puts, 1.885 seconds, 53044 puts/second</span><br><span class="line">1: 16579 keys missing</span><br><span class="line">0: 16579 keys missing</span><br><span class="line">200000 gets, 4.322 seconds, 46274 gets/second</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>一些提示</p>
+<ul>
+<li><p>你应该看看 <code>notxv6/ph.c</code> 中的 <code>put()</code> 和 <code>insert()</code></p>
+</li>
+<li><p>为了避免这种情况，请在 <code>put</code> 中加入锁定和解锁语句，相关的 phtread 调用如下。当你的代码通过了 <code>ph_safe</code> 测试时，你就完成了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_mutex_t</span> lock;            <span class="comment">// declare a lock</span></span><br><span class="line">pthread_mutex_init(&amp;lock, <span class="literal">NULL</span>); <span class="comment">// initialize the lock</span></span><br><span class="line">pthread_mutex_lock(&amp;lock);       <span class="comment">// acquire lock</span></span><br><span class="line">pthread_mutex_unlock(&amp;lock);     <span class="comment">// release lock</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在某些情况下，并发 <code>put()</code> 在散列表中读取或写入的内存没有重叠，因此不需要锁来保护，修改 <code>ph.c</code> 以利用这种情况来获得并行加速（每个哈希桶一个锁是一个好方法）。当你的代码通过了 <code>ph_fast</code> 测试时，你就完成了</p>
+</li>
+</ul>
+</li>
+<li><p>在开始前，我们先来仔细看一下 <code>ph.c</code> 代码的执行过程，分析为什么会发生在多线程环境下 keys 大量 “消失”</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">pthread_t</span> *tha;</span><br><span class="line">  <span class="type">void</span> *value;</span><br><span class="line">  <span class="type">double</span> t1, t0;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Usage: %s nthreads\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  nthread = atoi(argv[<span class="number">1</span>]);  <span class="comment">// 线程数</span></span><br><span class="line">  tha = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">pthread_t</span>) * nthread);</span><br><span class="line">  srandom(<span class="number">0</span>);</span><br><span class="line">  assert(NKEYS % nthread == <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; NKEYS; i++) &#123;</span><br><span class="line">    keys[i] = random();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// first the puts</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  t0 = now();</span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; nthread; i++) &#123;</span><br><span class="line">    assert(pthread_create(&amp;tha[i], <span class="literal">NULL</span>, put_thread, (<span class="type">void</span> *) (<span class="type">long</span>) i) == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; nthread; i++) &#123;</span><br><span class="line">    assert(pthread_join(tha[i], &amp;value) == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  t1 = now();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%d puts, %.3f seconds, %.0f puts/second\n&quot;</span>,</span><br><span class="line">         NKEYS, t1 - t0, NKEYS / (t1 - t0));</span><br><span class="line"></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// now the gets</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  t0 = now();</span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; nthread; i++) &#123;</span><br><span class="line">    assert(pthread_create(&amp;tha[i], <span class="literal">NULL</span>, get_thread, (<span class="type">void</span> *) (<span class="type">long</span>) i) == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; nthread; i++) &#123;</span><br><span class="line">    assert(pthread_join(tha[i], &amp;value) == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  t1 = now();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%d gets, %.3f seconds, %.0f gets/second\n&quot;</span>,</span><br><span class="line">         NKEYS*nthread, t1 - t0, (NKEYS*nthread) / (t1 - t0));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>main()</code> 首先根据传入的参数来创建线程，并且保证 <code>NKEYS % nthread == 0</code></p>
+<ul>
+<li>这是因为在之后我们会发现，<code>NKEYS</code> 是我们需要处理的 keys 数组的大小，如果 <code>NKEYS</code> 可以整除线程数，那么就可以保证每个线程处理的 keys 数组的范围大小相同，且每个线程只处理自己范围内的 keys 数组的值，而不越界影响其他线程</li>
+<li>将需要处理的 keys 数组中的 key 值初始化为随机数，这说明 keys 数组中的 key 值可能相等，也可能不相等，这就为之后的 <strong>竞争</strong> 埋下了伏笔</li>
+</ul>
+</li>
+<li><p>调用 <code>now()</code> 获得当前时间，这是为了之后计算 <code>put()</code> 的运行速度做准备，计算 <code>get()</code> 时也是如此</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span></span><br><span class="line"><span class="title function_">now</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line"> <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">tv</span>;</span></span><br><span class="line"> gettimeofday(&amp;tv, <span class="number">0</span>);</span><br><span class="line"> <span class="keyword">return</span> tv.tv_sec + tv.tv_usec / <span class="number">1000000.0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在循环中调用 <code>phtread_create()</code> 创建 nthread 个线程执行 <code>put_thread()</code></p>
+<ul>
+<li><code>phtread_create()</code> 中的最后一个参数是传递给 <code>put_thread()</code> 的参数，表示 thread number（第几个线程）</li>
+</ul>
+</li>
+<li><p><code>put_thread()</code> 通过传入的参数 thread number 来确定当前线程处理的 keys 数组的范围（<code>b*n + i</code>），调用 <code>put()</code> 将键值对 <code>[keys[b*n + i], n]</code> 插入到哈希表中</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> *</span><br><span class="line"><span class="title function_">put_thread</span><span class="params">(<span class="type">void</span> *xa)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> n = (<span class="type">int</span>) (<span class="type">long</span>) xa; <span class="comment">// thread number</span></span><br><span class="line">  <span class="type">int</span> b = NKEYS/nthread;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; b; i++) &#123;</span><br><span class="line">    put(keys[b*n + i], n);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>put()</code> 根据传入的 key 确定是哪个哈希桶，遍历这个哈希桶找到是否有对应的 key，如果有就更新 value，否则就调用 <code>insert()</code> 将一个新的键值对插入这个哈希桶中<ul>
+<li>发现了吗，这里存在一个数据竞争，因为 keys 数组中的 key 都是随机数，如果两个线程处理的 key 值相同，但由于它们的 thread number（需要插入的 value 值）是一定不同的，当他们同时来到 <code>put()</code> 且同时找到相同的 <code>e</code> 时，<code>e-&gt;value = value</code> 的行为是不可预测的，但这并不会导致 key 的消失，所以真正的罪魁祸首是 <code>insert()</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> </span><br><span class="line"><span class="type">void</span> <span class="title function_">put</span><span class="params">(<span class="type">int</span> key, <span class="type">int</span> value)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i = key % NBUCKET; <span class="comment">// 根据key确定哈希桶</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// is the key already present?</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">entry</span> *<span class="title">e</span> =</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (e = table[i]; e != <span class="number">0</span>; e = e-&gt;next) &#123;</span><br><span class="line">    <span class="keyword">if</span> (e-&gt;key == key)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(e)&#123;  </span><br><span class="line">    <span class="comment">// update the existing key.</span></span><br><span class="line">    e-&gt;value = value;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">    <span class="comment">// the new is new.</span></span><br><span class="line">    insert(key, value, &amp;table[i], table[i]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>insert()</code> 采用头插法的方式将一个新的键值对插入到哈希桶的顶部<ul>
+<li>由于 keys 数组中的 key 值都是随机数，所以两个不同的线程可能正在处理同一个 key，如果两个线程同时来到这里，那么此时哈希桶的头部键值对（<code>table[i]</code>，这里是 <code>*p</code>）是相同的，<code>e-&gt;next = n; *p = e;</code> 的行为是无法预测的</li>
+<li>如果两个线程先后执行 <code>e-&gt;next = n;</code>，之后又先后执行 <code>*p = e</code>，那么先执行 <code>*p = e</code> 的线程插入的键值对就会丢失。这就是为什么在多线程环境下大量 key 消失的原因</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> </span><br><span class="line"><span class="title function_">insert</span><span class="params">(<span class="type">int</span> key, <span class="type">int</span> value, <span class="keyword">struct</span> entry **p, <span class="keyword">struct</span> entry *n)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">entry</span> *<span class="title">e</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> entry));</span><br><span class="line">  e-&gt;key = key;</span><br><span class="line">  e-&gt;value = value;</span><br><span class="line">  e-&gt;next = n;</span><br><span class="line">  *p = e;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>回到 <code>main()</code>，在循环中调用 <code>pthread_join()</code> 等待所有创建的线程结束，最后输出 <code>put</code> 的运行速率</p>
+</li>
+<li><p>之后测试 <code>get</code> 的运行速率也是大同小异</p>
+</li>
+<li><p>同样是在循环中调用 <code>phtread_create()</code> 创建 nthread 个线程执行 <code>get_thread()</code>，传入参数 thread number</p>
+</li>
+<li><p><code>get_phtread()</code> 的作用就是统计哈希表中有多少个键值对消失，由于 <code>get_thread</code> 和 <code>get</code> 都有没有涉及对临界值（也就是共享变量哈希表）的修改操作，所以不会造成竞争，也就不需要锁的保护</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> *</span><br><span class="line"><span class="title function_">get_thread</span><span class="params">(<span class="type">void</span> *xa)</span>  <span class="comment">// get_thread的作用就是检测哈希表中有多少缺失的键值对</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> n = (<span class="type">int</span>) (<span class="type">long</span>) xa; <span class="comment">// thread number</span></span><br><span class="line">  <span class="type">int</span> missing = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; NKEYS; i++) &#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">entry</span> *<span class="title">e</span> =</span> get(keys[i]);</span><br><span class="line">    <span class="keyword">if</span> (e == <span class="number">0</span>) missing++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%d: %d keys missing\n&quot;</span>, n, missing);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="keyword">struct</span> entry*</span><br><span class="line"><span class="title function_">get</span><span class="params">(<span class="type">int</span> key)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i = key % NBUCKET;  <span class="comment">// 确定哈希桶</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">entry</span> *<span class="title">e</span> =</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (e = table[i]; e != <span class="number">0</span>; e = e-&gt;next) &#123;</span><br><span class="line">    <span class="keyword">if</span> (e-&gt;key == key) <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> e;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 <code>notxv6/ph.c</code>，让它可以在多线程环境中安全且快速的运行的方法就很明显了，我们只需要在 <code>put()</code> 中加锁就可以了</li>
+<li>根据提示，不同线程在操作不同的哈希桶时，每个线程写入的内存并不会重叠，所以就不会造成竞争。每个哈希桶一个锁是个很好的解决方案</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_mutex_t</span> lock[NBUCKET];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>main()</code> 中初始化所有的锁</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">pthread_t</span> *tha;</span><br><span class="line">  <span class="type">void</span> *value;</span><br><span class="line">  <span class="type">double</span> t1, t0;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Usage: %s nthreads\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  nthread = atoi(argv[<span class="number">1</span>]);  <span class="comment">// 线程数</span></span><br><span class="line">  tha = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">pthread_t</span>) * nthread);</span><br><span class="line">  srandom(<span class="number">0</span>);</span><br><span class="line">  assert(NKEYS % nthread == <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; NKEYS; i++) &#123;</span><br><span class="line">    keys[i] = random();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; NBUCKET; i++) &#123;</span><br><span class="line">    pthread_mutex_init(&amp;lock[i], <span class="literal">NULL</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 <code>put()</code>，在调用 <code>insert()</code> 时加上对应哈希桶的锁，<code>insert()</code> 返回后解锁<ul>
+<li>这里不是在 <code>if(e) &#123;...&#125;</code> 之前之后加锁解锁是很有必要的，<code>e-&gt;value = value</code> 并不会使键值对丢失，缩小加锁的范围也可以一定程度上提高并行速度</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> </span><br><span class="line"><span class="type">void</span> <span class="title function_">put</span><span class="params">(<span class="type">int</span> key, <span class="type">int</span> value)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i = key % NBUCKET; </span><br><span class="line"></span><br><span class="line">  <span class="comment">// is the key already present?</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">entry</span> *<span class="title">e</span> =</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (e = table[i]; e != <span class="number">0</span>; e = e-&gt;next) &#123; </span><br><span class="line">    <span class="keyword">if</span> (e-&gt;key == key)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(e)&#123;  </span><br><span class="line">    <span class="comment">// update the existing key.</span></span><br><span class="line">    e-&gt;value = value;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">    <span class="comment">// the new is new.</span></span><br><span class="line">    pthread_mutex_lock(&amp;lock[i]);</span><br><span class="line">    insert(key, value, &amp;table[i], table[i]);</span><br><span class="line">    pthread_mutex_unlock(&amp;lock[i]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>.&#x2F;grade-lab-thread ph_safe</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240703152158708.png" class="" title="image-20240703152158708">
+
+<ul>
+<li><strong>.&#x2F;grade-lab-thread ph_fast</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240703152327038.png" class="" title="image-20240703152327038">
+
+<h1 id="Barrier"><a href="#Barrier" class="headerlink" title="Barrier"></a>Barrier</h1><ul>
+<li>在本次任务中，你将要实现一个 barrier：应用程序中的一个点，所有参与的线程必须等待，直到所有其它参与的线程也达到该点</li>
+<li>你将要使用 pthread 条件变量。你应该在真正的计算机上完成此任务（不是 xv6 和 qemu）</li>
+<li>文件 <code>notxv6/barrier.c</code> 包含一个 broken barrier。在主 xv6 目录中键入 <code>make barrier &amp;&amp; ./barrier 2</code>（2 指定了在 barrier 上同步的线程数），它会产生如下输出</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make barrier</span><br><span class="line">./barrier 2</span><br><span class="line">barrier: notxv6/barrier.c:42: thread: Assertion `i == t&#x27; failed.</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>断言触发的原因是：一个线程在另一个线程到达 barrier 之前离开了 barrier。我们期望的行为是：每个线程在 barrier 中被阻塞，直到所有线程都到达 barrier（调用 barrier）</p>
+</li>
+<li><p>你的目标是实现所需要的 barrier 行为，除了在上一个任务中看到的锁原语外，你还需要以下新的 pthread 原语</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pthread_cond_wait(&amp;cond, &amp;mutex);  <span class="comment">// go to sleep on cond, releasing lock mutex, acquiring upon wake up</span></span><br><span class="line">pthread_cond_broadcast(&amp;cond);     <span class="comment">// wake up every thread sleeping on cond</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>我们已经给你提供了 <code>barrier_init()</code> 及 <code>struct barrier</code>，你的工作是实现 <code>barrier()</code>。确保你的解决方案通过 <code>barrier</code> 测试</p>
+</li>
+<li><p>有一些问题使得问题复杂化</p>
+<ul>
+<li>你需要处理我们每一轮都会调用的一连串的 <code>barrier</code> 调用。<code>barrier.round</code> 记录当前是哪一轮，每次所有线程都达到 <code>barrier</code> 时，你都应该增加 <code>barrier.round</code></li>
+<li>你必须处理一个线程在其他线程还未达到 <code>barrier</code> 之前 “循环赛跑” 的情况。<code>barrier.nthread</code> 记录了当前一轮已经达到 <code>barrier</code> 的线程数。确保当前一轮所有线程还未达到 <code>barrier</code> 时，已经达到的线程 “在一个循环中赛跑” 时并不会增加 <code>barrier.nthread</code></li>
+</ul>
+</li>
+<li><p>在开始之前，我们看一下 <code>notxv6/barrier.c</code> 的运行流程</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">pthread_t</span> *tha;</span><br><span class="line">  <span class="type">void</span> *value;</span><br><span class="line">  <span class="type">long</span> i;</span><br><span class="line">  <span class="type">double</span> t1, t0;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (argc &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;%s: %s nthread\n&quot;</span>, argv[<span class="number">0</span>], argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  nthread = atoi(argv[<span class="number">1</span>]);</span><br><span class="line">  tha = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">pthread_t</span>) * nthread);</span><br><span class="line">  srandom(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  barrier_init();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; nthread; i++) &#123;</span><br><span class="line">    assert(pthread_create(&amp;tha[i], <span class="literal">NULL</span>, thread, (<span class="type">void</span> *) i) == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; nthread; i++) &#123;</span><br><span class="line">    assert(pthread_join(tha[i], &amp;value) == <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;OK; passed\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>main()</code> 根据传入参数初始化 <code>nthread</code> 以记录需要同步的线程数，分配 nthread 个线程的空间</li>
+<li>调用 <code>barrier_init()</code> 初始化共享变量 <code>bstate</code></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">barrier</span> &#123;</span></span><br><span class="line">  <span class="type">pthread_mutex_t</span> barrier_mutex;</span><br><span class="line">  <span class="type">pthread_cond_t</span> barrier_cond;</span><br><span class="line">  <span class="type">int</span> nthread;      <span class="comment">// Number of threads that have reached this round of the barrier</span></span><br><span class="line">  <span class="type">int</span> round;     <span class="comment">// Barrier round</span></span><br><span class="line">&#125; bstate;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span></span><br><span class="line"><span class="title function_">barrier_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  assert(pthread_mutex_init(&amp;bstate.barrier_mutex, <span class="literal">NULL</span>) == <span class="number">0</span>);</span><br><span class="line">  assert(pthread_cond_init(&amp;bstate.barrier_cond, <span class="literal">NULL</span>) == <span class="number">0</span>);</span><br><span class="line">  bstate.nthread = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在循环中调用 <code>pthread_create()</code> 创建 nthread 个线程执行 <code>thread()</code>，传入参数 thread number（第几个线程）</li>
+<li><code>thread()</code> 在每次循环中，检查当前记录的轮数 <code>bstate.round</code> 是否和循环的轮数 <code>i</code> 匹配，不相等就会触发断言<ul>
+<li>由于可能有多个线程，所以我们对 <code>barrier()</code> 期望是：一个线程调用 <code>barrier()</code> 后会被阻塞，只有其他所有可能的线程都调用 <code>barrier()</code> 后，递增 <code>bstate.round</code> 以记录轮数，所有线程才可以离开 <code>barrier()</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> *</span><br><span class="line"><span class="title function_">thread</span><span class="params">(<span class="type">void</span> *xa)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">long</span> n = (<span class="type">long</span>) xa;</span><br><span class="line">  <span class="type">long</span> delay;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">20000</span>; i++) &#123;</span><br><span class="line">    <span class="type">int</span> t = bstate.round;</span><br><span class="line">    assert (i == t);</span><br><span class="line">    barrier();</span><br><span class="line">    usleep(random() % <span class="number">100</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>barrier()</code> 就是本次任务中我们需要实现的方法</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> </span><br><span class="line"><span class="title function_">barrier</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE HERE</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Block until all threads have called barrier() and</span></span><br><span class="line">  <span class="comment">// then increment bstate.round.</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>回到 <code>main()</code>，在循环中调用 <code>pthread_join()</code> 等待所有创建的线程结束。最后输出 <code>OK; passed</code></li>
+<li>在实现 <code>barrier()</code> 时，我的第一次实现如下所示<ul>
+<li>之后觉得这样的写法不仅 “臃肿”，而且 <code>while</code> 的作用也不能说是没有，只能说是毫无用处，好像仅仅是为了应和提示中的 “在循环中赛跑”</li>
+<li>然而真实情况就是它根本就没有循环，一个线程调用 <code>pthread_cond_wait()</code> 后就陷入了睡眠，当所有线程达到时被 <code>pthread_cond_broadcast()</code> 唤醒后，它会和其他线程争抢锁，没有抢到锁时确实可能会陷入 “循环赛跑”，但这也持续不了多久，毕竟其他线程很快就会释放锁并退出 <code>barrier</code>，“循环赛跑” 会严重浪费 CPU 时间，远不如睡眠来的实在</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> </span><br><span class="line"><span class="title function_">barrier</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE HERE</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Block until all threads have called barrier() and</span></span><br><span class="line">  <span class="comment">// then increment bstate.round.</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  pthread_mutex_lock(&amp;bstate.barrier_mutex);</span><br><span class="line">  ++bstate.nthread;</span><br><span class="line">  <span class="keyword">while</span> (bstate.nthread != nthread) &#123;</span><br><span class="line">    pthread_cond_wait(&amp;bstate.barrier_cond, &amp;bstate.barrier_mutex);</span><br><span class="line">    pthread_mutex_unlock(&amp;bstate.barrier_mutex);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  ++bstate.round;</span><br><span class="line">  bstate.nthread = <span class="number">0</span>;</span><br><span class="line">  pthread_cond_broadcast(&amp;bstate.barrier_cond);</span><br><span class="line">  pthread_mutex_unlock(&amp;bstate.barrier_mutex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>为了实现的更加 “优雅”，<code>barrier()</code> 最终的实现版本如下<ul>
+<li>在修改临界区 <code>bstate</code> 之前获得锁，如果递增 <code>bstate.nthread</code> 时发现所有的线程还未到达 <code>barrier</code>，那就释放锁并陷入睡眠</li>
+<li>如果递增 <code>bstate.round</code> 时发现所有线程均已达到 <code>barrier</code>，那就重置 <code>bstate.nthread</code> 且递增 <code>bstate.round</code> 以记录轮数，唤醒所有线程，释放锁</li>
+<li>其他被唤醒的线程争抢锁，抢到锁的线程释放锁后退出 <code>barrier</code>，其他线程也是如此</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> </span><br><span class="line"><span class="title function_">barrier</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// YOUR CODE HERE</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Block until all threads have called barrier() and</span></span><br><span class="line">  <span class="comment">// then increment bstate.round.</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  pthread_mutex_lock(&amp;bstate.barrier_mutex);</span><br><span class="line">  <span class="keyword">if</span> (++bstate.nthread != nthread) &#123;</span><br><span class="line">    pthread_cond_wait(&amp;bstate.barrier_cond, &amp;bstate.barrier_mutex);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    bstate.nthread = <span class="number">0</span>;</span><br><span class="line">    ++bstate.round;</span><br><span class="line">    pthread_cond_broadcast(&amp;bstate.barrier_cond);</span><br><span class="line">  &#125;</span><br><span class="line">  pthread_mutex_unlock(&amp;bstate.barrier_mutex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>.&#x2F;barrier 2</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240703165743645.png" class="" title="image-20240703165743645">
+
+<ul>
+<li><strong>.&#x2F;grade-lab-thread barrier</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240703170504808.png" class="" title="image-20240703170504808">
+
+<h1 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h1><ul>
+<li><strong>make grade</strong></li>
+</ul>
+<img src="/2024/07/01/6-S081-Lab6/image-20240703171141481.png" class="" title="image-20240703171141481">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/LostUnravel/article/details/121430791">MIT 6.S081] Lab 7: Multithreading_lab7: multithreading-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/duile/p/16222393.html">MIT6.S081-Lab6 Lab Multithreading 2021Fall] - duile - 博客园 (cnblogs.com)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/06/23/xv6-book-chapter-7/" rel="prev" title="xv6 book chapter 7">
+      <i class="fa fa-chevron-left"></i> xv6 book chapter 7
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Uthread-switching-between-threads"><span class="nav-number">2.</span> <span class="nav-text">Uthread: switching between threads</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Using-threads"><span class="nav-number">3.</span> <span class="nav-text">Using threads</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Barrier"><span class="nav-number">4.</span> <span class="nav-text">Barrier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Test"><span class="nav-number">5.</span> <span class="nav-text">Test</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

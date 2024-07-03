@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="注意事项 实验讲义：Lab guidance (mit.edu)、6.1810 &#x2F; Fall 2023 (mit.edu) 迟来的 Lab 0 ……  Install riscv64-unknown-elf-gdb References：  【笔记】rCore (RISC-V)：GDB 使用记录 | 苦瓜小仔 (zjp-cn.github.io) MIT 6.S081] Lab 0: 实">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lab Tools and Guidance">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/06/17/6-S081-Lab0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="注意事项 实验讲义：Lab guidance (mit.edu)、6.1810 &#x2F; Fall 2023 (mit.edu) 迟来的 Lab 0 ……  Install riscv64-unknown-elf-gdb References：  【笔记】rCore (RISC-V)：GDB 使用记录 | 苦瓜小仔 (zjp-cn.github.io) MIT 6.S081] Lab 0: 实">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-17T13:46:11.000Z">
+<meta property="article:modified_time" content="2024-06-19T05:13:15.752Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/06/17/6-S081-Lab0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Lab Tools and Guidance | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/06/17/6-S081-Lab0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Lab Tools and Guidance
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-17 21:46:11" itemprop="dateCreated datePublished" datetime="2024-06-17T21:46:11+08:00">2024-06-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-19 13:13:15" itemprop="dateModified" datetime="2024-06-19T13:13:15+08:00">2024-06-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li>实验讲义：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2023/labs/guidance.html">Lab guidance (mit.edu)</a>、<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2023/tools.html">6.1810 &#x2F; Fall 2023 (mit.edu)</a></li>
+<li>迟来的 <code>Lab 0</code> ……</li>
+</ul>
+<h1 id="Install-riscv64-unknown-elf-gdb"><a href="#Install-riscv64-unknown-elf-gdb" class="headerlink" title="Install riscv64-unknown-elf-gdb"></a>Install riscv64-unknown-elf-gdb</h1><ul>
+<li><p><strong>References</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zjp-cn.github.io/posts/rcore-gdb/#%E5%AE%89%E8%A3%85-gdb">【笔记】rCore (RISC-V)：GDB 使用记录 | 苦瓜小仔 (zjp-cn.github.io)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/LostUnravel/article/details/120397168">MIT 6.S081] Lab 0: 实验配置, 调试及测试_6.s081 tools-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://rcore-os.cn/rCore-Tutorial-deploy/docs/pre-lab/gdb.html">GDB 调试方法* · GitBook (rcore-os.cn)</a></li>
+</ul>
+</li>
+<li><p>需要注意的是：</p>
+<ul>
+<li><code>--prefix</code> 指定了安装路径，以下指令会安装到 <code>/usr/local/bin/</code> </li>
+<li><code>--with-python</code> 指定 <code>python</code> 解释器的地址</li>
+<li>可以通过 <code>which python | which python3</code> 了解自己的 <code>python</code> 安装在哪里</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">../configure --prefix=/usr/local --with-python=/usr/bin/python --target=riscv64-unknown-elf --enable-tui=<span class="built_in">yes</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>一般 <code>user/bin/python</code> 是 <code>python2</code> 的地址，而 <code>python2</code> 已经过时了，所以最好指定 <code>python3</code> 的地址</p>
+</li>
+<li><p><code>make -j$(nproc)</code> 编译完成后，别忘记 <code>sudo make install</code> 进行安装</p>
+</li>
+</ul>
+</li>
+<li><p>在编译过程中，你可能会遇到：需要安装或更新 GMP 和 MPFR 库的问题，输入以下指令进行安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu</span></span><br><span class="line">sudo apt-get update  </span><br><span class="line">sudo apt-get install python3-dev</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>你可能还会遇到 <code>configure: error: no usable python found at /usr/bin/python</code> 这样的问题</p>
+<ul>
+<li>参考：<a target="_blank" rel="noopener" href="https://rcore-os.cn/rCore-Tutorial-deploy/docs/pre-lab/gdb.html"><a target="_blank" rel="noopener" href="https://www.coder.work/article/357511">交叉编译 GDB 时出现 Python 丢失或不可用错误</a></a></li>
+<li>对于 <code>python3</code>，输入以下指令安装 <code>python3-dev</code> 包</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Ubuntu</span></span><br><span class="line">sudo apt-get update  </span><br><span class="line">sudo apt-get install python3-dev</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过 <code>riscv64-unknown-elf-gdb</code> 第一次运行 gdb 时，它可能提醒你：需要在 <code>.config/gdb/gdbinit</code> 中写入一些内容</p>
+<ul>
+<li>如果 <code>.config/gdb/gdbinit</code> 文件还未创建，你需要自己创建后写入提示的内容</li>
+<li>内容格式应该是 <code>add-auto-load-safe-path your_usage_path/.gdbinit</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="tmux"><a href="#tmux" class="headerlink" title="tmux"></a>tmux</h1><ul>
+<li><p><strong>References</strong>：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1526675">可能是东半球最全面易懂的 Tmux 使用教程！( 强烈建议收藏 )-腾讯云开发者社区-腾讯云 (tencent.com)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/CSSDCC/article/details/121231906">Tmux教程 （一文就够）-CSDN博客</a></p>
+</li>
+</ul>
+</li>
+<li><p>用户打开终端窗口输入命令与计算机进行交互，这种 <strong>用户与计算机的临时交互，称为会话（session）</strong></p>
+<ul>
+<li>会话的一个特点是：窗口和与之启动进程是连在一起的，窗口关闭则进程终止，无论进程有没有执行完</li>
+<li>tmux 解决了这个问题，它允许会话与当前窗口 “解绑”，会话继续在后台运行，需要时再与当前窗口 “绑定”</li>
+<li>一个 session 可以创建好几个 window，对于每一个窗口，都可以将其分解为几个 pane 窗格</li>
+</ul>
+</li>
+</ul>
+<h2 id="tmux-的作用"><a href="#tmux-的作用" class="headerlink" title="tmux 的作用"></a>tmux 的作用</h2><ul>
+<li>它允许在单个窗口中，同时访问多个会话，这对于同时运行多个命令行程序很有用</li>
+<li>它可以让新窗口 “接入” 已经存在的会话</li>
+<li>它允许每个会话有多个连接窗口，因此可以多人实时共享会话</li>
+<li>它还支持窗口任意的垂直和水平拆分</li>
+</ul>
+<h2 id="tmux-的使用"><a href="#tmux-的使用" class="headerlink" title="tmux 的使用"></a>tmux 的使用</h2><ul>
+<li><p>启动 tmux：创建一个 session 及其 tmux 窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux</span><br></pre></td></tr></table></figure></li>
+</ul>
+<blockquote>
+<p>只能在 shell 窗口中使用</p>
+<p>由于这个窗口总是 session 的第一个 window，所以它的编号总是为 0</p>
+<p>按照顺序，<code>tmux</code> 指令创建的每个 session 的默认编号依次为 0、1、2 ……</p>
+<p>这里的编号其实就是下文的 <code>session-name</code>，只不过由于是默认的，为了区分就叫编号了</p>
+</blockquote>
+<ul>
+<li><p>退出 tmux：退出当前 tmux 窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exit</span><br></pre></td></tr></table></figure></li>
+</ul>
+<blockquote>
+<p>只能在 tmux 窗口中使用</p>
+<p>与 session 绑定的 tmux 窗口不一定只有一个，所以 session 不一定终止</p>
+<p>所以当然可以 <code>exit</code> 一个 session 的所有 window 来杀死这个 session</p>
+</blockquote>
+<ul>
+<li><p><strong>会话管理</strong></p>
+<ul>
+<li><p>新建会话</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux new -s &lt;session-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 tmux 窗口中使用</p>
+<p>创建会话时指定 <code>session-name</code> 更便于管理，<code>tmux</code> 指令给予的默认 session-name 就是编号了</p>
+</blockquote>
+</li>
+<li><p>分离会话：将当前 tmux 窗口及其 session 放入后台运行，返回 shell 窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux detach</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 tmux 窗口中使用，也可以通过快捷键：<code>CTRL + B D</code></p>
+</blockquote>
+</li>
+<li><p>显示当前所有的会议</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux ls</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在 tmux 窗口和 shell 窗口中都能使用</p>
+</blockquote>
+</li>
+<li><p>接入会话</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux attach -t &lt;session-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 shell 窗口中使用</p>
+</blockquote>
+</li>
+<li><p>切换会话</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux switch -t &lt;session-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 tmux 窗口中使用，也可以通过快捷键：<code>CTRL + B S</code></p>
+</blockquote>
+</li>
+<li><p>杀死会话：杀死指定 session 及其 tmux 窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux kill-session -t &lt;session-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 shell 窗口中使用</p>
+</blockquote>
+</li>
+<li><p>重命名会话</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux rename-session -t &lt;old-name&gt; &lt;new-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在 tmux 窗口和 shell 窗口中都能使用</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>窗口管理</strong></p>
+<ul>
+<li><p>新建窗口：第一种方式新建的窗口没有 window-name，第二中方式指定 window-name 新建窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tmux new-window</span><br><span class="line"></span><br><span class="line">tmux new-window -n &lt;window-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>按道理只能在 tmux 窗口中使用，但我发现也可以在 shell 窗口中使用，在 shell 窗口中使用会为刚刚放入后台的 session 新建窗口</p>
+<p>窗口的编号及 name 的管理方式和 session 并不一样</p>
+<p>每个窗口都有自己的编号，这是新建窗口时系统自动给予的，而它们的名字需要用户额外给予，比如在新建窗口时给予，也可以通过下文提到的指令为当前窗口命名</p>
+<p>也可以使用快捷键：<code>CTRL + B C</code> 新建一个没有名称的 tmux 窗口</p>
+</blockquote>
+</li>
+<li><p>切换窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tmux select-window -t &lt;window-name&gt;</span><br><span class="line"></span><br><span class="line">tmux select-window -t &lt;window-number&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 tmux 窗口中使用，使用快捷键更方便</p>
+<p><code>CTRL + B P</code>：切换到上一个窗口（按照底部状态栏上的顺序，<code>*</code> 表示当前所在窗口，<code>-</code> 表示上一个访问过的窗口）</p>
+<p><code>CTRL + B N</code>：切换到下一个窗口</p>
+<p><code>CTRL + B &lt;number&gt;</code>：切换到指定编号的窗口</p>
+<p><code>CTRL + B W</code>：从列表中选择窗口（很方便）</p>
+</blockquote>
+</li>
+<li><p>命名或重命名窗口：第一种方式是命名或重命名当前窗口，第二种方式通过 name 或 number 确定要命名的 window</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tmux rename-window &lt;new-name&gt;</span><br><span class="line"></span><br><span class="line">tmux rename-window -t &lt;old-name|number&gt; &lt;new-name&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>只能在 tmux 窗口中使用</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>窗格管理</strong></p>
+<blockquote>
+<p>窗格管理的相关指令只能在 tmux 窗口中使用</p>
+</blockquote>
+<ul>
+<li><p>划分窗格：将当前 tmux 窗口划分为多个窗格</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">划分为上下两个窗格</span></span><br><span class="line">tmux split-window</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">划分为左右两个窗格</span></span><br><span class="line">tmux split-window -h</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用快捷键更方便</p>
+<p><code>CTRL + B &quot;</code>：划分上下两个窗格</p>
+<p><code>CTRL + B %</code>：划分左右两个窗格</p>
+</blockquote>
+</li>
+<li><p>移动光标</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">光标切换到上方窗格</span></span><br><span class="line">tmux select-pane -U</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">光标切换到下方窗格</span></span><br><span class="line">tmux select-pane -D</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">光标切换到左边窗格</span></span><br><span class="line">tmux select-pane -L</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">光标切换到右边窗格</span></span><br><span class="line">tmux select-pane -R</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用快捷键更方便</p>
+<p><code>CTRL + B o</code>：切换到下一个窗格</p>
+<p><code>CTRL + B ;</code>：切换到上一个窗格</p>
+<p><code>CTRL + B &lt;arrow key&gt;</code>：通过方向键将光标切换到指定窗格（很方便）</p>
+</blockquote>
+</li>
+<li><p>交换窗格位置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前窗格上移</span></span><br><span class="line">tmux swap-pane -U</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前窗格下移</span></span><br><span class="line">tmux swap-pane -D</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前窗格左移</span></span><br><span class="line">tmux swap-pane -L</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前窗格左移</span></span><br><span class="line">tmux swap-pane -R</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭当前窗格</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exit</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>也可以使用快捷键：<code>CTRL + B X</code> 或 <code>CTRL + D</code></p>
+</blockquote>
+</li>
+<li><p>其他关于窗格操作的快捷键</p>
+<blockquote>
+<p><code>CTRL + B CTRL + &lt;arrow key&gt;</code>：通过方向键调整当前窗格大小</p>
+<p><code>CTRL + B Q</code>：显示窗格编号</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Use-riscv64-unknown-elf-gdb"><a href="#Use-riscv64-unknown-elf-gdb" class="headerlink" title="Use riscv64-unknown-elf-gdb"></a>Use riscv64-unknown-elf-gdb</h1><ul>
+<li><p><strong>References</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45031801/article/details/134399664">【Linux】GDB保姆级调试指南（什么是GDB？GDB如何使用？）_linux gdb标准输入-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/LostUnravel/article/details/120397168">MIT 6.S081] Lab 0: 实验配置, 调试及测试_6.s081 tools-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://darksharpness.github.io/gdb/#%E5%90%AF%E5%8A%A8%E6%8C%87%E4%BB%A4">GDB 使用笔记 | DarkSharpness’s Dougen</a></li>
+</ul>
+</li>
+<li><p>启动 GDB</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">riscv64-unknown-elf-gdb</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在一个窗口中通过 <code>make CPUS=1 qemu-gdb</code> 启动 qemu 后，在另一个窗口中启动 GDB 进行调试</p>
+</blockquote>
+</li>
+<li><p>退出 GDB</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">quit</span><br><span class="line"></span><br><span class="line">q</span><br><span class="line"></span><br><span class="line">exit</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>也可以使用快捷键：<code>CTRL D</code></p>
+</blockquote>
+</li>
+<li><p><strong>断点相关</strong></p>
+<ul>
+<li><p>设置断点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">break &lt;function name&gt;</span><br><span class="line"></span><br><span class="line">break *&lt;address&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看断点信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">info break</span><br><span class="line"></span><br><span class="line">i b</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>禁用指定断点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">disable &lt;number&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启用指定断点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enable &lt;numebr&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除指定断点或删除所有断点</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">d &lt;break-number&gt;</span><br><span class="line"></span><br><span class="line">delete</span><br><span class="line"></span><br><span class="line">d</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>执行相关</strong></p>
+<ul>
+<li><p>加载一个可执行文件或目标文件以供调试</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file &lt;file-path&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>对于 <code>user</code> 目录下的文件，我们可以加载可执行文件的符号表 <code>_xxx</code> 以供调试</p>
+</blockquote>
+</li>
+<li><p>开始程序的运行，遇到断点就停下来</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">run</span><br><span class="line"></span><br><span class="line">r</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从一个断点处运行至下一个断点处</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">continue</span><br><span class="line"></span><br><span class="line">c</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行完当前函数并返回</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">finish</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行下一行代码，进入函数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">step</span><br><span class="line"></span><br><span class="line">s</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>ENTER</code> 键会执行刚刚执行过的指令</p>
+</blockquote>
+</li>
+<li><p>执行下一条指令，包括跳转指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">stepi</span><br><span class="line"></span><br><span class="line">si</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行下一行代码，不进入函数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">next</span><br><span class="line"></span><br><span class="line">n</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行下一条指令，如果是跳转指令则执行至返回</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nexti</span><br><span class="line"></span><br><span class="line">ni</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>查看相关</strong></p>
+<ul>
+<li><p>查看变量：打印变量的值，以十六进制格式打印变量的值，以字符串的形式打印变量的值，以字符的形式打印变量的值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">print &lt;var&gt;</span><br><span class="line"></span><br><span class="line">print/x &lt;var&gt;</span><br><span class="line"></span><br><span class="line">print/s &lt;var&gt;</span><br><span class="line"></span><br><span class="line">print/c &lt;var&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看内存地址的内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x/&lt;n/f/u&gt; &lt;addr&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>&lt;n&gt;</code>：可选参数，表示要显示的内存单元的个数。如果未指定，GDB 默认显示一个单元</p>
+<p><code>&lt;f&gt;</code>：可选参数，表示显示的格式。常用的格式有：</p>
+<p>​	<code>x</code>：十六进制</p>
+<p>​	<code>t</code>：二进制</p>
+<p>​	<code>d</code>：十进制</p>
+<p>​	<code>c</code>：字符</p>
+<p>​	<code>f</code>：浮点数</p>
+<p>​	<code>s</code>：字符串（直到遇到 null 字符）</p>
+<p>​	<code>i</code>：指令</p>
+<p><code>&lt;u&gt;</code>：可选参数，表示每个单元的大小。常用的单位有：（如果不指定 <code>&lt;u&gt;</code>，GDB 默认使用 4 字节（word））</p>
+<p>​	<code>b</code>：单字节（byte）</p>
+<p>​	<code>h</code>：双字节（halfword，通常为 2 字节）</p>
+<p>​	<code>w</code>：四字节（word，通常为 4 字节）</p>
+<p>​	<code>g</code>：八字节（giant，通常为 8 字节）</p>
+<p><code>&lt;addr&gt;</code>：必选参数，表示要查看的内存地址</p>
+</blockquote>
+</li>
+<li><p>查看当前函数的参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">info args</span><br><span class="line"></span><br><span class="line">i args</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看局部变量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">info locals</span><br><span class="line"></span><br><span class="line">i locals</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看寄存器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info reg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置监视变量：该变量发生变化时会提示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">watch &lt;var&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>栈帧相关</strong></p>
+<ul>
+<li><p>查看当前栈帧</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info frame</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看所有栈帧</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">backtrace</span><br><span class="line"></span><br><span class="line">bt</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看指定栈帧</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frame &lt;number&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h1 id="tui"><a href="#tui" class="headerlink" title="tui"></a>tui</h1><ul>
+<li>启动 tui：tui 界面只能在 GDB 中使用</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tui enable</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>常用指令</strong></p>
+<ul>
+<li><p>查看汇编代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">layout asm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看源码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">layout src</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看寄存器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">layout reg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同时查看源码和汇编代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">layout split</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>聚焦到某一窗口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">focus asm</span><br><span class="line"></span><br><span class="line">focus src</span><br><span class="line"></span><br><span class="line">focus reg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>显示与 tui 相关的指令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apropos tui</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://zjp-cn.github.io/posts/rcore-gdb/#%E5%AE%89%E8%A3%85-gdb">【笔记】rCore (RISC-V)：GDB 使用记录 | 苦瓜小仔 (zjp-cn.github.io)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/LostUnravel/article/details/120397168">MIT 6.S081] Lab 0: 实验配置, 调试及测试_6.s081 tools-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://rcore-os.cn/rCore-Tutorial-deploy/docs/pre-lab/gdb.html">GDB 调试方法* · GitBook (rcore-os.cn)</a></p>
+<p><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/gnu/gdb/?C=M&O=D">Index of &#x2F;gnu&#x2F;gdb&#x2F; | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.coder.work/article/357511">交叉编译 GDB 时出现 Python 丢失或不可用错误</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/CSSDCC/article/details/121231906">Tmux教程 （一文就够）-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1526675">可能是东半球最全面易懂的 Tmux 使用教程！( 强烈建议收藏 )-腾讯云开发者社区-腾讯云 (tencent.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45031801/article/details/134399664">【Linux】GDB保姆级调试指南（什么是GDB？GDB如何使用？）_linux gdb标准输入-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://darksharpness.github.io/gdb/#%E5%90%AF%E5%8A%A8%E6%8C%87%E4%BB%A4">GDB 使用笔记 | DarkSharpness’s Dougen</a></p>
+<h1 id="待更新（使用-zhs）"><a href="#待更新（使用-zhs）" class="headerlink" title="待更新（使用 zhs）"></a>待更新（使用 zhs）</h1><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV19k4y1C7kA/?p=4&spm_id_from=pageDriver&vd_source=4bc88d483dc220df9aabd792fd12f134">Lecture 5 - RISC-V Calling Convention and Stack Frames_哔哩哔哩_bilibili</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/06/13/6-S081-Lab4/" rel="prev" title="Lab Traps">
+      <i class="fa fa-chevron-left"></i> Lab Traps
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/06/19/xv6-book-chapter-5/" rel="next" title="xv6 book chapter 5">
+      xv6 book chapter 5 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Install-riscv64-unknown-elf-gdb"><span class="nav-number">2.</span> <span class="nav-text">Install riscv64-unknown-elf-gdb</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tmux"><span class="nav-number">3.</span> <span class="nav-text">tmux</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#tmux-%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">tmux 的作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#tmux-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">tmux 的使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Use-riscv64-unknown-elf-gdb"><span class="nav-number">4.</span> <span class="nav-text">Use riscv64-unknown-elf-gdb</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tui"><span class="nav-number">5.</span> <span class="nav-text">tui</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%85%E6%9B%B4%E6%96%B0%EF%BC%88%E4%BD%BF%E7%94%A8-zhs%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">待更新（使用 zhs）</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

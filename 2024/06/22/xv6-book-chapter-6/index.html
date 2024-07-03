@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="锁 大多数内核，包括 xv6，都会交错执行多个任务。一种实现交错执行任务的方式是多处理器架构：硬件系统具有多个 CPU 独立执行，如 xv6 的 RISC-V  这些 CPU 共享物理 RAM，xv6 利用共享来维护所有 CPU 读写的数据结构。这种共享带来了一种可能性，即一个 CPU 读取一个数据结构，而另一个 CPU 正在中途更新它，甚至多个 CPU 同时更新同一个数据 如果不仔细设计，这种并">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xv6 book chapter 6">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="锁 大多数内核，包括 xv6，都会交错执行多个任务。一种实现交错执行任务的方式是多处理器架构：硬件系统具有多个 CPU 独立执行，如 xv6 的 RISC-V  这些 CPU 共享物理 RAM，xv6 利用共享来维护所有 CPU 读写的数据结构。这种共享带来了一种可能性，即一个 CPU 读取一个数据结构，而另一个 CPU 正在中途更新它，甚至多个 CPU 同时更新同一个数据 如果不仔细设计，这种并">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/Figure-6.1.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/Figure-6.2.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/Figure-6.3.png">
+<meta property="article:published_time" content="2024-06-22T11:43:55.000Z">
+<meta property="article:modified_time" content="2024-06-22T11:44:53.582Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
+<meta property="article:tag" content="xv6 book">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/Figure-6.1.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>xv6 book chapter 6 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/06/22/xv6-book-chapter-6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          xv6 book chapter 6
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-06-22 19:43:55 / 修改时间：19:44:53" itemprop="dateCreated datePublished" datetime="2024-06-22T19:43:55+08:00">2024-06-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h1><ul>
+<li><p>大多数内核，包括 xv6，都会交错执行多个任务。一种实现交错执行任务的方式是多处理器架构：硬件系统具有多个 CPU 独立执行，如 xv6 的 RISC-V</p>
+<ul>
+<li>这些 CPU 共享物理 RAM，xv6 利用共享来维护所有 CPU 读写的数据结构。这种共享带来了一种可能性，即一个 CPU 读取一个数据结构，而另一个 CPU 正在中途更新它，甚至多个 CPU 同时更新同一个数据</li>
+<li>如果不仔细设计，这种并行访问很可能产生不正确的结果或破坏数据结构。即使在单处理器上，内核也可能在多个线程之间切换 CPU，导致它们的执行交错</li>
+<li>最后，如果中断发生的时间不对，一个设备中断处理程序可能会修改与一些可中断代码相同的数据，从而破坏数据</li>
+<li>并发一词指的是由于多处理器并行、线程切换或中断而导致多个指令流交错的情况</li>
+</ul>
+</li>
+<li><p>内核中充满了并发访问的数据。例如，两个 CPU 可以同时调用 <code>kalloc</code>，从而并发地从空闲内存链表的头部 push。内核设计者喜欢允许大量的并发，因为它可以通过并行来提高性能，提高响应速度。然而，结果是内核设计者花了很多精力来让自己确认这些存在的并发是正确的</p>
+<ul>
+<li>有很多方法可以写出正确的代码，有些方法比其他方法更简单。以并发下的正确性为目标的策略，以及支持这些策略的抽象，被称为并发控制技术</li>
+</ul>
+</li>
+<li><p>根据不同的情况，xv6 使用了很多并发控制技术，且还有更多的可能尚未被实现。本章重点介绍一种广泛使用的技术:锁（lock）</p>
+<ul>
+<li>锁提供了互斥的功能，确保一次只有一个 CPU 可以持有一个特定的锁。如果程序员为每个共享数据项关联一个锁，并且代码在使用某项时总是持有关联的锁，那么该项每次只能由一个 CPU 使用。在这种情况下，我们说锁保护了数据项</li>
+<li>虽然锁是一种简单易懂的并发控制机制，但其也带来了性能降低的缺点，因为锁将并发操作串行化了</li>
+</ul>
+</li>
+<li><p>本章的其余部分解释了为什么 xv6 需要锁、xv6 如何实现它们以及如何使用它们</p>
+</li>
+</ul>
+<h2 id="竞争条件"><a href="#竞争条件" class="headerlink" title="竞争条件"></a>竞争条件</h2><img src="/2024/06/22/xv6-book-chapter-6/Figure-6.1.png" class="" title="Figure-6.1">
+
+<ul>
+<li><p>作为我们为什么需要锁的一个例子，考虑两个进程在两个不同的 CPU 上调用 <code>wait</code>，<code>wait</code> 释放子进程的内存。因此，在每个 CPU上，内核都会调用 <code>kfree</code> 来释放子进程的内存页</p>
+<ul>
+<li><p>内核分配器维护了一个链表: <code>kalloc()</code> (kernel&#x2F;kalloc.c:69) 从空闲页链表中 pop 一页内存，<code>kfree()</code> (kernel&#x2F;kalloc.c:47) 将一页 push 空闲链表中</p>
+</li>
+<li><p>为了达到最好的性能，我们可能希望两个父进程的 <code>kfree</code> 能够并行执行，而不需要任何一个进程等待另一个进程，但是考虑到 xv6 的 <code>kfree</code> 实现，这是不正确的</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Free the page of physical memory pointed at by pa,</span></span><br><span class="line"><span class="comment">// which normally should have been returned by a</span></span><br><span class="line"><span class="comment">// call to kalloc().  (The exception is when</span></span><br><span class="line"><span class="comment">// initializing the allocator; see kinit above.)</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">kfree</span><span class="params">(<span class="type">void</span> *pa)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">r</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(((uint64)pa % PGSIZE) != <span class="number">0</span> || (<span class="type">char</span>*)pa &lt; end || (uint64)pa &gt;= PHYSTOP)</span><br><span class="line">    panic(<span class="string">&quot;kfree&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fill with junk to catch dangling refs.</span></span><br><span class="line">  <span class="built_in">memset</span>(pa, <span class="number">1</span>, PGSIZE);</span><br><span class="line"></span><br><span class="line">  r = (<span class="keyword">struct</span> run*)pa;</span><br><span class="line"></span><br><span class="line">  acquire(&amp;kmem.lock);</span><br><span class="line">  r-&gt;next = kmem.freelist;</span><br><span class="line">  kmem.freelist = r;</span><br><span class="line">  release(&amp;kmem.lock);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Allocate one 4096-byte page of physical memory.</span></span><br><span class="line"><span class="comment">// Returns a pointer that the kernel can use.</span></span><br><span class="line"><span class="comment">// Returns 0 if the memory cannot be allocated.</span></span><br><span class="line"><span class="type">void</span> *</span><br><span class="line"><span class="title function_">kalloc</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">r</span>;</span></span><br><span class="line"></span><br><span class="line">  acquire(&amp;kmem.lock);</span><br><span class="line">  r = kmem.freelist;</span><br><span class="line">  <span class="keyword">if</span>(r)</span><br><span class="line">    kmem.freelist = r-&gt;next;</span><br><span class="line">  release(&amp;kmem.lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(r)</span><br><span class="line">    <span class="built_in">memset</span>((<span class="type">char</span>*)r, <span class="number">5</span>, PGSIZE); <span class="comment">// fill with junk</span></span><br><span class="line">  <span class="keyword">return</span> (<span class="type">void</span>*)r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+</ul>
+</li>
+<li><p>图 6.1 更详细地说明了这种设置：链表在两个 CPU 共享的内存中，CPU 使用加载和存储指令操作链表。(在现实中，处理器有缓存，但在概念上，多处理器系统的行为就像有一个单一的共享内存一样)。如果没有并发请求，你可能会实现如下的链表 push 操作:</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">element</span>&#123;</span></span><br><span class="line">	<span class="type">int</span> data;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">element</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">element</span> *<span class="title">list</span> =</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">push</span><span class="params">(<span class="type">int</span> data)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">element</span> *<span class="title">l</span>;</span></span><br><span class="line"></span><br><span class="line">	l = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span> *l);</span><br><span class="line">    l-&gt;data = data;</span><br><span class="line">    l-&gt;next = <span class="built_in">list</span>;</span><br><span class="line">	<span class="built_in">list</span> = l;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/22/xv6-book-chapter-6/Figure-6.2.png" class="" title="Figure-6.2">
+
+<ul>
+<li><p>如果单独执行，这个实现是正确的。但是，如果多个副本同时执行，代码就不正确。如果两个 CPU 同时执行 <code>push</code>，那么两个 CPU 可能都会执行图 6.1 所示的第 15 行，然后其中一个才执行第 16 行，这就会产生一个不正确的结果，如图 6.2 所示</p>
+<ul>
+<li>这样就会出现两个 list 元素，将 next 设为 list 的前值。当对 list 的两次赋值发生在第 16 行时，第二次赋值将覆盖第一次赋值;第一次赋值中涉及的元素将丢失</li>
+</ul>
+</li>
+<li><p>第 16 行的丢失更新是竞争条件 (race condition) 的一个例子。竞争条件是指同时访问一个内存位置，并且至少有一次访问是写的情况</p>
+<ul>
+<li>竞争通常是一个错误的标志，要么是丢失更新 (如果访问是写)，要么是读取一个不完全更新的数据结构。竞争的结果取决于所涉及的两个 CPU 的确切时间，以及它们的内存操作如何被内存系统排序，这可能会使竞争引起的错误难以重现和调试</li>
+<li>例如，在调试 <code>push</code> 时加入 <code>print</code> 语句可能会改变执行的时机，足以使竞争消失</li>
+</ul>
+</li>
+<li><p>避免竞争的通常方法是使用锁。锁确保了相互排斥，因此一次只能有一个 CPU 执行 <code>push</code> 的哪一行;这就使得上面的情况不可能发生。上面代码的正确 <code>lock</code> 版本只增加了几行代码</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">element</span> *<span class="title">list</span>=</span><span class="number">0</span>;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">locklist</span> <span class="title">lock</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">push</span> <span class="params">(<span class="type">int</span> data)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">element</span> *<span class="title">l</span>;</span></span><br><span class="line"></span><br><span class="line">	l = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span> *l);</span><br><span class="line">    l-&gt;data = data;</span><br><span class="line">	acquire(&amp;listlock);</span><br><span class="line">    l-&gt;next = <span class="built_in">list</span>;</span><br><span class="line">	<span class="built_in">list</span> = l;</span><br><span class="line">    release(&amp;listlock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>acquire</code> 和 <code>release</code> 之间的指令序列通常被称为临界区。这里的锁保护 <code>list</code></p>
+</li>
+<li><p>当我们说锁保护数据时，我们真正的意思是 <strong>锁保护了一些适用于数据的不变量(invariant)的集合</strong>。不变量是数据结构的属性，这些属性在不同的操作中得到维护</p>
+<ul>
+<li>通常情况下，一个操作的正确行为取决于操作开始时的不变量是否为真。操作可能会暂时违反不变量，但在结束前必须重新建立不变量</li>
+<li>例如，在链表中，不变性是：“ list 指向列表中的第一个元素，并且每个元素的下一个字段指向下一个元素”。push 的实现暂时违反了这一不变性：在第 17 行，l 指向下一个链表元素 list，但 list 还没有指向 l（在第 18 行重新建立）</li>
+<li>我们上面所研究的竞争条件之所以会发生，是因为第二个 CPU 执行了依赖于列表不变式的代码，而它们被（暂时）违反了</li>
+<li>正确使用锁可以确保每次只有一个 CPU 可以对关键部分的数据结构进行操作，因此当数据结构的不变式不成立时，没有 CPU 会执行数据结构操作</li>
+</ul>
+</li>
+<li><p>你可以把锁看成是把并发的关键部分序列化，使它们一次只运行一个，从而保存不变性（假设关键部分孤立地正确）。你也可以认为由同一个锁保护的关键部分是相互原子的 (atomic)，因此每个关键部分只看到来自更早的关键部分的完整变化，而永远不会看到部分完成的更新</p>
+</li>
+<li><p>虽然正确使用锁可以使不正确的代码变得正确，但锁限制了性能。例如，如果两个进程同时调用 kfree，锁会将两个调用序列化，我们在不同的 CPU 上运行它们不会获得任何好处</p>
+<ul>
+<li>我们说，如果多个进程同时想要同一个锁，就会发生冲突，或者说锁经历了争夺。内核设计的一个主要挑战是避免锁的争夺。</li>
+<li>xv6 在这方面做得很少，但是复杂的内核会专门组织数据结构和算法来避免锁争用</li>
+<li>在列表的例子中，一个内核可能会维护每个CPU 的空闲列表，只有当 CPU 的列表是空的，并且它必须从另一个 CPU 偷取内存时，才会接触另一个 CPU 的空闲列表。其他用例可能需要更复杂的设计</li>
+</ul>
+</li>
+<li><p>锁的位置对性能也很重要。例如，在 <code>push</code> 中把 <code>acquisition</code> 移动到较早的位置也是正确的：将 <code>acquisition</code> 的调用移动到第 13 行之前是可以的。然而，这可能会降低性能，因为这样的话，对 <code>malloc</code> 的调用也会被序列化</p>
+<ul>
+<li>下面的 “使用锁” 一节提供了一些关于在哪里插入 <code>acquisition</code> 和 <code>release</code> 调用的指南</li>
+</ul>
+</li>
+</ul>
+<h2 id="代码：锁"><a href="#代码：锁" class="headerlink" title="代码：锁"></a>代码：锁</h2><ul>
+<li>xv6 有两种类型的锁: 自旋锁 (spinlock) 和睡眠锁 (sleeplock)。我们先说说自旋锁<ul>
+<li>xv6 将自旋锁表示为一个结构体 <code>spinlock</code> (kernel&#x2F;spinlock.h:2)。该结构中重要的字段是 <code>locked</code>，当锁可获得时，<code>locked</code> 为零，当锁被持有时，<code>locked</code> 为非零。从逻辑上讲，xv6 获取锁的的代码类似于:</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">acquire</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span><span class="comment">//doesnotwork!</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">for</span>(;;)&#123;</span><br><span class="line">		<span class="keyword">if</span>(lk-&gt;locked == <span class="number">0</span>)&#123;</span><br><span class="line">			lk-&gt;locked = <span class="number">1</span>;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Mutual exclusion lock.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">spinlock</span> &#123;</span></span><br><span class="line">  uint locked;       <span class="comment">// Is the lock held?</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// For debugging:</span></span><br><span class="line">  <span class="type">char</span> *name;        <span class="comment">// Name of lock.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">cpu</span> *<span class="title">cpu</span>;</span>   <span class="comment">// The cpu holding the lock.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li><p>不幸的是，这种实现并不能保证多处理器上的相互排斥。可能会出现这样的情况: 两个 CPU 同时到达 if 语句，看到 <code>lk-&gt;locked</code> 为零，然后都通过设置 <code>lk-&gt;locked=1</code> 来抢夺锁</p>
+<ul>
+<li>此时，两个不同的 CPU 持有锁，这就违反了互斥属性。我们需要的是让第 25 行和第 26 行作为一个原子 (即不可分割) 步骤来执行</li>
+</ul>
+</li>
+<li><p>由于锁被广泛使用，多核处理器通常提供了一些原子版的指令</p>
+<ul>
+<li>在 RISC-V 上，这条指令是 <code>amoswapr,a</code>。<code>amoswap</code> 读取内存地址 <code>a</code> 处的值，将寄存器 <code>r</code> 的内容写入该地址，并将其读取的值放入 <code>r</code> 中，也就是说，它将寄存器的内容和内存地址进行了交换。它原子地执行这个序列，使用特殊的硬件来防止任何其他 CPU 使用读和写之间的内存地址</li>
+</ul>
+</li>
+<li><p>xv6 的 <code>acquire</code> (kernel&#x2F;spinlock.c:22) 使用了可移植的 C 库调用 <code>__sync_lock_test_and_set</code>，它本质上为 <code>amoswap</code> 指令;返回值是 <code>lk-&gt;locked</code> 的旧 (被交换出来的) 内容</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Acquire the lock.</span></span><br><span class="line"><span class="comment">// Loops (spins) until the lock is acquired.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">acquire</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  push_off(); <span class="comment">// disable interrupts to avoid deadlock. 禁用中断避免死锁</span></span><br><span class="line">  <span class="keyword">if</span>(holding(lk))	<span class="comment">// 检查当前CPU是否已经持有了这个锁，中断必须是关闭的</span></span><br><span class="line">    panic(<span class="string">&quot;acquire&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// On RISC-V, sync_lock_test_and_set turns into an atomic swap:</span></span><br><span class="line">  <span class="comment">// 在RISC-V中，sync_lock_test_and_set转换为一个原子的交换</span></span><br><span class="line">  <span class="comment">//   a5 = 1</span></span><br><span class="line">  <span class="comment">//   s1 = &amp;lk-&gt;locked</span></span><br><span class="line">  <span class="comment">//   amoswap.w.aq a5, a5, (s1)</span></span><br><span class="line">  <span class="keyword">while</span>(__sync_lock_test_and_set(&amp;lk-&gt;locked, <span class="number">1</span>) != <span class="number">0</span>)</span><br><span class="line">    ;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Tell the C compiler and the processor to not move loads or stores</span></span><br><span class="line">  <span class="comment">// past this point, to ensure that the critical section&#x27;s memory</span></span><br><span class="line">  <span class="comment">// 告诉C编译器和处理器不要移动（重新排序）加载（loads）或存储（stores）操作在这一点之后</span></span><br><span class="line">  <span class="comment">// 以确保关键部分的内存引用严格地在获取锁之后发生</span></span><br><span class="line">  <span class="comment">// references happen strictly after the lock is acquired.</span></span><br><span class="line">  <span class="comment">// On RISC-V, this emits a fence instruction.</span></span><br><span class="line">  <span class="comment">// 在RISC-V上，这会发出一个fence指令</span></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Record info about lock acquisition for holding() and debugging.</span></span><br><span class="line">  <span class="comment">// 记录关于锁获取的信息，以便进行holding()和调试</span></span><br><span class="line">  lk-&gt;cpu = mycpu();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Check whether this cpu is holding the lock. 检查当前CPU是否已经持有了这个锁，中断必须是关闭的</span></span><br><span class="line"><span class="comment">// Interrupts must be off.</span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">holding</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> r;</span><br><span class="line">  r = (lk-&gt;locked &amp;&amp; lk-&gt;cpu == mycpu());</span><br><span class="line">  <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// push_off/pop_off are like intr_off()/intr_on() except that they are matched:</span></span><br><span class="line"><span class="comment">// it takes two pop_off()s to undo two push_off()s.  Also, if interrupts</span></span><br><span class="line"><span class="comment">// push_off/pop_off与intr_off()/intr_on()类似</span></span><br><span class="line"><span class="comment">// 但它们是配对的：需要两次pop_off()才能撤销两次push_off()的效果</span></span><br><span class="line"><span class="comment">// are initially off, then push_off, pop_off leaves them off.</span></span><br><span class="line"><span class="comment">// 另外，如果中断最初是关闭的，那么执行 push_off 和 pop_off 后，它们仍然保持关闭状态</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">push_off</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> old = intr_get();</span><br><span class="line"></span><br><span class="line">  intr_off();</span><br><span class="line">  <span class="keyword">if</span>(mycpu()-&gt;noff == <span class="number">0</span>)</span><br><span class="line">    mycpu()-&gt;intena = old;</span><br><span class="line">  mycpu()-&gt;noff += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Per-CPU state.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cpu</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">proc</span>;</span>          <span class="comment">// The process running on this cpu, or null.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">context</span> <span class="title">context</span>;</span>     <span class="comment">// swtch() here to enter scheduler().</span></span><br><span class="line">  <span class="type">int</span> noff;                   <span class="comment">// Depth of push_off() nesting. push_off()的嵌套深度</span></span><br><span class="line">  <span class="type">int</span> intena;                 <span class="comment">// Were interrupts enabled before push_off()?</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li><code>acquire</code> 函数循环交换，重试 (旋转) 直到获取了锁。每一次迭代都会将 1 交换到 <code>lk-&gt;locked</code> 中，并检查之前的值;如果之前的值为 0，那么我们已经获得了锁，并且交换将 <code>lk-&gt;locked</code> 设置为 1。如果之前的值是 1，那么其他 CPU 持有该锁，而我们原子地将 1 换成 <code>lk-&gt;locked</code> 并没有改变它的值</li>
+</ul>
+</li>
+<li><p>一旦锁被获取，<code>acquire</code> 就会记录获取该锁的 CPU，这方便调试。<code>lk-&gt;cpu</code> 字段受到锁的保护，只有在持有锁的时候才能改变</p>
+</li>
+<li><p>函数 <code>release</code> (kernel&#x2F;spinlock.c:47) 与 <code>acquire</code> 相反:它清除 <code>lk-&gt;cpu</code> 字段，然后释放锁</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Release the lock.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">release</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>(!holding(lk))	<span class="comment">// 检查当前CPU是否没有持有锁，中断必须是关闭的</span></span><br><span class="line">    panic(<span class="string">&quot;release&quot;</span>);</span><br><span class="line"></span><br><span class="line">  lk-&gt;cpu = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Tell the C compiler and the CPU to not move loads or stores</span></span><br><span class="line">  <span class="comment">// past this point, to ensure that all the stores in the critical</span></span><br><span class="line">  <span class="comment">// section are visible to other CPUs before the lock is released,</span></span><br><span class="line">  <span class="comment">// 告诉C编译器和CPU不要将加载或存储操作移动到这一点之后</span></span><br><span class="line">  <span class="comment">// 以确保在临界区内的所有存储操作在释放锁之前对其他CPU可见</span></span><br><span class="line">  <span class="comment">// and that loads in the critical section occur strictly before</span></span><br><span class="line">  <span class="comment">// 并且临界区内的加载操作严格在释放锁之前发生</span></span><br><span class="line">  <span class="comment">// the lock is released.</span></span><br><span class="line">  <span class="comment">// On RISC-V, this emits a fence instruction.</span></span><br><span class="line">  <span class="comment">// 在RISC-V上，这会生成一个fence指令</span></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Release the lock, equivalent to lk-&gt;locked = 0. 释放锁，等价于 lk-&gt;locked = 0 </span></span><br><span class="line">  <span class="comment">// This code doesn&#x27;t use a C assignment, since the C standard </span></span><br><span class="line">  <span class="comment">// implies that an assignment might be implemented with</span></span><br><span class="line">  <span class="comment">// multiple store instructions.</span></span><br><span class="line">  <span class="comment">// 这段代码不使用C语言的赋值操作，因为C标准暗示赋值操作可能会用多个存储指令来实现</span></span><br><span class="line">  <span class="comment">// On RISC-V, sync_lock_release turns into an atomic swap:</span></span><br><span class="line">  <span class="comment">// 在RISC-V上，sync_lock_release会转化为一个原子交换操作:</span></span><br><span class="line">  <span class="comment">//   s1 = &amp;lk-&gt;locked</span></span><br><span class="line">  <span class="comment">//   amoswap.w zero, zero, (s1)</span></span><br><span class="line">  __sync_lock_release(&amp;lk-&gt;locked);</span><br><span class="line"></span><br><span class="line">  pop_off();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">pop_off</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">cpu</span> *<span class="title">c</span> =</span> mycpu();</span><br><span class="line">  <span class="keyword">if</span>(intr_get()) <span class="comment">// 中断必须是关闭的，否则就panic</span></span><br><span class="line">    panic(<span class="string">&quot;pop_off - interruptible&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span>(c-&gt;noff &lt; <span class="number">1</span>)</span><br><span class="line">    panic(<span class="string">&quot;pop_off&quot;</span>);</span><br><span class="line">  c-&gt;noff -= <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span>(c-&gt;noff == <span class="number">0</span> &amp;&amp; c-&gt;intena) <span class="comment">// 0层嵌套的pop_off()及在调用push_off()之前，中断是开启的</span></span><br><span class="line">    intr_on();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li>从概念上讲，释放只需要给 <code>lk-&gt;locked</code> 赋值为 0</li>
+<li>C 标准允许编译器用多条存储指令来实现赋值，所以 C 赋值对于并发代码来说可能是非原子性的</li>
+<li>相反，<code>release</code> 使用 C 库函数 <code>__sync_lock_release</code> 执行原子赋值。这个函数也是使用了 RISC-V 的 <code>amoswap</code> 指令</li>
+</ul>
+</li>
+</ul>
+<h2 id="代码：使用锁"><a href="#代码：使用锁" class="headerlink" title="代码：使用锁"></a>代码：使用锁</h2><ul>
+<li><p>xv6 在很多地方使用锁来避免竞赛条件。如上所述，<code>kalloc</code> (kernel&#x2F;kalloc.c:69) 和 <code>kfree</code> (kernel&#x2F;kalloc.c:47) 就是一个很好的例子</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Free the page of physical memory pointed at by pa,</span></span><br><span class="line"><span class="comment">// which normally should have been returned by a</span></span><br><span class="line"><span class="comment">// call to kalloc().  (The exception is when</span></span><br><span class="line"><span class="comment">// initializing the allocator; see kinit above.)</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">kfree</span><span class="params">(<span class="type">void</span> *pa)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">r</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(((uint64)pa % PGSIZE) != <span class="number">0</span> || (<span class="type">char</span>*)pa &lt; end || (uint64)pa &gt;= PHYSTOP)</span><br><span class="line">    panic(<span class="string">&quot;kfree&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fill with junk to catch dangling refs.</span></span><br><span class="line">  <span class="built_in">memset</span>(pa, <span class="number">1</span>, PGSIZE);</span><br><span class="line"></span><br><span class="line">  r = (<span class="keyword">struct</span> run*)pa;</span><br><span class="line"></span><br><span class="line">  acquire(&amp;kmem.lock);</span><br><span class="line">  r-&gt;next = kmem.freelist;</span><br><span class="line">  kmem.freelist = r;</span><br><span class="line">  release(&amp;kmem.lock);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Allocate one 4096-byte page of physical memory.</span></span><br><span class="line"><span class="comment">// Returns a pointer that the kernel can use.</span></span><br><span class="line"><span class="comment">// Returns 0 if the memory cannot be allocated.</span></span><br><span class="line"><span class="type">void</span> *</span><br><span class="line"><span class="title function_">kalloc</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">run</span> *<span class="title">r</span>;</span></span><br><span class="line"></span><br><span class="line">  acquire(&amp;kmem.lock);</span><br><span class="line">  r = kmem.freelist;</span><br><span class="line">  <span class="keyword">if</span>(r)</span><br><span class="line">    kmem.freelist = r-&gt;next;</span><br><span class="line">  release(&amp;kmem.lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(r)</span><br><span class="line">    <span class="built_in">memset</span>((<span class="type">char</span>*)r, <span class="number">5</span>, PGSIZE); <span class="comment">// fill with junk</span></span><br><span class="line">  <span class="keyword">return</span> (<span class="type">void</span>*)r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li>试着练习 1 和 2 看看如果这些函数省略了锁会发生什么事情。你可能会发现，很难触发不正确的行为，这说明很难可靠地测试代码是否没有锁定错误和竞争。xv6 有一些竞争也不是不可能的</li>
+</ul>
+</li>
+<li><p>使用锁的一个难点是决定使用多少个锁，以及每个锁应该保护哪些数据和不变量。有几个基本原则</p>
+<ul>
+<li>首先，任何时候，当一个 CPU 可以在另一个 CPU 读或写变量的同时写入变量时，都应该使用锁来防止这两个操作重叠</li>
+<li>第二，记住锁保护不变量：如果一个不变量涉及多个内存位置，通常需要用一个锁保护所有的位置，以确保不变式得到维护</li>
+</ul>
+</li>
+<li><p>上面的规则说了什么时候需要锁，但没有说什么时候不需要锁，为了效率，不要锁太多，因为锁会降低并行性。如果并行性不重要，那么可以安排只有一个进程，而不用担心锁的问题</p>
+<ul>
+<li>一个简单的内核可以在多处理器上做到这一点，它有一个单一的锁，这个锁必须在进入内核时获得，并在退出内核时释放（尽管系统调用，如管道读取或等待会带来一个问题）。许多单处理器操作系统已经被改造成使用这种方法在多处理器上运行，有时被称为 “大内核锁”，但这种方法牺牲了并行性：内核中一次只能执行一个 CPU</li>
+<li>如果内核做任何繁重的计算，那么使用一组更大的更细粒度的锁，这样内核可以同时在多个 CPU 上执行，效率会更高</li>
+</ul>
+</li>
+<li><p>作为粗粒度锁的一个例子，xv6 的 kalloc.c 分配器有一个单一的空闲列表，由一个单一的锁构成。如果不同 CPU 上的多个进程试图同时分配页面，那么每个进程都必须通过在 <code>acquire</code> 中旋转来等待轮到自己。旋转会降低性能，因为这不是有用的工作</p>
+<ul>
+<li>如果争夺锁浪费了相当一部分 CPU 时间，也许可以通过改变分配器的设计来提高性能，使其拥有多个空闲列表，每个列表都有自己的锁，从而实现真正的并行分配（该分配器在 lockinglab 中会被重写——译者注）</li>
+</ul>
+</li>
+<li><p>作为细粒度锁的一个例子，xv6 为每个文件都有一个单独的锁，这样操作不同文件的进程往往可以不用等待对方的锁就可以进行</p>
+<ul>
+<li>如果想让进程模拟写入同一文件的不同区域，文件锁方案可以做得更细。最终，锁的粒度决定需要由性能测量以及复杂性考虑来驱动</li>
+<li>在后续的章节解释 xv6 的每个部分时，会提到 xv6 使用锁来处理并发性的例子。作为预览，图 6.3 列出了 xv6 中所有的锁。</li>
+</ul>
+</li>
+</ul>
+<img src="/2024/06/22/xv6-book-chapter-6/Figure-6.3.png" class="" title="Figure-6.3">
+
+<h2 id="死锁和锁的顺序"><a href="#死锁和锁的顺序" class="headerlink" title="死锁和锁的顺序"></a>死锁和锁的顺序</h2><ul>
+<li><p>如果一个穿过内核的代码路径必须同时持有多个锁，那么所有的代码路径以相同的顺序获取这些锁是很重要的。如果他们不这样做，就会有死锁的风险</p>
+<ul>
+<li>假设线程 T1 执行代码 path1 并获取锁 A，线程 T2 执行代码 path2 并获取锁 B，接下来 T1 会尝试获取锁 B，T2 会尝试获取锁 A，这两次获取都会无限期地阻塞，因为在这两种情况下，另一个线程都持有所需的锁，并且不会释放它，直到它的获取返回</li>
+<li>为了避免这样的死锁，所有的代码路径必须以相同的顺序获取锁。对全局锁获取顺序的需求意味着锁实际上是每个函数规范的一部分: 调用者调用函数的方式必须使锁按照约定的顺序被获取</li>
+</ul>
+</li>
+<li><p>由于 sleep 的工作方式 (见第 7 章)，xv6 有许多长度为 2 的锁序链，涉及到进程锁 ( <code>structproc</code> 中的锁)</p>
+<ul>
+<li><p>例如，<code>consoleintr</code> (kernel&#x2F;console.c:138) 是处理格式化字符的中断流程。当一个新数据到达时，任何正在等待控制台（终端，即 cmd）输入的进程都应该被唤醒。为此，<code>consoleintr</code> 在调用 <code>wakeup</code> 时持有 <code>cons.lock</code>，以获取进程锁来唤醒它。因此，全局避免死锁的锁顺序包括了 <code>cons.lock</code> 必须在任何进程锁之前获取的规则</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// the console input interrupt handler. 控制台输入中断处理程序</span></span><br><span class="line"><span class="comment">// uartintr() calls this for input character. 输入一个字符时uartintr()调用它</span></span><br><span class="line"><span class="comment">// do erase/kill processing, append to cons.buf, 处理退格/删除操作，追加字符到cons.buf</span></span><br><span class="line"><span class="comment">// wake up consoleread() if a whole line has arrived. 唤醒consoleread()如果一整行到达</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">consoleintr</span><span class="params">(<span class="type">int</span> c)</span></span><br><span class="line">&#123;</span><br><span class="line">  acquire(&amp;cons.lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">switch</span>(c)&#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="title function_">C</span><span class="params">(<span class="string">&#x27;P&#x27;</span>)</span>:  <span class="comment">// Print process list.</span></span><br><span class="line">    <span class="title function_">procdump</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">case</span> <span class="title function_">C</span><span class="params">(<span class="string">&#x27;U&#x27;</span>)</span>:  <span class="comment">// Kill line.</span></span><br><span class="line">    <span class="title function_">while</span><span class="params">(cons.e != cons.w &amp;&amp;</span></span><br><span class="line"><span class="params">          cons.buf[(cons.e<span class="number">-1</span>) % INPUT_BUF_SIZE] != <span class="string">&#x27;\n&#x27;</span>)</span>&#123;</span><br><span class="line">      cons.e--;</span><br><span class="line">      consputc(BACKSPACE);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">case</span> <span class="title function_">C</span><span class="params">(<span class="string">&#x27;H&#x27;</span>)</span>: <span class="comment">// Backspace</span></span><br><span class="line">  <span class="keyword">case</span> &#x27;\x7f&#x27;: <span class="comment">// Delete key</span></span><br><span class="line">    <span class="title function_">if</span><span class="params">(cons.e != cons.w)</span>&#123;</span><br><span class="line">      cons.e--;</span><br><span class="line">      consputc(BACKSPACE);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="keyword">if</span>(c != <span class="number">0</span> &amp;&amp; cons.e-cons.r &lt; INPUT_BUF_SIZE)&#123;</span><br><span class="line">      c = (c == <span class="string">&#x27;\r&#x27;</span>) ? <span class="string">&#x27;\n&#x27;</span> : c;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// echo back to the user.</span></span><br><span class="line">      consputc(c);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// store for consumption by consoleread().</span></span><br><span class="line">      cons.buf[cons.e++ % INPUT_BUF_SIZE] = c;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span>(c == <span class="string">&#x27;\n&#x27;</span> || c == C(<span class="string">&#x27;D&#x27;</span>) || cons.e-cons.r == INPUT_BUF_SIZE)&#123;</span><br><span class="line">        <span class="comment">// wake up consoleread() if a whole line (or end-of-file)</span></span><br><span class="line">        <span class="comment">// has arrived.</span></span><br><span class="line">        cons.w = cons.e;</span><br><span class="line">        wakeup(&amp;cons.r);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  release(&amp;cons.lock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>文件系统代码包含 xv6 最长的锁链。例如，创建一个文件需要同时持有目录的锁、新文件的 inode 的锁、磁盘块缓冲区的锁、磁盘驱动器的 <code>vdisk_lock</code> 和调用进程的 <code>p-&gt;lock</code>。为了避免死锁，文件系统代码总是按照上一句提到的顺序获取锁</p>
+</li>
+</ul>
+</li>
+<li><p>遵守全局避免死锁的顺序可能会非常困难。有时锁的顺序与逻辑程序结构相冲突，例如，也许代码模块 M1 调用模块 M2，但锁的顺序要求 M2 中的锁在 M1 中的锁之前被获取</p>
+<ul>
+<li>有时锁的身份并不是事先知道的，也许是因为必须持有一个锁才能发现接下来要获取的锁的身份。这种情况出现在文件系统中，因为它在路径名中查找连续的组件，也出现在 <code>wait</code> 和 <code>exit</code> 的代码中，因为它们搜索进程表寻找子进程</li>
+<li>最后，死锁的危险往往制约着人们对锁方案的细化程度，因为更多的锁往往意味着更多的死锁机会。避免死锁是内核实现的重要需求</li>
+</ul>
+</li>
+</ul>
+<h2 id="锁与中断处理"><a href="#锁与中断处理" class="headerlink" title="锁与中断处理"></a>锁与中断处理</h2><ul>
+<li><p>一些 xv6 自旋锁保护的数据会被线程和中断处理程序两者使用。例如，<code>clockintr</code> 定时器中断处理程序可能会在内核线程读取<code>sys_sleep</code> (kernel&#x2F;sysproc.c:64) 中的 <code>ticks</code> 的同时，递增 <code>ticks</code> (kernel&#x2F;trap.c:163)。锁 <code>tickslock</code> 将保护两次临界区</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">uint64</span><br><span class="line"><span class="title function_">sys_sleep</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line">  uint ticks0;</span><br><span class="line"></span><br><span class="line">  argint(<span class="number">0</span>, &amp;n);</span><br><span class="line">  <span class="keyword">if</span>(n &lt; <span class="number">0</span>)</span><br><span class="line">    n = <span class="number">0</span>;</span><br><span class="line">  acquire(&amp;tickslock);</span><br><span class="line">  ticks0 = ticks;</span><br><span class="line">  <span class="keyword">while</span>(ticks - ticks0 &lt; n)&#123;</span><br><span class="line">    <span class="keyword">if</span>(killed(myproc()))&#123;</span><br><span class="line">      release(&amp;tickslock);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sleep(&amp;ticks, &amp;tickslock);</span><br><span class="line">  &#125;</span><br><span class="line">  release(&amp;tickslock);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">clockintr</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  acquire(&amp;tickslock);</span><br><span class="line">  ticks++;</span><br><span class="line">  wakeup(&amp;ticks);</span><br><span class="line">  release(&amp;tickslock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>自旋锁和中断的相互作用带来了一个潜在的危险。假设 <code>sys_sleep</code> 持有 <code>tickslock</code>，而它的 CPU 接收到一个时钟中断。<code>clockintr</code> 会尝试获取 <code>tickslock</code>，看到它被持有，并等待它被释放。在这种情况下，<code>tickslock</code> 永远不会被释放：只有<code>sys_sleep</code> 可以释放它，但 <code>sys_sleep</code> 不会继续运行，直到 <code>clockintr</code> 返回。所以 CPU 会死锁，任何需要其他锁的代码也会冻结</p>
+</li>
+<li><p>为了避免这种情况，如果一个中断处理程序使用了自旋锁，CPU 决不能在启用中断的情况下持有该锁。xv6 则采用了更加保守的策略：当一个 CPU 获取任何锁时，xv6 总是禁用该 CPU 上的中断。中断仍然可能发生在其他 CPU 上，所以一个中断程序获取锁会等待一个线程释放自旋锁，但它们不在同一个 CPU 上</p>
+</li>
+<li><p>xv6 在 CPU 没有持有自旋锁时重新启用中断;它必须做一点记录来应对嵌套的临界区</p>
+<ul>
+<li><p><code>acquire</code> 调用 <code>push_off</code> (kernel&#x2F;spinlock.c:89) 和 <code>release</code> 调用 <code>pop_off</code> (kernel&#x2F;spinlock.c:100) 来跟踪当前 CPU 上锁的嵌套级别。当该计数达到零时，<code>pop_off</code> 会恢复最外层临界区开始时的中断启用状态</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Per-CPU state.</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cpu</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">proc</span>;</span>          <span class="comment">// The process running on this cpu, or null.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">context</span> <span class="title">context</span>;</span>     <span class="comment">// swtch() here to enter scheduler().</span></span><br><span class="line">  <span class="type">int</span> noff;                   <span class="comment">// Depth of push_off() nesting. push_off()的嵌套深度</span></span><br><span class="line">  <span class="type">int</span> intena;                 <span class="comment">// Were interrupts enabled before push_off()?</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// push_off/pop_off are like intr_off()/intr_on() except that they are matched:</span></span><br><span class="line"><span class="comment">// it takes two pop_off()s to undo two push_off()s.  Also, if interrupts</span></span><br><span class="line"><span class="comment">// push_off/pop_off与intr_off()/intr_on()类似</span></span><br><span class="line"><span class="comment">// 但它们是配对的：需要两次pop_off()才能撤销两次push_off()的效果</span></span><br><span class="line"><span class="comment">// are initially off, then push_off, pop_off leaves them off.</span></span><br><span class="line"><span class="comment">// 另外，如果中断最初是关闭的，那么执行 push_off 和 pop_off 后，它们仍然保持关闭状态</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">push_off</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> old = intr_get();</span><br><span class="line"></span><br><span class="line">  intr_off();</span><br><span class="line">  <span class="keyword">if</span>(mycpu()-&gt;noff == <span class="number">0</span>)</span><br><span class="line">    mycpu()-&gt;intena = old;</span><br><span class="line">  mycpu()-&gt;noff += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">pop_off</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">cpu</span> *<span class="title">c</span> =</span> mycpu();</span><br><span class="line">  <span class="keyword">if</span>(intr_get()) <span class="comment">// 中断必须是关闭的，否则就panic</span></span><br><span class="line">    panic(<span class="string">&quot;pop_off - interruptible&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span>(c-&gt;noff &lt; <span class="number">1</span>)</span><br><span class="line">    panic(<span class="string">&quot;pop_off&quot;</span>);</span><br><span class="line">  c-&gt;noff -= <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span>(c-&gt;noff == <span class="number">0</span> &amp;&amp; c-&gt;intena) <span class="comment">// 0层嵌套的pop_off()及在调用push_off()之前，中断是开启的</span></span><br><span class="line">    intr_on();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p><code>intr_off</code> 和 <code>intr_on</code> 函数分别执行 RISC-V 指令来禁用和启用中断</p>
+</li>
+</ul>
+</li>
+<li><p>在设置 <code>lk-&gt;locked</code> 之前，严格调用 <code>push_off</code> 是很重要的 (kernel&#x2F;spinlock.c:28)。如果两者反过来，那么在启用中断的情况下，锁会有一个窗口 (未锁到的位置)，在未禁止中断时持有锁。在这种情况下，一个时机恰到好处的时钟中断会使系统死锁</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Acquire the lock.</span></span><br><span class="line"><span class="comment">// Loops (spins) until the lock is acquired.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">acquire</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  push_off(); <span class="comment">// disable interrupts to avoid deadlock.</span></span><br><span class="line">  <span class="keyword">if</span>(holding(lk))</span><br><span class="line">    panic(<span class="string">&quot;acquire&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// On RISC-V, sync_lock_test_and_set turns into an atomic swap:</span></span><br><span class="line">  <span class="comment">//   a5 = 1</span></span><br><span class="line">  <span class="comment">//   s1 = &amp;lk-&gt;locked</span></span><br><span class="line">  <span class="comment">//   amoswap.w.aq a5, a5, (s1)</span></span><br><span class="line">  <span class="keyword">while</span>(__sync_lock_test_and_set(&amp;lk-&gt;locked, <span class="number">1</span>) != <span class="number">0</span>)</span><br><span class="line">    ;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Tell the C compiler and the processor to not move loads or stores</span></span><br><span class="line">  <span class="comment">// past this point, to ensure that the critical section&#x27;s memory</span></span><br><span class="line">  <span class="comment">// references happen strictly after the lock is acquired.</span></span><br><span class="line">  <span class="comment">// On RISC-V, this emits a fence instruction.</span></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Record info about lock acquisition for holding() and debugging.</span></span><br><span class="line">  lk-&gt;cpu = mycpu();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li><p>同样，释放锁后才调用 <code>pop_off</code> 也很重要 (kernel&#x2F;spinlock.c:66)</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Release the lock.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">release</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>(!holding(lk))</span><br><span class="line">    panic(<span class="string">&quot;release&quot;</span>);</span><br><span class="line"></span><br><span class="line">  lk-&gt;cpu = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Tell the C compiler and the CPU to not move loads or stores</span></span><br><span class="line">  <span class="comment">// past this point, to ensure that all the stores in the critical</span></span><br><span class="line">  <span class="comment">// section are visible to other CPUs before the lock is released,</span></span><br><span class="line">  <span class="comment">// and that loads in the critical section occur strictly before</span></span><br><span class="line">  <span class="comment">// the lock is released.</span></span><br><span class="line">  <span class="comment">// On RISC-V, this emits a fence instruction.</span></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Release the lock, equivalent to lk-&gt;locked = 0.</span></span><br><span class="line">  <span class="comment">// This code doesn&#x27;t use a C assignment, since the C standard</span></span><br><span class="line">  <span class="comment">// implies that an assignment might be implemented with</span></span><br><span class="line">  <span class="comment">// multiple store instructions.</span></span><br><span class="line">  <span class="comment">// On RISC-V, sync_lock_release turns into an atomic swap:</span></span><br><span class="line">  <span class="comment">//   s1 = &amp;lk-&gt;locked</span></span><br><span class="line">  <span class="comment">//   amoswap.w zero, zero, (s1)</span></span><br><span class="line">  __sync_lock_release(&amp;lk-&gt;locked);</span><br><span class="line"></span><br><span class="line">  pop_off();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="指令与存储的顺序"><a href="#指令与存储的顺序" class="headerlink" title="指令与存储的顺序"></a>指令与存储的顺序</h2><ul>
+<li><p>人们很自然地认为程序是按照源代码语句出现的顺序来执行的。然而，许多编译器和 CPU 为了获得更高的性能，会不按顺序执行代码</p>
+<ul>
+<li>如果一条指令需要很多周期才能完成，CPU 可能会提前发出该指令，以便与其他指令重叠，避免 CPU 停顿。例如，CPU 可能会注意到在一个串行序列中，指令 A 和 B 互不依赖。CPU 可能先启动指令 B，这是因为它的输入在 A 的输入之前已经准备好了，或者是为了使 A 和 B 的执行重叠</li>
+<li>编译器可以执行类似的重新排序，在一条语句的指令之前发出另一条语句的指令，由于它们原来的顺序</li>
+</ul>
+</li>
+<li><p>编译器和 CPU 在对指令重新排序时遵循相应规则，以确保它们不会改变正确编写的串行代码的结果。然而，这些规则确实允许重排，从而改变并发代码的结果，并且很容易导致多处理器上的不正确行为。CPU 的指令排序规则规则称为内存模型 (memory model)</p>
+</li>
+<li><p>例如，在这段 <code>push</code> 的代码中，如果编译器或 CPU 将第 4 行对应的存储移到第 6 行释放后的某个点，那将是一场灾难</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">l = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span> *l);</span><br><span class="line">l-&gt;data = data;</span><br><span class="line">acquire(&amp;listlock);</span><br><span class="line">l-&gt;next = <span class="built_in">list</span>;</span><br><span class="line"><span class="built_in">list</span> = l;</span><br><span class="line">release(&amp;listlock);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>如果发生这样的重排，就会有一个指令执行的窗口。在这个窗口中，另一个 CPU 可以获取锁并观察更新的链表，但看到的是一个未初始化的 <code>list-&gt;next</code></p>
+</li>
+<li><p>为了告诉硬件和编译器不要执行这样的 re-ordering，xv6 在 <code>acquire</code> (kernel&#x2F;spinlock.c:22) 和 <code>release</code> (kernel&#x2F;spinlock.c:47) 中都使用了 <code>__sync_synchronize()</code>。<code>__sync_synchronize()</code> 是一个内存屏障 (memory barrier): 它告诉编译器和 CPU 不要在越过屏障重新排列任何的内存读写操作。<code>acquire</code> 和 <code>release</code> 中的屏障几乎在所有重要的情况下都会强制锁定顺序，因为 xv6 在访问共享数据的周围使用锁。第 9 章讨论了一些例外情况</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Acquire the lock.</span></span><br><span class="line"><span class="comment">// Loops (spins) until the lock is acquired.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">acquire</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  push_off(); <span class="comment">// disable interrupts to avoid deadlock. 禁用中断避免死锁</span></span><br><span class="line">  <span class="keyword">if</span>(holding(lk))	<span class="comment">// 检查当前CPU是否已经持有了这个锁，中断必须是关闭的</span></span><br><span class="line">    panic(<span class="string">&quot;acquire&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// On RISC-V, sync_lock_test_and_set turns into an atomic swap:</span></span><br><span class="line">  <span class="comment">// 在RISC-V中，sync_lock_test_and_set转换为一个原子的交换</span></span><br><span class="line">  <span class="comment">//   a5 = 1</span></span><br><span class="line">  <span class="comment">//   s1 = &amp;lk-&gt;locked</span></span><br><span class="line">  <span class="comment">//   amoswap.w.aq a5, a5, (s1)</span></span><br><span class="line">  <span class="keyword">while</span>(__sync_lock_test_and_set(&amp;lk-&gt;locked, <span class="number">1</span>) != <span class="number">0</span>)</span><br><span class="line">    ;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Tell the C compiler and the processor to not move loads or stores</span></span><br><span class="line">  <span class="comment">// past this point, to ensure that the critical section&#x27;s memory</span></span><br><span class="line">  <span class="comment">// 告诉C编译器和处理器不要将（重新排序）加载（loads）或存储（stores）操作移动到这一点之后</span></span><br><span class="line">  <span class="comment">// 以确保关键部分的内存引用严格地在获取锁之后发生</span></span><br><span class="line">  <span class="comment">// references happen strictly after the lock is acquired.</span></span><br><span class="line">  <span class="comment">// On RISC-V, this emits a fence instruction.</span></span><br><span class="line">  <span class="comment">// 在RISC-V上，这会发出一个fence指令</span></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Record info about lock acquisition for holding() and debugging.</span></span><br><span class="line">  <span class="comment">// 记录关于锁获取的信息，以便进行holding()和调试</span></span><br><span class="line">  lk-&gt;cpu = mycpu();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Release the lock.</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">release</span><span class="params">(<span class="keyword">struct</span> spinlock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span>(!holding(lk))	<span class="comment">// 检查当前CPU是否没有持有锁，中断必须是关闭的</span></span><br><span class="line">    panic(<span class="string">&quot;release&quot;</span>);</span><br><span class="line"></span><br><span class="line">  lk-&gt;cpu = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Tell the C compiler and the CPU to not move loads or stores</span></span><br><span class="line">  <span class="comment">// past this point, to ensure that all the stores in the critical</span></span><br><span class="line">  <span class="comment">// section are visible to other CPUs before the lock is released,</span></span><br><span class="line">  <span class="comment">// 告诉C编译器和CPU不要将加载或存储操作移动到这一点之后</span></span><br><span class="line">  <span class="comment">// 以确保在临界区内的所有存储操作在释放锁之前对其他CPU可见</span></span><br><span class="line">  <span class="comment">// and that loads in the critical section occur strictly before</span></span><br><span class="line">  <span class="comment">// the lock is released.</span></span><br><span class="line">  <span class="comment">// 并且临界区内的加载操作严格在释放锁之前发生</span></span><br><span class="line">  <span class="comment">// On RISC-V, this emits a fence instruction.</span></span><br><span class="line">  <span class="comment">// 在RISC-V上，这会生成一个fence指令</span></span><br><span class="line">  __sync_synchronize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Release the lock, equivalent to lk-&gt;locked = 0. 释放锁，等价于 lk-&gt;locked = 0 </span></span><br><span class="line">  <span class="comment">// This code doesn&#x27;t use a C assignment, since the C standard </span></span><br><span class="line">  <span class="comment">// implies that an assignment might be implemented with</span></span><br><span class="line">  <span class="comment">// multiple store instructions.</span></span><br><span class="line">  <span class="comment">// 这段代码不使用C语言的赋值操作，因为C标准暗示赋值操作可能会用多个存储指令来实现</span></span><br><span class="line">  <span class="comment">// On RISC-V, sync_lock_release turns into an atomic swap:</span></span><br><span class="line">  <span class="comment">// 在RISC-V上，sync_lock_release会转化为一个原子交换操作:</span></span><br><span class="line">  <span class="comment">//   s1 = &amp;lk-&gt;locked</span></span><br><span class="line">  <span class="comment">//   amoswap.w zero, zero, (s1)</span></span><br><span class="line">  __sync_lock_release(&amp;lk-&gt;locked);</span><br><span class="line"></span><br><span class="line">  pop_off();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></blockquote>
+</li>
+</ul>
+<h2 id="睡眠锁"><a href="#睡眠锁" class="headerlink" title="睡眠锁"></a>睡眠锁</h2><ul>
+<li><p>有时 xv6 需要长时间保持一个锁。例如，文件系统（第 8 章）在磁盘上读写文件内容时，会保持一个文件的锁定，这些磁盘操作可能需要几十毫秒。如果另一个进程想获取一个自旋锁，那么保持那么长的时间会导致浪费，因为第二个进程在等待锁的同时会浪费 CPU 很长时间</p>
+<ul>
+<li>自旋锁的另一个缺点是，一个进程在保留自旋锁的同时不能释放 CPU 并将自身转变为就绪态；我们希望做到这一点，以便在拥有自旋锁的进程等待磁盘时，其他进程可以使用 CPU</li>
+<li>在持有自旋锁时释放 CPU 是非法的，因为如果第二个线程再试图获取自旋锁，可能会导致死锁；由于 <code>acquire</code> 并不能释放 CPU，第二个进程的等待可能会阻止第一个进程运行和释放锁。在持有锁的同时释放 CPU 也会违反在持有自旋锁时中断必须关闭的要求</li>
+<li>因此，我们希望有一种锁，在等待获取的同时让 CPU 可以进行别的工作，并在锁被持有时允许释放 CPU，同时开放中断</li>
+</ul>
+</li>
+<li><p>xv6 以睡眠锁 (sleeplock) 的形式提供了这样的锁。<code>acquiresleep</code> (kernel&#x2F;sleeplock.c:22) 在等待时产生 CPU，使用的技术将在第 7 章解释</p>
+<blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">acquiresleep</span><span class="params">(<span class="keyword">struct</span> sleeplock *lk)</span></span><br><span class="line">&#123;</span><br><span class="line">  acquire(&amp;lk-&gt;lk);</span><br><span class="line">  <span class="keyword">while</span> (lk-&gt;locked) &#123;</span><br><span class="line">    sleep(lk, &amp;lk-&gt;lk);</span><br><span class="line">  &#125;</span><br><span class="line">  lk-&gt;locked = <span class="number">1</span>;</span><br><span class="line">  lk-&gt;pid = myproc()-&gt;pid;</span><br><span class="line">  release(&amp;lk-&gt;lk);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// user read()s from the console go here.</span></span><br><span class="line"><span class="comment">// copy (up to) a whole input line to dst.</span></span><br><span class="line"><span class="comment">// user_dist indicates whether dst is a user</span></span><br><span class="line"><span class="comment">// or kernel address.</span></span><br><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">consoleread</span><span class="params">(<span class="type">int</span> user_dst, uint64 dst, <span class="type">int</span> n)</span></span><br><span class="line">&#123;</span><br><span class="line">  uint target;</span><br><span class="line">  <span class="type">int</span> c;</span><br><span class="line">  <span class="type">char</span> cbuf;</span><br><span class="line"></span><br><span class="line">  target = n;</span><br><span class="line">  acquire(&amp;cons.lock);</span><br><span class="line">  <span class="keyword">while</span>(n &gt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="comment">// wait until interrupt handler has put some</span></span><br><span class="line">    <span class="comment">// input into cons.buffer.</span></span><br><span class="line">    <span class="keyword">while</span>(cons.r == cons.w)&#123;</span><br><span class="line">      <span class="keyword">if</span>(killed(myproc()))&#123;</span><br><span class="line">        release(&amp;cons.lock);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      sleep(&amp;cons.r, &amp;cons.lock);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    c = cons.buf[cons.r++ % INPUT_BUF_SIZE];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(c == C(<span class="string">&#x27;D&#x27;</span>))&#123;  <span class="comment">// end-of-file</span></span><br><span class="line">      <span class="keyword">if</span>(n &lt; target)&#123;</span><br><span class="line">        <span class="comment">// Save ^D for next time, to make sure</span></span><br><span class="line">        <span class="comment">// caller gets a 0-byte result.</span></span><br><span class="line">        cons.r--;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the input byte to the user-space buffer.</span></span><br><span class="line">    cbuf = c;</span><br><span class="line">    <span class="keyword">if</span>(either_copyout(user_dst, dst, &amp;cbuf, <span class="number">1</span>) == <span class="number">-1</span>)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    dst++;</span><br><span class="line">    --n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(c == <span class="string">&#x27;\n&#x27;</span>)&#123;</span><br><span class="line">      <span class="comment">// a whole line has arrived, return to</span></span><br><span class="line">      <span class="comment">// the user-level read().</span></span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  release(&amp;cons.lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> target - n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li>在高层次上，睡眠锁有一个由 <code>spinlock</code> 保护的锁定字段，<code>acquiresleep</code> 调用 <code>sleep</code> 原子性地让渡 CPU 并释放 <code>spinlock</code>。结果就是，在 <code>acquireleep</code> 等待的时候，其他线程可以执行</li>
+</ul>
+</li>
+<li><p>因为睡眠锁使中断处于启用状态，所以它们不能用于中断处理程序中。由于 <code>acquiresleep</code> 可能会释放 CPU，所以睡眠锁不能在自旋锁的核心代码中使用（尽管自旋锁可以在睡眠锁的核心代码中使用）</p>
+</li>
+<li><p>自旋锁最适合于短的关键部分，因为等待它们会浪费 CPU 时间；睡眠锁对长的操作很有效</p>
+</li>
+</ul>
+<h2 id="现实世界"><a href="#现实世界" class="headerlink" title="现实世界"></a>现实世界</h2><ul>
+<li><p>尽管对并发基元和并行进行了多年的研究，但使用锁进行编程仍然具有挑战性。通常最好是将锁隐藏在更高级别的构造中，比如同步队列，尽管 xv6 没有这样做</p>
+<ul>
+<li>如果您使用锁编程，明智的做法是使用一个试图识别竞争条件的工具，因为很容易错过一个需要锁的不变式</li>
+</ul>
+</li>
+<li><p>大多数操作系统都支持 POSIX 线程（Pthreads），它允许一个用户进程在不同的 CPU 上有多个线程同时运行。Pthreads 对用户级锁、屏障等都有支持</p>
+<ul>
+<li>支持 Pthreads 需要操作系统的支持。例如，应该是如果一个 pthread 在系统调用中阻塞，同一进程的另一个 pthread 应该可以在该 CPU 上运行。又比如，如果一个 pthread 改变了它的进程的地址空间（比如映射或取消映射内存），内核必须安排运行同一进程线程的其他 CPU 更新它们的硬件页表以反映地址空间的变化</li>
+</ul>
+</li>
+<li><p>可以在没有原子指令的情况下实现锁，但成本很高，大多数操作系统都使用原子指令</p>
+</li>
+<li><p>如果许多 CPU 试图同时获取同一个锁，那么锁的成本会很高。如果一个 CPU 的本地缓存中有一个锁，而另一个 CPU 必须获取该锁，那么更新持有该锁的缓存行的原子指令必须将该行从一个 CPU 的缓存中移到另一个 CPU 的缓存中，并且可能使缓存行的任何其他副本无效。从另一个 CPU 的缓存中获取缓存单元的代价可能比从本地缓存中获取行的代价高出一个数量级</p>
+</li>
+<li><p>为了避免与锁相关的代价，许多操作系统使用无锁数据结构和算法。例如，可以实现像本章开头那样的链接列表，在列表搜索过程中不需要锁，只需要一条原子指令就可以在列表中插入一个项目</p>
+<ul>
+<li>不过，无锁编程比有锁编程更复杂，例如，必须担心指令和内存的重新排序问题。用锁编程已经很难了，所以 xv6 避免了无锁编程的额外复杂性</li>
+</ul>
+</li>
+</ul>
+<h2 id="习题"><a href="#习题" class="headerlink" title="习题"></a>习题</h2><ol>
+<li>删去 <code>kalloc</code> (kernel&#x2F;kalloc.c:69) 中对 acquire 和 release 的调用。这似乎会给调用 kalloc 的内核代码带来问题。你觉得会发生什么？当你运行 xv6 时，和你想的一样吗？运行 <code>usertests</code> 的时候呢？如果你没有看到问题，为什么没有呢？看看你是否可以通过在 kalloc 的关键部分插入 dummy loops 来引发问题</li>
+<li>假设你在 <code>kfree</code> 中注释了锁 (在恢复 <code>kalloc</code> 的锁之后)。现在可能出了什么问题？<code>kfree</code> 中缺少锁是否比 kalloc 中缺少锁的危害小？</li>
+<li>如果两个 CPU 同时调用 <code>kalloc</code>，其中一个就要等待另一个，这对性能不利。修改 <code>kalloc.c</code>，使其具有更多的并行性，这样不同 CPU 对 <code>kalloc</code> 的同时调用就可以进行，而不需要等待对方</li>
+<li>使用大多数操作系统都支持的 POSIX 线程 (Pthreads) 编写一个并行程序。例如，实现一个并行哈希表，并测量 put&#x2F;get 操作的数量是否随着核心数的增加而增加</li>
+<li>在 xv6 中实现 Pthreads 的一个子集。即实现用户级线程库，使一个用户进程可以有 1 个以上的线程，并安排这些线程可以在不同的 CPU 上并行运行。提出一个设计，正确处理线程进行阻塞系统调用和改变其共享地址空间的问题</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
+              <a href="/tags/xv6-book/" rel="tag"># xv6 book</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/06/20/6-S081-Lab5/" rel="prev" title="Lab Copy on-write">
+      <i class="fa fa-chevron-left"></i> Lab Copy on-write
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/06/23/xv6-book-chapter-7/" rel="next" title="xv6 book chapter 7">
+      xv6 book chapter 7 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81"><span class="nav-number">1.</span> <span class="nav-text">锁</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%9E%E4%BA%89%E6%9D%A1%E4%BB%B6"><span class="nav-number">1.1.</span> <span class="nav-text">竞争条件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%EF%BC%9A%E9%94%81"><span class="nav-number">1.2.</span> <span class="nav-text">代码：锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%EF%BC%9A%E4%BD%BF%E7%94%A8%E9%94%81"><span class="nav-number">1.3.</span> <span class="nav-text">代码：使用锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E5%92%8C%E9%94%81%E7%9A%84%E9%A1%BA%E5%BA%8F"><span class="nav-number">1.4.</span> <span class="nav-text">死锁和锁的顺序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81%E4%B8%8E%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86"><span class="nav-number">1.5.</span> <span class="nav-text">锁与中断处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4%E4%B8%8E%E5%AD%98%E5%82%A8%E7%9A%84%E9%A1%BA%E5%BA%8F"><span class="nav-number">1.6.</span> <span class="nav-text">指令与存储的顺序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9D%A1%E7%9C%A0%E9%94%81"><span class="nav-number">1.7.</span> <span class="nav-text">睡眠锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E5%AE%9E%E4%B8%96%E7%95%8C"><span class="nav-number">1.8.</span> <span class="nav-text">现实世界</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%A0%E9%A2%98"><span class="nav-number">1.9.</span> <span class="nav-text">习题</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
