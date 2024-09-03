@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="注意事项 Lab Guidance：Lab: networking (mit.edu) 在这个实验中，你将为网络接口卡（NIC）编写 xv6 设备驱动程序 在开始前，复习 xv6 book 的第 5 章：“中断和设备驱动程序” 可能是对你有帮助的 在主 xv6 目录中键入：git fetch &amp;&amp; git checkout net &amp;&amp; make clean 获取实">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lab network driver">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="注意事项 Lab Guidance：Lab: networking (mit.edu) 在这个实验中，你将为网络接口卡（NIC）编写 xv6 设备驱动程序 在开始前，复习 xv6 book 的第 5 章：“中断和设备驱动程序” 可能是对你有帮助的 在主 xv6 目录中键入：git fetch &amp;&amp; git checkout net &amp;&amp; make clean 获取实">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/image-20240708164415800.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/image-20240708164538219.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/image-20240708164935515.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/image-20240708164630676.png">
+<meta property="article:published_time" content="2024-07-07T09:31:16.000Z">
+<meta property="article:modified_time" content="2024-07-08T08:54:59.660Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/image-20240708164415800.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Lab network driver | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/07/07/6-S081-Lab7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Lab network driver
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-07-07 17:31:16" itemprop="dateCreated datePublished" datetime="2024-07-07T17:31:16+08:00">2024-07-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-08 16:54:59" itemprop="dateModified" datetime="2024-07-08T16:54:59+08:00">2024-07-08</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li>Lab Guidance：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2023/labs/net.html">Lab: networking (mit.edu)</a></li>
+<li>在这个实验中，你将为网络接口卡（NIC）编写 xv6 设备驱动程序</li>
+<li>在开始前，复习 xv6 book 的第 5 章：“中断和设备驱动程序” 可能是对你有帮助的</li>
+<li>在主 xv6 目录中键入：<code>git fetch &amp;&amp; git checkout net &amp;&amp; make clean</code> 获取实验的 xv6 源码</li>
+</ul>
+<h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><ul>
+<li>你将使用名为 E1000 的网络设备来处理网络通信<ul>
+<li>对于 xv6（以及你编写的驱动程序），E1000 看起来像一个连接到真实以太局域网的真实硬件。事实上，与你的驱动程序交谈的 E1000 是 qemu 提供的模拟，连接到同样由 qemu 模拟的局域网</li>
+<li>在这个模拟的局域网上，xv6 的 IP 地址为 10.0.2.15，qemu 还安排运行 qemu 的计算机出现在 IP 地址为 10.0.2.2 的局域网上。当 xv6 使用 E1000 将数据包发送到 10.0.2.2 时，qemu 将数据包发送到 运行 qemu 的真实计算机上的相关应用程序</li>
+</ul>
+</li>
+<li>你将要使用 qemu 的 “用户模式网络堆栈”，我们已经更新了 Makefile，以启用 qemu 的用户模式网络堆栈和 E1000 网卡<ul>
+<li>Makefile 将 qemu 配置为将所有传入和传出的数据包记录到实验目录中的 <code>packets.pcap</code> 文件中，查看这些记录以确认 xv6 正在传输和接收你期望的数据包可能会有所帮助</li>
+<li>要显示记录的数据包请输入：<code>tcpdump -XXnr packets.pcap</code></li>
+</ul>
+</li>
+<li>我们已经将一些文件添加到实验的 xv6 目录中<ul>
+<li><code>kernel/e1000.c</code> 包含 E1000 的初始化代码以及传输和接收数据包的空功能，你将填写这些功能</li>
+<li><code>kernel/e1000_dev.h</code> 包含 E1000 定义的寄存器和标志位</li>
+<li><code>kernel/net.c</code> 和 <code>kernel/net.h</code> 包含一个简单的网络堆栈，可以实现 IP、UDP、ARP 协议。还包含用于保存数据包的数据结构，称为 <code>mbuf</code></li>
+<li><code>kernel/pci.c</code> 包含在 xv6 启动时在 PCI 总线上搜索 E1000 的代码</li>
+</ul>
+</li>
+</ul>
+<h1 id="Your-job"><a href="#Your-job" class="headerlink" title="Your job"></a>Your job</h1><ul>
+<li>你的工作是在 <code>kernel/e1000.c</code> 中完成 <code>e1000_transmit()</code> 和 <code>e1000_recv()</code>，以便驱动程序可以传输和接收数据包</li>
+<li>当 <code>make grade</code> 说你通过了所有测试时表示完成</li>
+<li>在编写代码时，参考 Intel E1000 软件开发人员手册：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2023/readings/8254x_GBe_SDM.pdf">8254x Family of Gigabit Ethernet Controllers Software Developer’s Manual (mit.edu)</a> 可能是有帮助的</li>
+</ul>
+<h1 id="e1000-init"><a href="#e1000-init" class="headerlink" title="e1000_init"></a>e1000_init</h1><ul>
+<li><p>在 <code>e1000.c</code> 中为你提供的 <code>e1000_init()</code> 将 E1000 配置为读取从 RAM 传输的数据包，并将接收的数据包写入 RAM</p>
+<ul>
+<li>这种技术被称为 DMA，用户直接内存访问，指的是 E1000 硬件直接向&#x2F;从 RAM 写入&#x2F;读取数据包</li>
+</ul>
+</li>
+<li><p>由于数据包的突发到达速度可能比驱动程序处理它们的速度块，<code>e1000_init()</code> 为 E1000 提供了多个缓冲区，E1000 可以将数据包写入其中</p>
+<ul>
+<li>E1000 要求这些缓冲区有 RAM 中的 “描述符” 数组来描述。每个 “描述符” 在 RAM 中包含一个地址，E1000 可以在其中写入接收到的数据包。<code>struct rx_desc</code> 描述了 “描述符” 的格式</li>
+<li>这样的 “描述符” 数组称为接收环或接收队列。这是一个圆形的环，当网卡或驱动程序到达末尾时，它会返回到开头</li>
+<li><code>e1000_init()</code> 使用 <code>mbufalloc()</code> 分配 mbuf 数据包缓冲区分配给 E1000 用于 DMA（直接内存访问）</li>
+</ul>
+</li>
+<li><p>还有一个传输环，驱动程序应该将它希望 E1000 发送的数据包放入其中</p>
+<ul>
+<li><code>e1000_init()</code> 将两个环的大小配置为 <code>RX_RING_SIZE</code> 和 <code>TX_RING_SIZE</code></li>
+</ul>
+</li>
+<li><p>除了在 RAM 中读取和写入 “描述符” 环外，你的驱动程序还需要通过其内存映射控制寄存器与 E1000 进行交互，以检测什么时候接收的数据包是可用的，去通知 E1000，驱动程序已经用要发送的数据包填充了一些传输 “描述符”</p>
+<ul>
+<li>全局变量 <code>regs</code> 持有指向 E1000 第一个控制寄存器的指针。你的驱动程序可用通过将 <code>regs</code> 索引为数组来获取其他寄存器</li>
+<li>你需要特别使用 <code>E1000_RDT</code> 和 <code>E1000_TDT</code></li>
+</ul>
+</li>
+<li><p>经过上述描述后，我们不难发现：</p>
+<ul>
+<li><p>传输 &#x2F; 接收数据包时都有相应的 “描述符” 数组，称为传输环 &#x2F; 接收环，也就是代码中的 <code>tx_ring</code> 和 <code>rx_ring</code></p>
+</li>
+<li><p>传输环 &#x2F; 接收 “描述符” 的类型分别是 <code>tx_desc</code> 和 <code>rx_desc</code>，在 <code>kernel/e1000_dev.h</code> 中定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// [E1000 3.3.3]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tx_desc</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  uint64 addr;</span><br><span class="line">  uint16 length;</span><br><span class="line">  uint8 cso;</span><br><span class="line">  uint8 cmd;</span><br><span class="line">  uint8 status;</span><br><span class="line">  uint8 css;</span><br><span class="line">  uint16 special;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 描述符格式 [E1000 3.2.3]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rx_desc</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  uint64 addr;       <span class="comment">/* Address of the descriptor&#x27;s data buffer 描述符数据缓冲区的地址 */</span></span><br><span class="line">  uint16 length;     <span class="comment">/* Length of data DMAed into data buffer 数据缓冲区中通过DMA传输的数据长度 */</span></span><br><span class="line">  uint16 csum;       <span class="comment">/* Packet checksum 数据包校验和 */</span></span><br><span class="line">  uint8 status;      <span class="comment">/* Descriptor status 描述符状态*/</span></span><br><span class="line">  uint8 errors;      <span class="comment">/* Descriptor Errors 描述符错误 */</span></span><br><span class="line">  uint16 special;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>传输环 &#x2F; 接收环也都有关联的数据包缓冲区数组，也就是代码中的 <code>tx_mbufs</code> 和 <code>rx_mbufs</code></p>
+</li>
+<li><p>数据包缓冲区的类型为 <code>mbuf</code>，在 <code>kernel/net.h</code> 中定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span>  *<span class="title">next</span>;</span> <span class="comment">// the next mbuf in the chain 链表中下一个mbuf</span></span><br><span class="line">  <span class="type">char</span>         *head; <span class="comment">// the current start position of the buffer 缓冲区的当前起始位置</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> len;   <span class="comment">// the length of the buffer 缓冲区长度</span></span><br><span class="line">  <span class="type">char</span>         buf[MBUF_SIZE]; <span class="comment">// the backing store 缓冲区</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>e1000_init()</code> 接收 E1000 寄存器映射的内存地址，初始化 <code>regs</code>，通过数组索引的方式读取 E1000 相关寄存器中的值</p>
+</li>
+<li><p>我们主要关注 <code>e1000_init()</code> 中初始化传输&#x2F;接收 ”描述符“ 数组，以及关联的数据包缓冲区数组的相关操作</p>
+</li>
+<li><p>发送数据包时，驱动程序将需要传输的 mbuf 关联到 <code>tx_ring</code> 的某个位置 ，等待 E1000 完成传输。<code>tx_mbufs</code> 的作用是保存指向需要传输的 mbuf 的指针，当传输完成时释放 mbufs。所以 <code>tx_mbufs</code> 没有 <code>mbufalloc</code> 且和 <code>tx_ring</code> 没有建立关联，在传输过程中才逐渐建立联系</p>
+</li>
+<li><p>初始化传输时，涉及的 E1000 寄存器定义如下（定义在 <code>kernel/e1000_dev.h</code> 中）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TDBAL    (0x03800/4)  <span class="comment">/* TX Descriptor Base Address Low TX描述符基地址 - RW */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TDLEN    (0x03808/4)  <span class="comment">/* TX Descriptor Length TX 描述符长度 - RW */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TDH      (0x03810/4)  <span class="comment">/* TX Descriptor Head TX 描述符头部 - RW */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TDT      (0x03818/4)  <span class="comment">/* TX Descripotr Tail TX 描述符尾部 - RW */</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Transmit Descriptor status definitions 发送描述符状态定义 [E1000 3.3.3.2] */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TXD_STAT_DD    0x00000001 <span class="comment">/* Descriptor Done 描述符完成 */</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接收数据包时，驱动程序（其实是中断处理程序调用的）直接将数据包 DMA 到与 <code>rx_ring</code> 相关联的缓冲区 <code>rx_mbufs</code> 的某个位置。<code>rx_mbufs</code> 的作用是接收数据包。所以 <code>rx_mbufs</code> 需要 <code>mbufalloc</code> 且和 <code>rx_ring</code> 关联</p>
+</li>
+<li><p>初始化接收时，涉及的 E1000 寄存器定义如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">define <span class="title function_">E1000_RADV</span>     <span class="params">(<span class="number">0x0282C</span>/<span class="number">4</span>)</span>  <span class="comment">/* RX Interrupt Absolute Delay Timer */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_RDH      (0x02810/4)  <span class="comment">/* RX Descriptor Head - RW */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_RDT      (0x02818/4)  <span class="comment">/* RX Descriptor Tail - RW */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_RDLEN    (0x02808/4)  <span class="comment">/* RX Descriptor Length - RW */</span></span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><code>e1000_init()</code> 的部分实现如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> TX_RING_SIZE 16</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">tx_desc</span> <span class="title">tx_ring</span>[<span class="title">TX_RING_SIZE</span>] __<span class="title">attribute__</span>((<span class="title">aligned</span>(16)));</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span> *<span class="title">tx_mbufs</span>[<span class="title">TX_RING_SIZE</span>];</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> RX_RING_SIZE 16</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">rx_desc</span> <span class="title">rx_ring</span>[<span class="title">RX_RING_SIZE</span>] __<span class="title">attribute__</span>((<span class="title">aligned</span>(16)));</span></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span> *<span class="title">rx_mbufs</span>[<span class="title">RX_RING_SIZE</span>];</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// remember where the e1000&#x27;s registers live. 记住e1000寄存器的位置</span></span><br><span class="line"><span class="type">static</span> <span class="keyword">volatile</span> uint32 *regs;</span><br><span class="line"></span><br><span class="line"><span class="comment">// called by pci_init(). 被 pci_init() 调用</span></span><br><span class="line"><span class="comment">// xregs is the memory address at which the </span></span><br><span class="line"><span class="comment">// e1000&#x27;s registers are mapped.</span></span><br><span class="line"><span class="comment">// xregs 是 e1000 寄存器的映射所在的内存地址</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">e1000_init</span><span class="params">(uint32 *xregs)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line">  initlock(&amp;e1000_lock, <span class="string">&quot;e1000&quot;</span>);</span><br><span class="line"></span><br><span class="line">  regs = xregs;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// [E1000 14.5] Transmit initialization 传输初始化</span></span><br><span class="line">  <span class="built_in">memset</span>(tx_ring, <span class="number">0</span>, <span class="keyword">sizeof</span>(tx_ring));</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; TX_RING_SIZE; i++) &#123;</span><br><span class="line">    tx_ring[i].status = E1000_TXD_STAT_DD;</span><br><span class="line">    tx_mbufs[i] = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  regs[E1000_TDBAL] = (uint64) tx_ring; </span><br><span class="line">  <span class="keyword">if</span>(<span class="keyword">sizeof</span>(tx_ring) % <span class="number">128</span> != <span class="number">0</span>)</span><br><span class="line">    panic(<span class="string">&quot;e1000&quot;</span>);</span><br><span class="line">  regs[E1000_TDLEN] = <span class="keyword">sizeof</span>(tx_ring);</span><br><span class="line">  regs[E1000_TDH] = regs[E1000_TDT] = <span class="number">0</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// [E1000 14.4] Receive initialization 接收初始化</span></span><br><span class="line">  <span class="built_in">memset</span>(rx_ring, <span class="number">0</span>, <span class="keyword">sizeof</span>(rx_ring));</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; RX_RING_SIZE; i++) &#123;</span><br><span class="line">    rx_mbufs[i] = mbufalloc(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (!rx_mbufs[i])</span><br><span class="line">      panic(<span class="string">&quot;e1000&quot;</span>);</span><br><span class="line">    rx_ring[i].addr = (uint64) rx_mbufs[i]-&gt;head;</span><br><span class="line">  &#125;</span><br><span class="line">  regs[E1000_RDBAL] = (uint64) rx_ring;</span><br><span class="line">  <span class="keyword">if</span>(<span class="keyword">sizeof</span>(rx_ring) % <span class="number">128</span> != <span class="number">0</span>)</span><br><span class="line">    panic(<span class="string">&quot;e1000&quot;</span>);</span><br><span class="line">  regs[E1000_RDH] = <span class="number">0</span>;</span><br><span class="line">  regs[E1000_RDT] = RX_RING_SIZE - <span class="number">1</span>;</span><br><span class="line">  regs[E1000_RDLEN] = <span class="keyword">sizeof</span>(rx_ring);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="e1000-transmit"><a href="#e1000-transmit" class="headerlink" title="e1000_transmit"></a>e1000_transmit</h1><ul>
+<li><p>当 net.c 中的网络堆栈需要发送数据包时，它会通过保存要发送数据包的 mbuf 调用 <code>e1000_transmit()</code></p>
+<ul>
+<li>你的传输代码必须将指向数据包指针放在传输环的 ”描述符“ 中。<code>struct tx_desc</code> 描述了 ”描述符“ 的格式</li>
+<li>你需要保证每个 mbuf 最终被释放，但只有在 E1000  完成数据包传输后（E1000 在描述符中设置 <code>E1000_TXD_STAT_DD</code> 位来指示这一点）</li>
+</ul>
+</li>
+<li><p>一些提示</p>
+<ul>
+<li>首先，通过读取 <code>E1000_TDT</code> 控制寄存器，向 E1000 询问它期望的下一个数据包的 <code>tx_ring</code> 的索引</li>
+<li>检查 <code>tx_ring</code> 是否溢出。如果 <code>E1000_TDT</code> 索引的 ”描述符“ 中没有设置 <code>E1000_TXD_STAT_DD</code>，则 E1000 尚未完成先前的传输请求，返回错误</li>
+<li>使用 <code>mbuffree()</code> 释放从该 “描述符” 传输的 mbuf（如果有的话）</li>
+<li>填写 ”描述符“。<code>m-&gt;head</code> 指向内存中数据包内容，<code>m-&gt;len</code> 是数据包长度。设置必要的 cmd 标志。存放一个指向 mbuf 的指针，以便稍后释放</li>
+<li>最后，通过向 <code>E1000_TDT</code> modulo（<code>%</code>）<code>TX_RING_SIZE</code> 加一来更新环的位置</li>
+<li>如果 <code>e1000_transmit()</code> 成功将 mbuf 添加到环中，返回 0。失败时，返回 -1，以便调用者知道释放 mbuf</li>
+</ul>
+</li>
+<li><p>经过上述描述，我们不难了解到：</p>
+<ul>
+<li><p>网络堆栈需要发送数据包时，总是将需要传输的 mbuf 关联到相关 “描述符” ，等待 E1000 完成传输。<code>tx_mbufs</code> 的作用是保存指向需要传输的 mbuf 的指针，当传输完成时释放 mbufs</p>
+</li>
+<li><p><code>E1000_TDT</code> 寄存器存储着我们期望的使用的 <code>tx_ring</code> 索引，然而索引到的 <code>tx_desc</code> ”描述符“ 并非总是有效的</p>
+</li>
+<li><p>提示中提醒我们需要检查是否溢出，然而即使 <code>tx_ring</code> 是一个环形数组，我们也不需要（不能）通过 <code>(index+1)%TX_RING_SIZE == regs[E1000_TDH]</code> 来检查是否溢出。这种检查方式默认环形数组预留一个空位用于检查是否满了，但我们并不了解环形数组真正完整的工作流程，我们通过以下方式检查是否 “溢出”</p>
+</li>
+<li><p>当 “描述符” 的 <code>status</code> 没有被设置为 <code>E1000_TXD_STAT_DD</code> 时，表示当前 “描述符” 的 <code>addr</code> 指向的缓冲区还没有传输完，也就表示 “溢出” 了</p>
+</li>
+<li><p><code>mbuffree()</code> 释放 “描述符” 传输的 mbuf 时，并不是释放 “描述符” 的 <code>addr</code> 指向的缓冲区位置，而是在上一次（或某一次）预留在 <code>tx_mbufs</code> 中的指针指向的 mbuf。如果查看 <code>kernel/net.h</code> 和 <code>kernel/net.c</code> 中的 <code>mbufalloc()</code>，我们发现 <code>m-&gt;head</code> 指向的只是 mbuf 中 <code>buf</code> 的某个位置，而 <code>mbuffree()</code> 需要指向 mbuf 的指针以释放整个 mbuf</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span> &#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span>  *<span class="title">next</span>;</span> <span class="comment">// the next mbuf in the chain 链表中下一个mbuf</span></span><br><span class="line">  <span class="type">char</span>         *head; <span class="comment">// the current start position of the buffer 缓冲区的当前起始位置</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> len;   <span class="comment">// the length of the buffer 缓冲区长度</span></span><br><span class="line">  <span class="type">char</span>         buf[MBUF_SIZE]; <span class="comment">// the backing store 缓冲区</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Allocates a packet buffer.</span></span><br><span class="line"><span class="keyword">struct</span> mbuf *</span><br><span class="line"><span class="title function_">mbufalloc</span><span class="params">(<span class="type">unsigned</span> <span class="type">int</span> headroom)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">mbuf</span> *<span class="title">m</span>;</span></span><br><span class="line"> </span><br><span class="line">  <span class="keyword">if</span> (headroom &gt; MBUF_SIZE)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  m = kalloc();</span><br><span class="line">  <span class="keyword">if</span> (m == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  m-&gt;next = <span class="number">0</span>;</span><br><span class="line">  m-&gt;head = (<span class="type">char</span> *)m-&gt;buf + headroom;</span><br><span class="line">  m-&gt;len = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">memset</span>(m-&gt;buf, <span class="number">0</span>, <span class="keyword">sizeof</span>(m-&gt;buf));</span><br><span class="line">  <span class="keyword">return</span> m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置必要的 cmd 标志时，如果查看 <code>kernel/e1000_dev.h</code>，我们发现官方只提供了两个 cmd 标志的定义，所以我们不难推测这两个标志就是必要的 cmd 标志。当然所有 cmd 标志的含义都可以在 Intel E1000 开发人员手册的 3.3.3.1 节中找到详细描述，有兴趣的同学可以自行查阅</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Transmit Descriptor command definitions 传输描述符命令定义 [E1000 3.3.3.1] */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TXD_CMD_EOP    0x01 <span class="comment">/* End of Packet */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> E1000_TXD_CMD_RS     0x08 <span class="comment">/* Report Status */</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在 <code>tx_mbufs</code> 的相应索引处保存 mbuf 以便下一次释放，和通过 <code>mbuffree()</code> 释放之前 “描述符” 传输的 mbuf 形成了对应</p>
+</li>
+<li><p>当然，由于 xv6 可能在多个进程中并发的使用 E1000，<code>tx_ring</code> 和 <code>tx_mbufs</code> 都是临界资源，对于它们的访问都需要加锁</p>
+</li>
+</ul>
+</li>
+<li><p>解决方案如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span></span><br><span class="line"><span class="title function_">e1000_transmit</span><span class="params">(<span class="keyword">struct</span> mbuf *m)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Your code here.</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// mbuf 包含了一个以太网帧；将其编程到 TX 描述符环中，以便 e1000 网络接口卡可以发送它</span></span><br><span class="line">  <span class="comment">// the mbuf contains an ethernet frame; program it into </span></span><br><span class="line">  <span class="comment">// the TX descriptor ring so that the e1000 sends it. Stash</span></span><br><span class="line">  <span class="comment">// a pointer so that it can be freed after sending.</span></span><br><span class="line">  <span class="comment">// 存储一个指针，以便在发送后释放该 mbuf</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  acquire(&amp;e1000_lock);</span><br><span class="line">  <span class="type">int</span> index = regs[E1000_TDT];</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> ((tx_ring[index].status &amp; E1000_TXD_STAT_DD) == <span class="number">0</span>) &#123;</span><br><span class="line">    release(&amp;e1000_lock);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">if</span> (tx_mbufs[index] != <span class="number">0</span>) &#123;</span><br><span class="line">    mbuffree(tx_mbufs[index]);</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">  tx_ring[index].addr = (uint64)m-&gt;head;</span><br><span class="line">  tx_ring[index].length = m-&gt;len;</span><br><span class="line">  tx_ring[index].cmd = E1000_TXD_CMD_EOP | E1000_TXD_CMD_RS;</span><br><span class="line">  tx_mbufs[index] = m;</span><br><span class="line">    </span><br><span class="line">  regs[E1000_TDT] = (index+<span class="number">1</span>)%TX_RING_SIZE;</span><br><span class="line">    </span><br><span class="line">  release(&amp;e1000_lock);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="e1000-recv"><a href="#e1000-recv" class="headerlink" title="e1000_recv"></a>e1000_recv</h1><ul>
+<li><p>当 E1000 从以太网接收每个数据包时，它将数据包 DMAs 到下一个接收环 “描述符” 中 <code>addr</code> 指向的内存</p>
+<ul>
+<li>如果 E1000 中断尚未挂起，则 E1000 要求 PLIC 在启用中断后立即交付一个中断</li>
+<li>你的 <code>e1000_recv()</code> 代码必须扫描接收环，并通过调用 <code>net_rx()</code> 将每个新数据包的 mbuf 发送到网络堆栈</li>
+<li>然后你需要分配一个新的 mbuf 并将其放入 “描述符” 中，这样当 E1000 再次到达接收环的该点时，它会找到一个新的缓冲区，用于 DMA 一个新的数据包</li>
+</ul>
+</li>
+<li><p>一些提示</p>
+<ul>
+<li>首先，通过获取 <code>E1000_RDT</code> 控制寄存器并加一 modulo（<code>%</code>）<code>RX_RING_SIZE</code>，向 E1000 询问下一个等待接收数据包的环索引</li>
+<li>通过检测 “描述符” 的 <code>status</code> 部分的 <code>E1000_RXD_STAT_DD</code> 位来检查新数据包是否可用用。如果不可用，就停下来</li>
+<li>将 mbuf 的 <code>m-&gt;len</code> 更新为 “描述符” 中报告的长度。使用 <code>net_rx()</code> 将 mbuf 传递到网络堆栈</li>
+<li>使用 <code>mbufalloc()</code> 分配一个新的 mbuf 来替换刚刚 <code>net_rx()</code> 的 mbuf</li>
+<li>将其数据指针（<code>m-&gt;head</code>）编程到 “描述符” 中，将 “描述符” 的状态位清零</li>
+<li>最终，将 <code>E1000_RDT</code> 寄存器更新位最后一个处理的环 “描述符” 的索引</li>
+<li><code>e1000_init()</code> 用 mbufs 初始化接收环，你可用看看它是如何做到这一点的，也许可用借用代码</li>
+<li>在某些时候，达到的数据包总数将超过环形大小（16），确保你的代码可用处理这一点</li>
+</ul>
+</li>
+<li><p>经过上述描述，我们可以了解到：</p>
+<ul>
+<li><p>E1000 从以太网接收数据包时，总是直接将数据包 DMA 到与 “描述符” 相关联的缓冲区 <code>rx_mbufs</code> 中，然后产生一个中断，在中断处理程序中调用 <code>e1000_recv()</code>，通过 <code>net_rx()</code> 将缓冲区中的数据包发送到网络堆栈。<code>rx_mbufs</code> 的作用是接收数据包</p>
+</li>
+<li><p><code>E1000_RDT</code> 寄存器存储的是我们之前最后处理的数据包的环索引，+1 后才是下一个等待接收的数据包环索引</p>
+</li>
+<li><p>为了处理达到的数据包总数可能超过环形大小（16）的情况，我们使用循环，在每次循环中处理一个可用的数据包并重新分配一个新的 mbuf，不会积压到 <code>rx_mbufs</code></p>
+</li>
+<li><p>退出循环时将 <code>E1000_RDT</code> 设置为最后处理的 “描述符” 索引，和最开始的 +1 相呼应</p>
+</li>
+<li><p>为什么不加锁：因为 <code>e1000_recv()</code> 只会被中断处理程序 <code>e1000_intr()</code> 调用，即使在多核处理器的情况下，同一个中断处理程序也仅在一个核心上运行，且不会并发运行，所以不需要加锁（加锁后会产生死锁，这是因为调用 <code>e1000_transmit()</code> 在传输数据包时可能被中断，从而调用 <code>e1000_recv()</code>，<code>e1000_transmit()</code> 是持有锁的，如果 <code>e1000_recv()</code> 也需要这把锁，就会造成死锁）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">e1000_intr</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// tell the e1000 we&#x27;ve seen this interrupt; 通知 e1000 我们已经看到了这个中断</span></span><br><span class="line">  <span class="comment">// without this the e1000 won&#x27;t raise any 如果不这样做，e1000 将不会触发任何未来的中断</span></span><br><span class="line">  <span class="comment">// further interrupts.</span></span><br><span class="line">  regs[E1000_ICR] = <span class="number">0xffffffff</span>;</span><br><span class="line"></span><br><span class="line">  e1000_recv();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>解决方案如下</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span></span><br><span class="line"><span class="title function_">e1000_recv</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Your code here.</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// Check for packets that have arrived from the e1000 检查从 e1000 接收到的数据包</span></span><br><span class="line">  <span class="comment">// Create and deliver an mbuf for each packet (using net_rx()). </span></span><br><span class="line">  <span class="comment">// 为每个数据包创建并传递一个 mbuf（使用 net_rx() 函数）</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="type">int</span> index = (regs[E1000_RDT]+<span class="number">1</span>)%RX_RING_SIZE;</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> ((rx_ring[index].status &amp; E1000_RXD_STAT_DD) == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">      </span><br><span class="line">    rx_mbufs[index]-&gt;len = rx_ring[index].length;</span><br><span class="line">    net_rx(rx_mbufs[index]);</span><br><span class="line">      </span><br><span class="line">    rx_mbufs[index] = mbufalloc(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (!rx_mbufs[index])</span><br><span class="line">      panic(<span class="string">&quot;e1000&quot;</span>);</span><br><span class="line">    rx_ring[index].addr = (uint64)rx_mbufs[index]-&gt;head;</span><br><span class="line">    rx_ring[index].status = <span class="number">0</span>;</span><br><span class="line">      </span><br><span class="line">    index = (index+<span class="number">1</span>)%RX_RING_SIZE;</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">  regs[E1000_RDT] = (index<span class="number">-1</span>)%RX_RING_SIZE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h1><ul>
+<li>一个窗口中 <strong>make server</strong></li>
+</ul>
+<img src="/2024/07/07/6-S081-Lab7/image-20240708164415800.png" class="" title="image-20240708164415800">
+
+<ul>
+<li>一个窗口中 <strong>make clean &amp;&amp; make qemu &amp;&amp; nettests</strong></li>
+</ul>
+<img src="/2024/07/07/6-S081-Lab7/image-20240708164538219.png" class="" title="image-20240708164538219">
+
+<ul>
+<li><strong>tcpdump -XXnr packets.pcap</strong></li>
+</ul>
+<img src="/2024/07/07/6-S081-Lab7/image-20240708164935515.png" class="" title="image-20240708164935515">
+
+<ul>
+<li><strong>make grade</strong></li>
+</ul>
+<img src="/2024/07/07/6-S081-Lab7/image-20240708164630676.png" class="" title="image-20240708164630676">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/LostUnravel/article/details/121437373">MIT 6.S081] Lab 11: networking_c版本的e1000网卡实现-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/duile/p/16277647.html">MIT6.S081-Lab7 Lab Networking 2021Fall] - duile - 博客园 (cnblogs.com)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/07/01/6-S081-Lab6/" rel="prev" title="Lab Multithreading">
+      <i class="fa fa-chevron-left"></i> Lab Multithreading
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/07/09/xv6-book-chapter-8/" rel="next" title="xv6 book chapter 8">
+      xv6 book chapter 8 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Background"><span class="nav-number">2.</span> <span class="nav-text">Background</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Your-job"><span class="nav-number">3.</span> <span class="nav-text">Your job</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#e1000-init"><span class="nav-number">4.</span> <span class="nav-text">e1000_init</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#e1000-transmit"><span class="nav-number">5.</span> <span class="nav-text">e1000_transmit</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#e1000-recv"><span class="nav-number">6.</span> <span class="nav-text">e1000_recv</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Test"><span class="nav-number">7.</span> <span class="nav-text">Test</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">8.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
