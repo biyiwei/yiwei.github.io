@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yiweiboi.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="注意事项 Lab Guidance：Lab: file system (mit.edu)  在这个实验中，你将向 xv6 文件系统添加大文件和符号链接  在开始之前，你需要阅读 xv6 book 的第 8 章 “文件系统”，并研究相关代码  输入 git fetch &amp;&amp; git checkout fs &amp;&amp; make clean 开始实验   Large file">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lab File system">
+<meta property="og:url" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="注意事项 Lab Guidance：Lab: file system (mit.edu)  在这个实验中，你将向 xv6 文件系统添加大文件和符号链接  在开始之前，你需要阅读 xv6 book 的第 8 章 “文件系统”，并研究相关代码  输入 git fetch &amp;&amp; git checkout fs &amp;&amp; make clean 开始实验   Large file">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908194956341.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908200123915.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908200553678.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908203942303.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908204344539.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908204412315.png">
+<meta property="og:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908205225879.png">
+<meta property="article:published_time" content="2024-09-07T11:38:53.000Z">
+<meta property="article:modified_time" content="2024-09-08T13:10:45.684Z">
+<meta property="article:author" content="yiweiBoi">
+<meta property="article:tag" content="6.s081">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/image-20240908194956341.png">
+
+<link rel="canonical" href="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Lab File system | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yiweiboi.github.io/2024/09/07/6-S081-Lab9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yiweiBoi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Lab File system
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-09-07 19:38:53" itemprop="dateCreated datePublished" datetime="2024-09-07T19:38:53+08:00">2024-09-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-08 21:10:45" itemprop="dateModified" datetime="2024-09-08T21:10:45+08:00">2024-09-08</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>Lab Guidance：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2023/labs/fs.html">Lab: file system (mit.edu)</a></p>
+</li>
+<li><p>在这个实验中，你将向 xv6 文件系统添加大文件和符号链接</p>
+</li>
+<li><p>在开始之前，你需要阅读 xv6 book 的第 8 章 “文件系统”，并研究相关代码</p>
+</li>
+<li><p>输入 <code>git fetch &amp;&amp; git checkout fs &amp;&amp; make clean</code> 开始实验</p>
+</li>
+</ul>
+<h1 id="Large-files"><a href="#Large-files" class="headerlink" title="Large files"></a>Large files</h1><ul>
+<li><p>在此任务中，你将增加 xv6 文件的最大大小。目前，xv6 文件限制为 268 个块（268 * BSIZE 字节），这是因为 xv6 inode 包含 12 个 “直接” 块和 1 个 ”间接“ 块（最多容纳 256 个块）</p>
+</li>
+<li><p>你将修改 xv6 文件系统代码，来支持每个 inode 中的 ”双间接” 块（最多容纳 256 * 256 个块），这样的话一个文件就能够由 <code>11 + 256 + 256 * 256</code> 个块组成（11 的原因是牺牲一个 “直接块“ 变为 ”双间接“ 块）</p>
+</li>
+<li><p>如果在实验中的任何时候，你发现自己必须从头开始创建文件系统，请运行 <code>make clean</code></p>
+</li>
+<li><p>磁盘上的 inode 的格式由 <code>kernel/fs.h</code> 中的 struct dinode 定义。你可能对 NDIRECT、NINDIRECT、MAXFILE 和 struct dinode 中的 addrs 特别感兴趣</p>
+</li>
+<li><p>在磁盘上查找文件数据的代码在 fs.h 中的 <code>bmap()</code> 中，你需要了解它做了什么</p>
+</li>
+<li><p><code>bmap()</code> 处理两种块号，bn 参数是逻辑块号（文件中的块号），相对于文件的开头；ip-&gt;addrs[] 中的块号和 <code>bread()</code> 的参数是磁盘块号；你可以将 <code>bmap()</code> 的作用视为将文件的逻辑块号映射到磁盘块号</p>
+</li>
+<li><p>你的工作是修改 <code>bmap()</code>，使其除了 ”直接“ 块和 ”间接“ 块之外，还实现了 ”双间接“ 块（前 11 个块是 ”直接“ 块，第 12 个块是 ”间接“ 块，第 13 个块是 ”双间接“ 块）</p>
+</li>
+<li><p>一些提示</p>
+<ul>
+<li>如果你要更改 NDIRECT 的定义，你也需要修改 <code>kernel/file.h</code> 中 struct inode 中的 addrs，并确保和 struct dinode 中的 addrs 相对应</li>
+<li>确保 <code>itrunc()</code> 释放文件所有的块，包括 ”双间接“ 块</li>
+</ul>
+</li>
+<li><p>在 <code>kernel/fs.h</code> 中修改 NDIRECT 的定义（应该表示的是 ”直接“ 块的数量）</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> NDIRECT 11 </span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>同样的修改 <code>kernel/fs.h</code> 中 struct dinode 中 addrs 的定义和 <code>kernel/file.h</code> 中 struct inode 中 addrs 的定义</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// On-disk inode structure</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">dinode</span> &#123;</span></span><br><span class="line">  <span class="type">short</span> type;           <span class="comment">// File type</span></span><br><span class="line">  <span class="type">short</span> major;          <span class="comment">// Major device number (T_DEVICE only)</span></span><br><span class="line">  <span class="type">short</span> minor;          <span class="comment">// Minor device number (T_DEVICE only)</span></span><br><span class="line">  <span class="type">short</span> nlink;          <span class="comment">// Number of links to inode in file system</span></span><br><span class="line">  uint size;            <span class="comment">// Size of file (bytes)</span></span><br><span class="line">  uint addrs[NDIRECT+<span class="number">2</span>];   <span class="comment">// Data block addresses // my change</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// in-memory copy of an inode</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inode</span> &#123;</span></span><br><span class="line">  uint dev;           <span class="comment">// Device number</span></span><br><span class="line">  uint inum;          <span class="comment">// Inode number</span></span><br><span class="line">  <span class="type">int</span> ref;            <span class="comment">// Reference count</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">sleeplock</span> <span class="title">lock</span>;</span> <span class="comment">// protects everything below here</span></span><br><span class="line">  <span class="type">int</span> valid;          <span class="comment">// inode has been read from disk?</span></span><br><span class="line"></span><br><span class="line">  <span class="type">short</span> type;         <span class="comment">// copy of disk inode</span></span><br><span class="line">  <span class="type">short</span> major;</span><br><span class="line">  <span class="type">short</span> minor;</span><br><span class="line">  <span class="type">short</span> nlink;</span><br><span class="line">  uint size;</span><br><span class="line">  uint addrs[NDIRECT+<span class="number">2</span>]; <span class="comment">// my change</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 <code>kernel/fs.c</code> 中的 <code>bmap()</code>，使其能够处理 ”双间接“ 块。由于是 ”双间接“ 块，也就是说需要索引两次，方法和处理 ”间接“ 块类似（先读，看有没有，没有就分配，再读，看有没有，没有就分配）</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> uint</span><br><span class="line"><span class="title function_">bmap</span><span class="params">(<span class="keyword">struct</span> inode *ip, uint bn)</span></span><br><span class="line">&#123;</span><br><span class="line">  uint addr, *a;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">buf</span> *<span class="title">bp</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(bn &lt; NDIRECT)&#123;</span><br><span class="line">    <span class="keyword">if</span>((addr = ip-&gt;addrs[bn]) == <span class="number">0</span>)&#123;</span><br><span class="line">      addr = balloc(ip-&gt;dev);</span><br><span class="line">      <span class="keyword">if</span>(addr == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      ip-&gt;addrs[bn] = addr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">  &#125;</span><br><span class="line">  bn -= NDIRECT;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(bn &lt; NINDIRECT)&#123;</span><br><span class="line">    <span class="comment">// Load indirect block, allocating if necessary.</span></span><br><span class="line">    <span class="keyword">if</span>((addr = ip-&gt;addrs[NDIRECT]) == <span class="number">0</span>)&#123;</span><br><span class="line">      addr = balloc(ip-&gt;dev);</span><br><span class="line">      <span class="keyword">if</span>(addr == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      ip-&gt;addrs[NDIRECT] = addr;</span><br><span class="line">    &#125;</span><br><span class="line">    bp = bread(ip-&gt;dev, addr);</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">if</span>((addr = a[bn]) == <span class="number">0</span>)&#123;</span><br><span class="line">      addr = balloc(ip-&gt;dev);</span><br><span class="line">      <span class="keyword">if</span>(addr)&#123;</span><br><span class="line">        a[bn] = addr;</span><br><span class="line">        log_write(bp);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">  &#125;</span><br><span class="line">  bn -= NINDIRECT;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (bn &lt; NINDIRECT * NINDIRECT) &#123;</span><br><span class="line">    <span class="keyword">if</span> ((addr = ip-&gt;addrs[NDIRECT+<span class="number">1</span>]) == <span class="number">0</span>) &#123;</span><br><span class="line">      addr = balloc(ip-&gt;dev);</span><br><span class="line">      <span class="keyword">if</span> (addr == <span class="number">0</span>) </span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      ip-&gt;addrs[NDIRECT+<span class="number">1</span>] = addr;</span><br><span class="line">    &#125;</span><br><span class="line">    bp = bread(ip-&gt;dev, addr);</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">if</span> ((addr = a[bn/NINDIRECT]) == <span class="number">0</span>) &#123;</span><br><span class="line">      addr = balloc(ip-&gt;dev);</span><br><span class="line">      <span class="keyword">if</span> (addr == <span class="number">0</span>) &#123;</span><br><span class="line">        brelse(bp);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      a[bn/NINDIRECT] = addr;</span><br><span class="line">      log_write(bp);</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    bp = bread(ip-&gt;dev, addr);</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">if</span> ((addr = a[bn%NINDIRECT]) == <span class="number">0</span>) &#123;</span><br><span class="line">      addr = balloc(ip-&gt;dev);</span><br><span class="line">      <span class="keyword">if</span> (addr) &#123;</span><br><span class="line">        a[bn%NINDIRECT] = addr;</span><br><span class="line">        log_write(bp);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  panic(<span class="string">&quot;bmap: out of range&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 <code>kernel/fs.c</code> 中的 <code>itrunc()</code>，使其能够释放文件中的 ”双间接“ 块。当然，由于是 ”双间接“ 块，也就需要双重循环去遍历它</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">itrunc</span><span class="params">(<span class="keyword">struct</span> inode *ip)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> i, j;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">buf</span> *<span class="title">bp</span>, *<span class="title">buf</span>;</span></span><br><span class="line">  uint *a, *b;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; NDIRECT; i++)&#123;</span><br><span class="line">    <span class="keyword">if</span>(ip-&gt;addrs[i])&#123;</span><br><span class="line">      bfree(ip-&gt;dev, ip-&gt;addrs[i]);</span><br><span class="line">      ip-&gt;addrs[i] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(ip-&gt;addrs[NDIRECT])&#123;</span><br><span class="line">    bp = bread(ip-&gt;dev, ip-&gt;addrs[NDIRECT]);</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; NINDIRECT; j++)&#123;</span><br><span class="line">      <span class="keyword">if</span>(a[j])</span><br><span class="line">        bfree(ip-&gt;dev, a[j]);</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    bfree(ip-&gt;dev, ip-&gt;addrs[NDIRECT]);</span><br><span class="line">    ip-&gt;addrs[NDIRECT] = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (ip-&gt;addrs[NDIRECT+<span class="number">1</span>]) &#123;</span><br><span class="line">    bp = bread(ip-&gt;dev, ip-&gt;addrs[NDIRECT+<span class="number">1</span>]);</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; NINDIRECT; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (a[i]) &#123;</span><br><span class="line">        buf = bread(ip-&gt;dev, a[i]);</span><br><span class="line">        b = (uint*)buf-&gt;data;</span><br><span class="line">        <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; NINDIRECT; j++) &#123;</span><br><span class="line">          <span class="keyword">if</span> (b[j])</span><br><span class="line">            bfree(ip-&gt;dev, b[j]);</span><br><span class="line">        &#125;</span><br><span class="line">        brelse(buf);</span><br><span class="line">        bfree(ip-&gt;dev, a[i]);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    bfree(ip-&gt;dev, ip-&gt;addrs[NDIRECT+<span class="number">1</span>]);</span><br><span class="line">    ip-&gt;addrs[NDIRECT+<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ip-&gt;size = <span class="number">0</span>;</span><br><span class="line">  iupdate(ip);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最后千万别忘记修改 <code>kernel/fs.h</code> 中 MAXFILE 的定义，否则你就永远别想通过测试</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> MAXFILE (NDIRECT + NINDIRECT + NINDIRECT * NINDIRECT)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>make clean &amp;&amp; make qemu &amp;&amp; bigfile</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908194956341.png" class="" title="image-20240908194956341">
+
+<ul>
+<li><strong>usertests -q</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908200123915.png" class="" title="image-20240908200123915">
+
+<ul>
+<li><strong>.&#x2F;grade-lab-fs bigfile</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908200553678.png" class="" title="image-20240908200553678">
+
+<h1 id="Symbolic-links"><a href="#Symbolic-links" class="headerlink" title="Symbolic links"></a>Symbolic links</h1><ul>
+<li><p>在本次练习中，你将像 xv6 添加符号链接。符号链接（软链接）通过路径名引用链接文件；当符号链接被打开时，内核会跟随链接到引用的文件。实现此系统调用是了解路径名查找工作原理的一个很好的练习</p>
+</li>
+<li><p>你将实现 <code>symlink(char *target, char *path)</code> 系统调用，该系统调用在 path 上创建一个新的符号链接，该链接指向 target 命名的文件</p>
+</li>
+<li><p>测试时，请将 symlinktest 添加到 Makefile</p>
+</li>
+<li><p>一些提示</p>
+<ul>
+<li>为符号链接创建一个新的系统调用号，向 <code>user/usys.pl</code>、<code>user/user.h</code> 添加一个条目，并在 <code>kernel/sysfile.c</code> 中实现一个空的 <code>sys_symlink()</code></li>
+<li>向 <code>kernel/stat.h</code> 添加新文件类型 T_SYMLINK，以表示符号链接</li>
+<li>向 <code>kernel/fcntl.h</code> 添加一个新标志 O_NOFOLLOW，该标志可以和 open 系统调用一起使用（标志通过 OR 运算符组合）</li>
+<li>实现 <code>symlink(target, path)</code> 系统调用，请注意，系统调用的成功并不需要目标真的存在</li>
+<li>修改 open 系统调用，以处理引入符号链接的情况。如果文件不存在，一定打开失败；当进程要打开的标志中指定 O_NOFOLLOW 时，打开符号链接（而不是引用的文件）</li>
+<li>如果链接的文件也是符号链接，你必须递归的跟随它，直到到达非符号链接文件。如果链接形成一个环，你必须返回一个错误（你可以设置一个递归深度的阈值，比如 10）</li>
+</ul>
+</li>
+<li><p>分别在 <code>user/usys.pl</code>、<code>user/user.h</code>、<code>kernel/syscall.h</code> 和 <code>kernel/syscall.c</code> 中添加有关 symlink 系统调用的声明</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// user/usys.pl</span></span><br><span class="line">entry(<span class="string">&quot;symlink&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// user/user.h</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">symlink</span><span class="params">(<span class="type">char</span> *, <span class="type">char</span> *)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// kernel/syscall.h</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SYS_symlink 22</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// kernel/syscall.c</span></span><br><span class="line"><span class="keyword">extern</span> uint64 <span class="title function_">sys_symlink</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="title function_">uint64</span> <span class="params">(*syscalls[])</span><span class="params">(<span class="type">void</span>)</span> = &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">[SYS_symlink] sys_symlink,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>kernel/stat.h</code> 中添加新的文件类型 T_SYMLINK</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> T_SYMLINK 4   </span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>kernel/fcntl.h</code> 中添加新的标志位 O_NOFOLLOW（注意不能和别的标志位重叠）</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> O_NOFOLLOW 0x004</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 <code>kernel/sysfile.c</code> 中实现 <code>sys_symlink()</code> 系统调用<ul>
+<li>我们需要明确的是，符号链接是一种新的文件类型，它的数据内容就是链接文件的路径。因此我们只需要通过 <code>create()</code> 在 path 处创建一个 T_SYMLINK 类型的文件，文件内容为引用的 target 文件的路径就可以了</li>
+<li>请注意，<code>create()</code> 返回的 struct inode 是持有锁的，如果你再次 <code>ilock()</code> 就会造成死锁</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">uint64 </span><br><span class="line"><span class="title function_">sys_symlink</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> target[MAXPATH], path[MAXPATH];</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">dp</span>;</span></span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>((n = argstr(<span class="number">0</span>, target, MAXPATH)) &lt; <span class="number">0</span> || argstr(<span class="number">1</span>, path, MAXPATH) &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  begin_op();</span><br><span class="line">  <span class="keyword">if</span> ((dp = create(path, T_SYMLINK, <span class="number">0</span>, <span class="number">0</span>)) == <span class="number">0</span>) &#123;</span><br><span class="line">    end_op();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ilock(dp); create() 返回的 inode 是持有锁的</span></span><br><span class="line">  <span class="keyword">if</span> (writei(dp, <span class="number">0</span>, (uint64)target, <span class="number">0</span>, n) &lt; n) &#123;</span><br><span class="line">    iunlockput(dp);</span><br><span class="line">    end_op();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  iunlockput(dp);</span><br><span class="line">  end_op();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>open 系统调用在没有 O_NOFOLLOW 标志的情况下打开符号链接文件时，需要跟随到它所链接的非符号链接文件，因此我们需要编写一个额外的函数 <code>follow_symlink()</code> 来处理这种情况<ul>
+<li>如果我们了解过 <code>sys_open()</code> 的具体实现后，就会发现传递给 <code>follow_symlink()</code> 的参数会是一个已经上了锁的 struct inode</li>
+<li>由于需要保持一致性（应该可以这么说吧……），我们返回也是一个加了锁的 struct inode</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> inode*</span><br><span class="line"><span class="title function_">follow_symlink</span><span class="params">(<span class="keyword">struct</span> inode *dp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> num = <span class="number">0</span>;</span><br><span class="line">  <span class="type">char</span> name[MAXPATH];</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">ip</span>;</span> </span><br><span class="line"></span><br><span class="line">  <span class="comment">// ilock(dp); dp 在 open 中已经加锁了</span></span><br><span class="line">  <span class="keyword">if</span> (readi(dp, <span class="number">0</span>, (uint64)name, <span class="number">0</span>, MAXPATH) &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">    iunlockput(dp);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  iunlockput(dp);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ((ip = namei(name)) == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ilock(ip);</span><br><span class="line">  <span class="keyword">while</span> (ip-&gt;type == T_SYMLINK) &#123;</span><br><span class="line">    <span class="keyword">if</span> (num++ &gt; <span class="number">10</span>) &#123;</span><br><span class="line">      <span class="keyword">goto</span> bad;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (readi(ip, <span class="number">0</span>, (uint64)name, <span class="number">0</span>, <span class="keyword">sizeof</span>(name)) &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">goto</span> bad;</span><br><span class="line">    &#125;</span><br><span class="line">    iunlockput(ip);</span><br><span class="line">    <span class="keyword">if</span> ((ip = namei(name)) == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">goto</span> bad;</span><br><span class="line">    &#125;</span><br><span class="line">    ilock(ip);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// iunlock(ip); 需要返回一个加锁了的 inode</span></span><br><span class="line">  <span class="keyword">return</span> ip;</span><br><span class="line"></span><br><span class="line">bad:</span><br><span class="line">  iunlockput(ip);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改 <code>sys_open()</code>，使其能够处理打开 T_SYMLINK 类型的文件时，有、或没有 O_NOFOLLOW 标志的情况<ul>
+<li>在有 O_NOFOLLOW 标志的情况下，我们需要打开的仅仅是符号链接文件（不是引用的文件），即使不修改 open，我们也已经打开了，所以我们需要处理的情况仅是没有 O_NOFOLLOW 标志的情况</li>
+<li>如果 <code>follow_symlink()</code> 返回失败的话，我们传入的 struct inode 已经被解锁了，因此不需要 <code>iunlockput()</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">uint64</span><br><span class="line"><span class="title function_">sys_open</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> path[MAXPATH];</span><br><span class="line">  <span class="type">int</span> fd, omode;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">f</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> *<span class="title">ip</span>;</span></span><br><span class="line">  <span class="type">int</span> n;</span><br><span class="line"></span><br><span class="line">  argint(<span class="number">1</span>, &amp;omode);</span><br><span class="line">  <span class="keyword">if</span>((n = argstr(<span class="number">0</span>, path, MAXPATH)) &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  begin_op();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(omode &amp; O_CREATE)&#123;</span><br><span class="line">    ip = create(path, T_FILE, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span>(ip == <span class="number">0</span>)&#123;</span><br><span class="line">      end_op();</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>((ip = namei(path)) == <span class="number">0</span>)&#123;</span><br><span class="line">      end_op();</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    ilock(ip);</span><br><span class="line">    <span class="keyword">if</span>(ip-&gt;type == T_DIR &amp;&amp; omode != O_RDONLY)&#123;</span><br><span class="line">      iunlockput(ip);</span><br><span class="line">      end_op();</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(ip-&gt;type == T_DEVICE &amp;&amp; (ip-&gt;major &lt; <span class="number">0</span> || ip-&gt;major &gt;= NDEV))&#123;</span><br><span class="line">    iunlockput(ip);</span><br><span class="line">    end_op();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (ip-&gt;type == T_SYMLINK &amp;&amp; !(omode &amp; O_NOFOLLOW)) &#123;</span><br><span class="line">    <span class="keyword">if</span> ((ip = follow_symlink(ip)) == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">// iunlockput(ip); 如果失败的话，ip 已经被解锁了</span></span><br><span class="line">      end_op();</span><br><span class="line">      <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>((f = filealloc()) == <span class="number">0</span> || (fd = fdalloc(f)) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(f)</span><br><span class="line">      fileclose(f);</span><br><span class="line">    iunlockput(ip);</span><br><span class="line">    end_op();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(ip-&gt;type == T_DEVICE)&#123;</span><br><span class="line">    f-&gt;type = FD_DEVICE;</span><br><span class="line">    f-&gt;major = ip-&gt;major;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    f-&gt;type = FD_INODE;</span><br><span class="line">    f-&gt;off = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  f-&gt;ip = ip;</span><br><span class="line">  f-&gt;readable = !(omode &amp; O_WRONLY);</span><br><span class="line">  f-&gt;writable = (omode &amp; O_WRONLY) || (omode &amp; O_RDWR);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>((omode &amp; O_TRUNC) &amp;&amp; ip-&gt;type == T_FILE)&#123;</span><br><span class="line">    itrunc(ip);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  iunlock(ip);</span><br><span class="line">  end_op();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> fd;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在 Makefile 中添加 symlinktest 用于测试</li>
+</ul>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">UPROGS=\</span><br><span class="line">	<span class="comment"># ...</span></span><br><span class="line">	$U/_symlinktest\</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>make clean &amp;&amp; make qemu &amp;&amp; symlinktest</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908203942303.png" class="" title="image-20240908203942303">
+
+<ul>
+<li><strong>usertests -q</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908204344539.png" class="" title="image-20240908204344539">
+
+<ul>
+<li><strong>.&#x2F;grade-lab-fs symlinktest</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908204412315.png" class="" title="image-20240908204412315">
+
+<h1 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h1><ul>
+<li><strong>make grade</strong></li>
+</ul>
+<img src="/2024/09/07/6-S081-Lab9/image-20240908205225879.png" class="" title="image-20240908205225879">
+
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/LostUnravel/article/details/121431163">MIT 6.S081] Lab 9: file system_操作系统 mit 6.s081 lab9: file system-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/duile/p/16456046.html#%E5%8F%82%E8%80%83%E6%9D%90%E6%96%99">MIT6.S081-Lab9 FS 2021Fall] - duile - 博客园 (cnblogs.com)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-s081/" rel="tag"># 6.s081</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/09/04/xv6-book-chapter-9/" rel="prev" title="xv6 book chapter 9">
+      <i class="fa fa-chevron-left"></i> xv6 book chapter 9
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/09/15/6-S081-Lab10/" rel="next" title="6.S081 Lab10">
+      6.S081 Lab10 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Large-files"><span class="nav-number">2.</span> <span class="nav-text">Large files</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Symbolic-links"><span class="nav-number">3.</span> <span class="nav-text">Symbolic links</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Test"><span class="nav-number">4.</span> <span class="nav-text">Test</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yiweiBoi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yiweiBoi</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
